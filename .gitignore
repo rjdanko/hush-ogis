@@ -1,0 +1,21 @@
+# deps
+node_modules/
+.pnp.*
+# python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+# env / secrets (SR-2)
+.env
+.env.*
+!.env.example
+# builds
+.next/
+dist/
+build/
+.expo/
+*.tsbuildinfo
+# os / editor
+.DS_Store
+Thumbs.db

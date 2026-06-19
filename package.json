@@ -1,0 +1,24 @@
+{
+  "name": "hush",
+  "private": true,
+  "version": "0.0.0",
+  "workspaces": [
+    "apps/dashboard",
+    "apps/mobile",
+    "packages/shared-types",
+    "packages/config"
+  ],
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:dashboard": "npm run dev --workspace apps/dashboard",
+    "dev:mobile": "npm run start --workspace apps/mobile",
+    "dev:ai": "bash scripts/run-ai.sh",
+    "audit:js": "npm audit --audit-level=high",
+    "audit:py": "bash scripts/audit-py.sh",
+    "audit": "npm run audit:js && npm run audit:py",
+    "typecheck": "tsc -b"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0"
+  }
+}
