@@ -1,8 +1,0 @@
-pyproject.toml
-app/__init__.py
-hush_ai_service.egg-info/PKG-INFO
-hush_ai_service.egg-info/SOURCES.txt
-hush_ai_service.egg-info/dependency_links.txt
-hush_ai_service.egg-info/requires.txt
-hush_ai_service.egg-info/top_level.txt
-tests/test_health.py
