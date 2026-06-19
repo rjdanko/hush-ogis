@@ -164,7 +164,7 @@ git commit -m "test: add pgTAP test-user fixture helper for RLS tests"
 ```sql
 -- supabase/tests/database/001_users_rls.sql
 begin;
-select plan(4);
+select plan(5);
 
 select tests.create_test_user('11111111-1111-1111-1111-111111111111'::uuid);
 select tests.create_test_user('22222222-2222-2222-2222-222222222222'::uuid);
@@ -187,7 +187,7 @@ select is(
 select throws_ok(
   $$ update public.users set role = 'admin' where id = '11111111-1111-1111-1111-111111111111' $$,
   'P0001',
-  'role change blocked',
+  null,
   'user A cannot self-promote role to admin (privilege escalation guard)'
 );
 
@@ -195,6 +195,24 @@ select isnt(
   (select role::text from public.users where id = '11111111-1111-1111-1111-111111111111'),
   'admin',
   'role column was not changed by the blocked update'
+);
+
+-- a direct superuser session (no JWT claims, auth.role() is null -- the
+-- shape of supabase/seed/seed.sql's own role-promotion update) must still be
+-- able to change role; only authenticated/anon clients are blocked. Pin this
+-- down so a future tightening of the trigger can't silently break seeding
+-- without a test pointing at the cause.
+-- `reset role` alone is not enough: request.jwt.claims was set with
+-- is_local=true (transaction-scoped), so it survives a role switch -- it
+-- must be cleared explicitly or auth.role() still reads the earlier claim.
+reset role;
+select set_config('request.jwt.claims', '', true);
+update public.users set role = 'operator' where id = '22222222-2222-2222-2222-222222222222';
+
+select is(
+  (select role::text from public.users where id = '22222222-2222-2222-2222-222222222222'),
+  'operator',
+  'a superuser/seed session (auth.role() is null) can still change role'
 );
 
 select * from finish();
@@ -1137,9 +1155,18 @@ values (
 )
 on conflict (id) do update set geofence = excluded.geofence;
 
-insert into public.rewards (zone_id, name, points_cost)
-values ('00000000-0000-0000-0000-00000000000a', 'Free coffee', 50)
-on conflict do nothing;
+-- fixed id (matching the operator/zone rows above) so re-running this seed
+-- outside of `db reset` doesn't insert a duplicate row -- gen_random_uuid()
+-- never collides with itself, so `on conflict do nothing` without an explicit
+-- id was not actually idempotent.
+insert into public.rewards (id, zone_id, name, points_cost)
+values (
+  '00000000-0000-0000-0000-00000000000b',
+  '00000000-0000-0000-0000-00000000000a',
+  'Free coffee',
+  50
+)
+on conflict (id) do update set points_cost = excluded.points_cost;
 ```
 
 Note: `update public.users set role = 'operator' ...` runs as the seed script's own Postgres role (the CLI applies seeds as the `postgres` superuser, which bypasses RLS and is exempt from the `users_prevent_role_escalation` trigger's `auth.role()` check since there is no `request.jwt.claims` set — `auth.role()` returns null, and the trigger only blocks when a row's `role` is *changing* under a non-`service_role` JWT; a superuser session with no JWT claims at all does not go through PostgREST's RLS path. If this seed step errors with the escalation-guard exception when running via `supabase db reset`, change the trigger's condition in `0002_roles_and_users.sql` to also allow `auth.role() is null` (direct Postgres/superuser sessions), since RLS already restricts non-superuser authenticated/anon access to this table.

@@ -1,6 +1,6 @@
 -- supabase/tests/database/001_users_rls.sql
 begin;
-select plan(4);
+select plan(5);
 
 select tests.create_test_user('11111111-1111-1111-1111-111111111111'::uuid);
 select tests.create_test_user('22222222-2222-2222-2222-222222222222'::uuid);
@@ -31,6 +31,24 @@ select isnt(
   (select role::text from public.users where id = '11111111-1111-1111-1111-111111111111'),
   'admin',
   'role column was not changed by the blocked update'
+);
+
+-- a direct superuser session (no JWT claims, auth.role() is null -- the
+-- shape of supabase/seed/seed.sql's own role-promotion update) must still be
+-- able to change role; only authenticated/anon clients are blocked. Pin this
+-- down so a future tightening of the trigger can't silently break seeding
+-- without a test pointing at the cause.
+-- `reset role` alone is not enough: request.jwt.claims was set with
+-- is_local=true (transaction-scoped), so it survives a role switch -- it
+-- must be cleared explicitly or auth.role() still reads the earlier claim.
+reset role;
+select set_config('request.jwt.claims', '', true);
+update public.users set role = 'operator' where id = '22222222-2222-2222-2222-222222222222';
+
+select is(
+  (select role::text from public.users where id = '22222222-2222-2222-2222-222222222222'),
+  'operator',
+  'a superuser/seed session (auth.role() is null) can still change role'
 );
 
 select * from finish();

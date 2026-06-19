@@ -33,6 +33,15 @@ values (
 )
 on conflict (id) do update set geofence = excluded.geofence;
 
-insert into public.rewards (zone_id, name, points_cost)
-values ('00000000-0000-0000-0000-00000000000a', 'Free coffee', 50)
-on conflict do nothing;
+-- fixed id (matching the operator/zone rows above) so re-running this seed
+-- outside of `db reset` doesn't insert a duplicate row -- gen_random_uuid()
+-- never collides with itself, so `on conflict do nothing` without an explicit
+-- id was not actually idempotent.
+insert into public.rewards (id, zone_id, name, points_cost)
+values (
+  '00000000-0000-0000-0000-00000000000b',
+  '00000000-0000-0000-0000-00000000000a',
+  'Free coffee',
+  50
+)
+on conflict (id) do update set points_cost = excluded.points_cost;
