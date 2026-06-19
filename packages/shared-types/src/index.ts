@@ -1,3 +1,10 @@
-// Shared contracts for Hush. Full Zone/Session/ScorePing types are authored in
-// Phase 1 from the DB schema so the three apps can never drift.
-export const SHARED_TYPES_VERSION = "0.0.0" as const;
+// Shared contracts for Hush. Types are authored from the Phase 1 DB schema
+// (supabase/migrations/0002-0009) so the three apps can never drift.
+export * from "./user";
+export * from "./operator";
+export * from "./zone";
+export * from "./session";
+export * from "./score-ping";
+export * from "./quiet-index";
+export * from "./reward";
+export * from "./wallet-ledger";
