@@ -1,0 +1,7 @@
+project_id = "hush-local"
+
+[db]
+major_version = 15
+
+[api]
+enabled = true
