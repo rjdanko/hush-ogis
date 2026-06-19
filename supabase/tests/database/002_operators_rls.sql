@@ -5,8 +5,9 @@ select plan(2);
 select tests.create_test_user('33333333-3333-3333-3333-333333333333'::uuid);
 select tests.create_test_user('44444444-4444-4444-4444-444444444444'::uuid);
 
-insert into public.operators (id, venue_name)
-values ('33333333-3333-3333-3333-333333333333', 'Demo Cafe Ops')
+insert into public.operators (id, venue_name) values
+  ('33333333-3333-3333-3333-333333333333', 'Demo Cafe Ops'),
+  ('44444444-4444-4444-4444-444444444444', 'Other Venue Ops')
 on conflict do nothing;
 
 set local role authenticated;
@@ -21,7 +22,7 @@ select is(
 select is(
   (select count(*)::int from public.operators where id = '44444444-4444-4444-4444-444444444444'),
   0,
-  'operator X cannot select operator Y row (IDOR guard) — note: operator 44444444 has no operators row yet, this also covers the not-found case'
+  'operator X cannot select operator Y row, which does exist (IDOR guard)'
 );
 
 select * from finish();
