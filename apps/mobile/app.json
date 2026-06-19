@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "Hush",
+    "slug": "hush",
+    "version": "0.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "android": { "package": "com.hush.app" },
+    "newArchEnabled": true
+  }
+}
