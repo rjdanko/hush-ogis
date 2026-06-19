@@ -228,19 +228,19 @@ Quiet Index forecasting, adaptive per-zone threshold/reward tuning, and (consent
 
 ### 9.1 Data flow (check-in lifecycle)
 1. User opens map → app subscribes to nearby zones' Realtime channels → zones glow by current Quiet Index.
-2. User enters geofence → check-in with a silence commitment.
+2. User enters geofence → check-in with an optional quiet intention (not a pass/fail commitment).
 3. On-device agent computes a rolling silence score; pushes only the `0–100` value periodically.
 4. Backend aggregates active users (≥ quorum) → recomputes zone Quiet Index → broadcasts to app + dashboard.
-5. On check-out → session summary; if threshold met → reward disbursed to wallet.
+5. On check-out → session summary; points accrue continuously from verified disconnection signals (server-side, Phase 6), not from completing a fixed goal.
 6. Weekly → FastAPI pulls aggregated metrics → Claude generates operator digest.
 
 ### 9.2 Core data model (sketch)
 - `users` (id, anon handle, prefs)
 - `zones` (id, operator_id, name, **geofence: PostGIS polygon**, silence_contract, reward_config)
-- `sessions` (id, user_id, zone_id, start, end, committed_minutes, achieved_minutes, final_score)
+- `sessions` (id, user_id, zone_id, start, end, intended_minutes — optional quiet intention, achieved_minutes, final_score)
 - `score_pings` (session_id, ts, score) — *aggregate-only retention; prunable*
 - `quiet_index` (zone_id, ts, value, active_count) — time-series rollup
-- `rewards` (id, zone_id, name, points_cost) / `wallet_ledger` (user_id, delta, reason)
+- `rewards` (id, zone_id, name, points_cost) / `wallet_ledger` (user_id, delta, reason, metadata — accrual context for Phase 6)
 - `operators` (id, venue, badge_token)
 
 ---
