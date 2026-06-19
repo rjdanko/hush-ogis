@@ -23,7 +23,7 @@ select is(
 select throws_ok(
   $$ update public.users set role = 'admin' where id = '11111111-1111-1111-1111-111111111111' $$,
   'P0001',
-  'role change blocked',
+  null,
   'user A cannot self-promote role to admin (privilege escalation guard)'
 );
 

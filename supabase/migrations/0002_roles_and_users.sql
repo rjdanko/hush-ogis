@@ -23,7 +23,11 @@ create policy "users_update_own" on public.users
 create policy "users_insert_own" on public.users
   for insert with check (id = auth.uid());
 
--- privilege-escalation guard: only service_role may change a user's role
+-- privilege-escalation guard: only service_role may change a user's role.
+-- NOTE: a direct superuser session (e.g. supabase/seed/seed.sql, no JWT claims set)
+-- has auth.role() = null, which this check currently blocks too. Task 11's seed
+-- script promotes the demo operator's role and will need this condition relaxed
+-- to also allow auth.role() is null.
 create or replace function public.prevent_role_self_escalation()
 returns trigger
 language plpgsql
