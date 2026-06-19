@@ -39,3 +39,11 @@ revoke truncate on public.quiet_index from anon, authenticated;
 
 alter default privileges for role postgres in schema public
   revoke truncate on tables from anon, authenticated;
+
+-- PostGIS-owned system tables (spatial_ref_sys, geometry_columns,
+-- geography_columns) are deliberately left out of the revoke above: they
+-- hold no Hush application data, have RLS disabled, are extension-owned
+-- reference/catalog data, and predate this migration's default-privilege
+-- change (which is not retroactive). Revoking TRUNCATE on them risks
+-- interfering with PostGIS's own extension-upgrade/dump tooling for no
+-- security benefit.
