@@ -12,7 +12,7 @@ insert into public.zones (id, operator_id, name, geofence) values (
   'Zone',
   st_geogfromtext('POLYGON((0 0, 0 1, 1 1, 1 0, 0 0))')
 );
-insert into public.sessions (id, user_id, zone_id, committed_minutes) values (
+insert into public.sessions (id, user_id, zone_id, intended_minutes) values (
   'ffffffff-ffff-ffff-ffff-ffffffffffff',
   'cccccccc-cccc-cccc-cccc-cccccccccccc',
   'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee',

@@ -1,6 +1,6 @@
 -- supabase/tests/database/004_sessions_rls.sql
 begin;
-select plan(3);
+select plan(4);
 
 select tests.create_test_user('88888888-8888-8888-8888-888888888888'::uuid);
 select tests.create_test_user('99999999-9999-9999-9999-999999999999'::uuid);
@@ -12,7 +12,7 @@ insert into public.zones (id, operator_id, name, geofence) values (
   'Zone',
   st_geogfromtext('POLYGON((0 0, 0 1, 1 1, 1 0, 0 0))')
 );
-insert into public.sessions (id, user_id, zone_id, committed_minutes) values (
+insert into public.sessions (id, user_id, zone_id, intended_minutes) values (
   'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
   '88888888-8888-8888-8888-888888888888',
   'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
@@ -29,7 +29,7 @@ select is(
 );
 
 select throws_ok(
-  $$ insert into public.sessions (user_id, zone_id, committed_minutes)
+  $$ insert into public.sessions (user_id, zone_id, intended_minutes)
      values ('88888888-8888-8888-8888-888888888888', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 10) $$,
   '42501',
   null,
@@ -42,13 +42,22 @@ select throws_ok(
 select results_eq(
   $$
     with updated as (
-      update public.sessions set committed_minutes = 1
+      update public.sessions set intended_minutes = 1
       where id = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
       returning 1
     ) select count(*)::int from updated
   $$,
   $$ select 0 $$,
   'user B cannot update user A''s session (IDOR guard: 0 rows affected)'
+);
+
+-- A quiet intention is optional now: points accrue later from verified
+-- disconnection (Phase 6), not from completing a fixed committed goal, so a
+-- session must be insertable with no intended_minutes at all.
+select lives_ok(
+  $$ insert into public.sessions (user_id, zone_id, intended_minutes)
+     values ('99999999-9999-9999-9999-999999999999', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', null) $$,
+  'a session can be created with no quiet intention (intended_minutes is optional)'
 );
 
 select * from finish();
