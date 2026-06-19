@@ -1,0 +1,21 @@
+[project]
+name = "hush-ai-service"
+version = "0.0.0"
+description = "Hush FastAPI service: Claude orchestration + Quiet Index helpers"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "pydantic>=2.9",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3",
+    "httpx>=0.27",
+    "pip-audit>=2.7",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
