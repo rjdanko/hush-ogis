@@ -1,7 +1,9 @@
 create table public.wallet_ledger (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.users(id) on delete cascade,
-  delta int not null,
+  -- a zero delta is never a legitimate ledger entry (credit/debit amount is
+  -- business logic Phase 6 owns, but "did nothing" is universally invalid)
+  delta int not null check (delta <> 0),
   reason text not null,
   created_at timestamptz not null default now()
 );
