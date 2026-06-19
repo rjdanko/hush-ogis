@@ -4,6 +4,7 @@ create table public.sessions (
   zone_id uuid not null references public.zones(id) on delete cascade,
   start_ts timestamptz not null default now(),
   end_ts timestamptz,
+  -- max 8 hours: longest plausible single silence commitment
   committed_minutes int not null check (committed_minutes > 0 and committed_minutes <= 480),
   achieved_minutes int check (achieved_minutes >= 0),
   final_score int check (final_score between 0 and 100),
@@ -22,5 +23,8 @@ create policy "sessions_select_own" on public.sessions
 create policy "sessions_insert_own" on public.sessions
   for insert with check (user_id = auth.uid());
 
+-- no explicit WITH CHECK: Postgres reuses the USING expression for
+-- WITH CHECK on UPDATE policies, so this also blocks reassigning
+-- user_id to another user on update.
 create policy "sessions_update_own" on public.sessions
   for update using (user_id = auth.uid());
