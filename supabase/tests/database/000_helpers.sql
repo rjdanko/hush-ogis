@@ -6,7 +6,7 @@ create schema if not exists tests;
 create or replace function tests.create_test_user(p_id uuid default gen_random_uuid())
 returns uuid
 language plpgsql
-security definer
+security definer set search_path = pg_catalog, auth
 as $$
 begin
   insert into auth.users (
