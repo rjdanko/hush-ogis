@@ -14,12 +14,13 @@ export interface GeoJsonPolygon {
 // itself is present and non-null. These interfaces are the app-level contract
 // the three Hush apps agree to read/write; they are not DB constraints.
 export interface SilenceContract {
-  committed_minutes: number;
+  suggested_minutes?: number;
 }
 
 export interface RewardConfig {
-  reward_name: string;
-  zone_hours_required: number;
+  earn_rate_per_quiet_minute: number;
+  min_score_for_earning: number;
+  daily_point_cap?: number;
 }
 
 export interface Zone {

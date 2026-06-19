@@ -4,5 +4,6 @@ export interface WalletLedgerEntry {
   userId: string;
   delta: number;
   reason: string;
+  metadata: Record<string, unknown>;
   createdAt: string;
 }

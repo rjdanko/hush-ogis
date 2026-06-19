@@ -28,8 +28,8 @@ values (
   '00000000-0000-0000-0000-000000000001',
   'Demo Cafe',
   st_geogfromtext('POLYGON((121.05 14.55, 121.05 14.56, 121.06 14.56, 121.06 14.55, 121.05 14.55))'),
-  '{"committed_minutes": 45}'::jsonb,
-  '{"reward_name": "Free coffee", "zone_hours_required": 5}'::jsonb
+  '{"suggested_minutes": 45}'::jsonb,
+  '{"earn_rate_per_quiet_minute": 1, "min_score_for_earning": 70, "daily_point_cap": 120}'::jsonb
 )
 on conflict (id) do update set geofence = excluded.geofence;
 

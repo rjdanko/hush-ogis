@@ -5,7 +5,7 @@ export interface Session {
   zoneId: string;
   startTs: string;
   endTs: string | null;
-  committedMinutes: number;
+  intendedMinutes: number | null;
   achievedMinutes: number | null;
   finalScore: number | null;
   createdAt: string;
