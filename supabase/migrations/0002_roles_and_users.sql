@@ -23,17 +23,20 @@ create policy "users_update_own" on public.users
 create policy "users_insert_own" on public.users
   for insert with check (id = auth.uid());
 
--- privilege-escalation guard: only service_role may change a user's role.
--- NOTE: a direct superuser session (e.g. supabase/seed/seed.sql, no JWT claims set)
--- has auth.role() = null, which this check currently blocks too. Task 11's seed
--- script promotes the demo operator's role and will need this condition relaxed
--- to also allow auth.role() is null.
+-- privilege-escalation guard: only service_role (or a direct superuser/seed
+-- session with no JWT claims at all, where auth.role() is null) may change a
+-- user's role. Any authenticated client session still has auth.role() =
+-- 'authenticated' and remains blocked, preserving the original security
+-- property (see 001_users_rls.sql assertion 3). Superuser sessions bypass RLS
+-- anyway, so this trigger was the only thing standing in the way of
+-- migrations/seeds/admin tooling — relaxed here to unblock
+-- supabase/seed/seed.sql's demo-operator role promotion (Task 11).
 create or replace function public.prevent_role_self_escalation()
 returns trigger
 language plpgsql
 as $$
 begin
-  if new.role is distinct from old.role and coalesce(auth.role(), '') <> 'service_role' then
+  if new.role is distinct from old.role and auth.role() is not null and auth.role() <> 'service_role' then
     raise exception 'role change blocked';
   end if;
   return new;
