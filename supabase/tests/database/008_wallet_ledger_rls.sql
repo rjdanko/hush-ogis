@@ -5,8 +5,13 @@ select tests.create_test_user('70707070-7070-7070-7070-707070707070'::uuid);
 select tests.create_test_user('80808080-8080-8080-8080-808080808080'::uuid);
 
 reset role;
-insert into public.wallet_ledger (user_id, delta, reason)
-values ('70707070-7070-7070-7070-707070707070', 50, 'session reward');
+insert into public.wallet_ledger (user_id, delta, reason, metadata)
+values (
+  '70707070-7070-7070-7070-707070707070',
+  50,
+  'quiet_minute_accrual',
+  '{"session_id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", "eligible_minutes": 25}'::jsonb
+);
 
 set local role authenticated;
 select tests.authenticate_as('80808080-8080-8080-8080-808080808080'::uuid);

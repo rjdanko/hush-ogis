@@ -5,6 +5,7 @@ create table public.wallet_ledger (
   -- business logic Phase 6 owns, but "did nothing" is universally invalid)
   delta int not null check (delta <> 0),
   reason text not null,
+  metadata jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now()
 );
 
