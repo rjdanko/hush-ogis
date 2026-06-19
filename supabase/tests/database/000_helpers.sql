@@ -2,6 +2,7 @@
 create extension if not exists pgtap;
 
 create schema if not exists tests;
+grant usage on schema tests to authenticated, anon;
 
 create or replace function tests.create_test_user(p_id uuid default gen_random_uuid())
 returns uuid
