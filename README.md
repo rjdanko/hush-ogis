@@ -26,3 +26,11 @@ npm run dev                   # boots dashboard + mobile + ai-service
 - No secrets in any client bundle (SR-2). Clients use only the Supabase **anon** key.
   The service-role key and Claude key live only in `apps/ai-service` env.
 - Run `npm run audit` before submission (SR-14).
+
+### Audit baseline (as of Phase 0)
+- `pip-audit`: **clean** (no known vulnerabilities).
+- `npm audit --audit-level=high`: 6 high / 23 moderate, **all transitive build-time
+  deps of the Expo SDK 52 toolchain** (`@xmldom/xmldom`, `tar` via `@expo/cli` /
+  `@expo/prebuild-config`). None come from app code and none ship in a client bundle.
+  Fix path is an Expo SDK upgrade (not `audit fix --force`, which downgrades to a
+  canary); tracked for the Phase 10 hardening sweep.
