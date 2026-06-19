@@ -866,7 +866,7 @@ git commit -m "feat(db): add quiet_index table — public read, service-role-onl
 ```sql
 -- supabase/tests/database/007_rewards_rls.sql
 begin;
-select plan(2);
+select plan(4);
 
 select tests.create_test_user('30303030-3030-3030-3030-303030303030'::uuid);
 select tests.create_test_user('40404040-4040-4040-4040-404040404040'::uuid);
@@ -913,6 +913,29 @@ select results_eq(
   'operator B cannot edit operator A''s reward (IDOR guard: 0 rows affected)'
 );
 
+-- a blocked INSERT has no existing row for RLS to silently filter -- the
+-- WITH CHECK clause rejects the new row outright, which does raise 42501
+-- (same reasoning as sessions/score_pings INSERT guards).
+select throws_ok(
+  $$ insert into public.rewards (zone_id, name, points_cost)
+     values ('50505050-5050-5050-5050-505050505050', 'Free pastry', 10) $$,
+  '42501',
+  null,
+  'operator B cannot insert a reward into operator A''s zone'
+);
+
+select results_eq(
+  $$
+    with deleted as (
+      delete from public.rewards
+      where id = '60606060-6060-6060-6060-606060606060'
+      returning 1
+    ) select count(*)::int from deleted
+  $$,
+  $$ select 0 $$,
+  'operator B cannot delete operator A''s reward (IDOR guard: 0 rows affected)'
+);
+
 select * from finish();
 rollback;
 ```
@@ -936,16 +959,30 @@ create table public.rewards (
 
 alter table public.rewards enable row level security;
 
+grant select, insert, update, delete on public.rewards to authenticated;
+
 create policy "rewards_select_all" on public.rewards
   for select to authenticated using (true);
 
-create policy "rewards_write_own_zone" on public.rewards
-  for all using (
-    exists (select 1 from public.zones z where z.id = rewards.zone_id and z.operator_id = auth.uid())
-  )
-  with check (
+-- split per-operation (rather than one FOR ALL policy) for consistency with
+-- operators/zones/sessions, and so a future requirement that diverges
+-- insert/update/delete rules is a one-line edit, not a policy split.
+create policy "rewards_insert_own_zone" on public.rewards
+  for insert with check (
     exists (select 1 from public.zones z where z.id = rewards.zone_id and z.operator_id = auth.uid())
   );
+
+create policy "rewards_update_own_zone" on public.rewards
+  for update using (
+    exists (select 1 from public.zones z where z.id = rewards.zone_id and z.operator_id = auth.uid())
+  );
+
+create policy "rewards_delete_own_zone" on public.rewards
+  for delete using (
+    exists (select 1 from public.zones z where z.id = rewards.zone_id and z.operator_id = auth.uid())
+  );
+
+revoke truncate on public.rewards from anon, authenticated;
 ```
 
 - [ ] **Step 4: Apply and re-run**
@@ -955,7 +992,7 @@ Run:
 npx supabase db reset
 npx supabase test db
 ```
-Expected: PASS — 2/2 assertions ok for `007_rewards_rls.sql`.
+Expected: PASS — 4/4 assertions ok for `007_rewards_rls.sql`.
 
 - [ ] **Step 5: Commit**
 

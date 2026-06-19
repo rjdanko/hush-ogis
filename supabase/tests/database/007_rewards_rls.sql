@@ -1,5 +1,5 @@
 begin;
-select plan(2);
+select plan(4);
 
 select tests.create_test_user('30303030-3030-3030-3030-303030303030'::uuid);
 select tests.create_test_user('40404040-4040-4040-4040-404040404040'::uuid);
@@ -44,6 +44,29 @@ select results_eq(
   $$,
   $$ select 0 $$,
   'operator B cannot edit operator A''s reward (IDOR guard: 0 rows affected)'
+);
+
+-- a blocked INSERT has no existing row for RLS to silently filter -- the
+-- WITH CHECK clause rejects the new row outright, which does raise 42501
+-- (same reasoning as sessions/score_pings INSERT guards).
+select throws_ok(
+  $$ insert into public.rewards (zone_id, name, points_cost)
+     values ('50505050-5050-5050-5050-505050505050', 'Free pastry', 10) $$,
+  '42501',
+  null,
+  'operator B cannot insert a reward into operator A''s zone'
+);
+
+select results_eq(
+  $$
+    with deleted as (
+      delete from public.rewards
+      where id = '60606060-6060-6060-6060-606060606060'
+      returning 1
+    ) select count(*)::int from deleted
+  $$,
+  $$ select 0 $$,
+  'operator B cannot delete operator A''s reward (IDOR guard: 0 rows affected)'
 );
 
 select * from finish();

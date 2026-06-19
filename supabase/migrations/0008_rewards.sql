@@ -19,11 +19,21 @@ grant select, insert, update, delete on public.rewards to authenticated;
 create policy "rewards_select_all" on public.rewards
   for select to authenticated using (true);
 
-create policy "rewards_write_own_zone" on public.rewards
-  for all using (
+-- split per-operation (rather than one FOR ALL policy) for consistency with
+-- operators/zones/sessions, and so a future requirement that diverges
+-- insert/update/delete rules is a one-line edit, not a policy split.
+create policy "rewards_insert_own_zone" on public.rewards
+  for insert with check (
     exists (select 1 from public.zones z where z.id = rewards.zone_id and z.operator_id = auth.uid())
-  )
-  with check (
+  );
+
+create policy "rewards_update_own_zone" on public.rewards
+  for update using (
+    exists (select 1 from public.zones z where z.id = rewards.zone_id and z.operator_id = auth.uid())
+  );
+
+create policy "rewards_delete_own_zone" on public.rewards
+  for delete using (
     exists (select 1 from public.zones z where z.id = rewards.zone_id and z.operator_id = auth.uid())
   );
 
