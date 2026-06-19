@@ -17,3 +17,25 @@ create policy "quiet_index_select_all" on public.quiet_index
 -- deliberately no insert/update/delete grant or policy: only service_role
 -- (bypasses RLS and grants entirely) may write rollups, enforced server-side
 -- by the Phase 5 aggregation engine (SR-10)
+
+-- TRUNCATE bypasses Row-Level Security entirely (Postgres never evaluates RLS
+-- policies for TRUNCATE), so a table can be fully wiped by any role holding
+-- the TRUNCATE privilege regardless of its RLS policies or the absence of
+-- insert/update/delete grants. The local stack's default ACL for the
+-- `postgres` role (the role our migrations run as) silently grants TRUNCATE
+-- on every newly created public table to `anon`/`authenticated` alongside
+-- references/trigger, with no explicit GRANT statement anywhere in this
+-- repo's migrations. This is a quiet_index-specific landmine (SR-10 depends
+-- on this table being fully unwritable by any client) but the underlying
+-- default ACL gap affects every public table created so far, so the fix is
+-- applied once, here, for all of them, plus the default itself so Tasks 9+
+-- don't reintroduce it on new tables.
+revoke truncate on public.users from anon, authenticated;
+revoke truncate on public.operators from anon, authenticated;
+revoke truncate on public.zones from anon, authenticated;
+revoke truncate on public.sessions from anon, authenticated;
+revoke truncate on public.score_pings from anon, authenticated;
+revoke truncate on public.quiet_index from anon, authenticated;
+
+alter default privileges for role postgres in schema public
+  revoke truncate on tables from anon, authenticated;

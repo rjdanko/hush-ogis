@@ -734,7 +734,7 @@ git commit -m "feat(db): add score_pings table scoped via owning session's user"
 ```sql
 -- supabase/tests/database/006_quiet_index_rls.sql
 begin;
-select plan(2);
+select plan(3);
 
 select tests.create_test_user('10101010-1010-1010-1010-101010101010'::uuid);
 insert into public.operators (id, venue_name) values ('10101010-1010-1010-1010-101010101010', 'Op')
@@ -770,6 +770,17 @@ select is(
   'any authenticated user can read the published quiet_index (public live score)'
 );
 
+-- TRUNCATE is not subject to RLS at all (Postgres never evaluates RLS
+-- policies for TRUNCATE) and Supabase's default ACL for the `postgres` role
+-- silently grants it on every new table to anon/authenticated. Confirm the
+-- revoke in this migration actually closes that hole.
+select throws_ok(
+  $$ truncate public.quiet_index $$,
+  '42501',
+  null,
+  'no authenticated client can TRUNCATE quiet_index (bypasses RLS entirely if not explicitly revoked)'
+);
+
 select * from finish();
 rollback;
 ```
@@ -794,11 +805,36 @@ create table public.quiet_index (
 alter table public.quiet_index enable row level security;
 
 -- public read: app map + dashboard live feed both display this
+grant select on public.quiet_index to authenticated;
+
 create policy "quiet_index_select_all" on public.quiet_index
   for select to authenticated using (true);
 
--- deliberately no insert/update/delete policy: only service_role (bypasses RLS)
--- may write rollups, enforced server-side by the Phase 5 aggregation engine (SR-10)
+-- deliberately no insert/update/delete grant or policy: only service_role
+-- (bypasses RLS and grants entirely) may write rollups, enforced server-side
+-- by the Phase 5 aggregation engine (SR-10)
+
+-- TRUNCATE bypasses Row-Level Security entirely (Postgres never evaluates RLS
+-- policies for TRUNCATE), so a table can be fully wiped by any role holding
+-- the TRUNCATE privilege regardless of its RLS policies or the absence of
+-- insert/update/delete grants. The local stack's default ACL for the
+-- `postgres` role (the role our migrations run as) silently grants TRUNCATE
+-- on every newly created public table to `anon`/`authenticated` alongside
+-- references/trigger, with no explicit GRANT statement anywhere in this
+-- repo's migrations. This is a quiet_index-specific landmine (SR-10 depends
+-- on this table being fully unwritable by any client) but the underlying
+-- default ACL gap affects every public table created so far, so the fix is
+-- applied once, here, for all of them, plus the default itself so Tasks 9+
+-- don't reintroduce it on new tables.
+revoke truncate on public.users from anon, authenticated;
+revoke truncate on public.operators from anon, authenticated;
+revoke truncate on public.zones from anon, authenticated;
+revoke truncate on public.sessions from anon, authenticated;
+revoke truncate on public.score_pings from anon, authenticated;
+revoke truncate on public.quiet_index from anon, authenticated;
+
+alter default privileges for role postgres in schema public
+  revoke truncate on tables from anon, authenticated;
 ```
 
 - [ ] **Step 4: Apply and re-run**
@@ -808,7 +844,7 @@ Run:
 npx supabase db reset
 npx supabase test db
 ```
-Expected: PASS — 2/2 assertions ok for `006_quiet_index_rls.sql`.
+Expected: PASS — 3/3 assertions ok for `006_quiet_index_rls.sql`.
 
 - [ ] **Step 5: Commit**
 

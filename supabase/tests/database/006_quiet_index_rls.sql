@@ -1,6 +1,6 @@
 -- supabase/tests/database/006_quiet_index_rls.sql
 begin;
-select plan(2);
+select plan(3);
 
 select tests.create_test_user('10101010-1010-1010-1010-101010101010'::uuid);
 insert into public.operators (id, venue_name) values ('10101010-1010-1010-1010-101010101010', 'Op')
@@ -34,6 +34,17 @@ select is(
   (select value::int from public.quiet_index where zone_id = '20202020-2020-2020-2020-202020202020'),
   80,
   'any authenticated user can read the published quiet_index (public live score)'
+);
+
+-- TRUNCATE is not subject to RLS at all (Postgres never evaluates RLS
+-- policies for TRUNCATE) and Supabase's default ACL for the `postgres` role
+-- silently grants it on every new table to anon/authenticated. Confirm the
+-- revoke in this migration actually closes that hole.
+select throws_ok(
+  $$ truncate public.quiet_index $$,
+  '42501',
+  null,
+  'no authenticated client can TRUNCATE quiet_index (bypasses RLS entirely if not explicitly revoked)'
 );
 
 select * from finish();
