@@ -21,3 +21,5 @@ build/
 # os / editor
 .DS_Store
 Thumbs.db
+# local agent state
+.claude/
