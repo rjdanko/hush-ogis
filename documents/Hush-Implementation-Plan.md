@@ -54,7 +54,7 @@ Phase 0  Foundation
           └─► Phase 3  Mobile core: map + zone + check-in
                  ├─► Phase 4  On-device silence agent
                  │      └─► Phase 5  Quiet Index engine + realtime
-                 │             ├─► Phase 6  Rewards + wallet + summary
+                 │             ├─► Phase 6  Continuous points + wallet + summary
                  │             └─► Phase 7  AI operator weekly digest
                  └─► Phase 8  Personal disconnection coach (on-device)
                               ↓
@@ -136,21 +136,21 @@ Phase 0  Foundation
 
 ## Phase 3 — Mobile Core: Map, Zone Discovery & Check-in (U1, U2) 🟢
 
-**Goal:** A user can open the app, see the seeded zone on a live map, and check in with a personal silence commitment.
+**Goal:** A user can open the app, see the seeded zone on a live map, and check in with an optional quiet intention that shapes the session without creating a pass/fail reward gate.
 
-**Modules:** mobile auth · zone map + glow · geofence/check-in · commitment setter · session lifecycle.
+**Modules:** mobile auth · zone map + glow · geofence/check-in · intention setter · session lifecycle.
 
 **Key tasks:**
 - Mobile auth (Supabase, anon or email for demo).
 - Map screen (U1): fetch nearby zones, render each as a glowing bloom sized/colored by current Quiet Index (static placeholder Index until Phase 5). Follow the Design Brief glow scale.
 - Geofence detection: is the user inside the zone polygon? Use device location + PostGIS point-in-polygon (parameterized, SR-6). Provide a manual-confirm fallback for demo reliability (U2).
-- Commitment setter (calm minutes dial) → creates a `sessions` row (start, committed_minutes).
+- Intention setter (calm minutes dial) → creates a `sessions` row with optional `intended_minutes`; users can skip or change the intention because points later accrue from verified disconnection, not from merely completing a fixed goal.
 - Check-out path closes the session (achieved_minutes placeholder until Phase 4).
 - Rate-limit check-in endpoint (SR-1); a user can only create sessions for themselves (SR-7).
 
-**Deliverable/demo:** Open app → see Demo Café glowing on the map → enter geofence (or confirm) → commit "20 min" → session is created and visible.
+**Deliverable/demo:** Open app → see Demo Café glowing on the map → enter geofence (or confirm) → set an optional "20 min" quiet intention → session is created and visible.
 
-**Exit criteria:** map renders real seeded zone; check-in creates an RLS-scoped session; user cannot create a session as another user (tested).
+**Exit criteria:** map renders real seeded zone; check-in creates an RLS-scoped session; `intended_minutes` is optional and does not control reward eligibility; user cannot create a session as another user (tested).
 
 **Security gates:** SR-1, SR-4, SR-6, SR-7.
 
@@ -160,7 +160,7 @@ Phase 0  Foundation
 
 ## Phase 4 — On-Device Silence Agent (U3, U4) 🟢 (Android)
 
-**Goal:** While checked in, the phone computes a private silence score and transmits **only** the 0–100 number.
+**Goal:** While checked in, the phone computes a private silence score and transmits **only** the 0–100 number that later drives continuous point accrual.
 
 **Modules:** native Android signal module · scoring function · minimal-ingest client · permission onboarding.
 
@@ -169,11 +169,12 @@ Phase 0  Foundation
 - Pure, unit-tested **scoring function**: signals → weighted, smoothed `0–100`. (This is the most testable unit — TDD it hard with fixture inputs.)
 - Permission onboarding UI in plain language; permissions revocable (SR / HR-P4).
 - Score-ingest client: POST **only** `{anon_session_token, zone_id, score, ts}` — nothing else (SR-9 / HR-P1/P2). The ingest endpoint **rejects any extra fields** (SR-4) and is rate-limited (SR-1).
+- Tag each accepted score ping as a candidate earning input for Phase 6. Do **not** credit points from the device; the client only reports the silence score, and the server later decides whether that score is eligible for points.
 - iOS fallback stub: Focus-mode + honor-system timer (documented limitation, PRD §7.2).
 
 **Deliverable/demo:** Check in, lock phone for a minute, unlock → the app shows a rising silence score; server received only the number (prove via logs that no content/app-names were sent).
 
-**Exit criteria:** scoring function unit tests pass across fixtures; ingest endpoint rejects over-posting; permission flow works; iOS path degrades gracefully.
+**Exit criteria:** scoring function unit tests pass across fixtures; ingest endpoint rejects over-posting; permission flow works; score pings are available for later server-side point accrual; iOS path degrades gracefully.
 
 **Security gates:** SR-1, SR-4, SR-9, and a test asserting the payload contains *only* the four allowed fields (privacy-by-construction).
 
@@ -183,7 +184,7 @@ Phase 0  Foundation
 
 ## Phase 5 — Quiet Index Engine & Realtime Broadcast (B1, B2) 🟢
 
-**Goal:** The server aggregates anonymized scores into a live Quiet Index and pushes it to app + dashboard within ≤60s.
+**Goal:** The server aggregates anonymized scores into a live Quiet Index and pushes it to app + dashboard within ≤60s, while preserving the same score stream as the source of truth for later point earning.
 
 **Modules:** aggregation engine · quorum guard · realtime channels · map/dashboard live binding.
 
@@ -191,11 +192,12 @@ Phase 0  Foundation
 - Quiet Index engine: weighted average of active sessions' latest scores, with decay; writes `quiet_index` rollups. Pure aggregation logic unit-tested.
 - **Quorum guard (SR-10):** only compute/broadcast when ≥3 active check-ins; enforced server-side, not bypassable by a client request. Test the boundary (2 → hidden, 3 → shown).
 - Realtime: publish Quiet Index over Supabase Realtime; mobile map blooms and dashboard live feed subscribe and update.
+- Keep Quiet Index aggregation separate from user wallet accounting: Quiet Index is public/aggregate; point accrual is private/per-user and introduced in Phase 6.
 - Latency check: change reflected within 60s (NFR).
 
 **Deliverable/demo:** Simulate 3+ sessions → dashboard live feed and app map both show the Quiet Index climbing in real time.
 
-**Exit criteria:** engine unit tests pass; quorum enforced (tested); realtime updates visible on both clients; ≤60s latency.
+**Exit criteria:** engine unit tests pass; quorum enforced (tested); realtime updates visible on both clients; score stream remains usable for Phase 6 accrual without exposing user-level behavior publicly; ≤60s latency.
 
 **Security gates:** SR-10 (server-side quorum), SR-1 (ingest still limited).
 
@@ -203,21 +205,23 @@ Phase 0  Foundation
 
 ---
 
-## Phase 6 — Rewards, Wallet & Session Summary (B3, U6, U7) 🟢
+## Phase 6 — Continuous Points, Wallet & Session Summary (B3, U6, U7) 🟢
 
-**Goal:** Meeting a silence threshold earns points; the user sees a calm check-out summary and a wallet they can redeem from.
+**Goal:** Verified signs of disconnection accumulate points over time; the user sees a calm session summary and a wallet they can redeem from.
 
-**Modules:** reward disbursement (server) · wallet ledger · redemption · session summary UI.
+**Modules:** point accrual engine (server) · wallet ledger · redemption · session summary UI.
 
 **Key tasks:**
-- Reward disbursement (B3): **server-verified** threshold check on check-out → write `wallet_ledger` credit. Never trust a client-claimed score (SR-8).
-- Wallet (U6): balance from ledger; list venue rewards; redeem flow writes a debit. Redemption is rate-limited and per-user scoped to prevent farming (SR-1/SR-7, risk R6).
-- Session summary (U7): minutes achieved, final silence score, simple trend, points earned — styled per Design Brief (quiet celebration, no confetti).
-- Anti-gaming: continuous geofence presence + periodic tap-to-stay-checked-in (risk R2).
+- Point accrual engine (B3): **server-verified** calculation from accepted score pings, elapsed in-zone time, geofence presence, and zone earning rules → write positive `wallet_ledger` credits. Never trust a client-claimed point amount (SR-8).
+- Define a simple MVP earning formula, for example: eligible quiet minute = score above threshold + active session + recent geofence confirmation; points = eligible quiet minutes × zone earn rate, capped per session/day. Keep the formula deterministic and unit-tested.
+- Credit points either periodically in small batches or once at check-out from server-side score history. For MVP, check-out crediting is simpler; the UI may still show an estimated live earning meter clearly marked as pending.
+- Wallet (U6): balance from ledger; list venue rewards; redeem flow writes a negative `wallet_ledger` debit and creates/logs a redemption event. Redemption is rate-limited and per-user scoped to prevent farming (SR-1/SR-7, risk R6).
+- Session summary (U7): quiet minutes, average/final silence score, simple trend, pending/awarded points, and redeemed reward state — styled per Design Brief (quiet celebration, no confetti).
+- Anti-gaming: continuous geofence presence + periodic tap-to-stay-checked-in + earning caps + no points for stale/low-confidence score streams (risk R2/R6).
 
-**Deliverable/demo:** Finish a qualifying session → summary screen → points land in wallet → redeem a reward → balance updates; redemptions are logged.
+**Deliverable/demo:** Stay quietly checked in → points accumulate from verified disconnection → check out to finalize award → summary screen → points land in wallet → redeem a reward → balance updates; redemptions are logged.
 
-**Exit criteria:** disbursement is server-verified (client cannot mint points — tested); redemption debits correctly; summary renders.
+**Exit criteria:** accrual is server-verified (client cannot mint points or inflate score history — tested); earning caps and geofence/presence checks apply; redemption debits correctly; summary renders.
 
 **Security gates:** SR-1, SR-7, SR-8, SR-13 (audit-log reward disbursement & redemption).
 
@@ -232,15 +236,15 @@ Phase 0  Foundation
 **Modules:** metrics aggregation endpoint · Claude prompt + schema · digest rendering.
 
 **Key tasks:**
-- FastAPI endpoint pulls **aggregated, anonymized** metrics only (Quiet Index trend, check-in counts, peak windows, redemptions) — no user-level data leaves the boundary.
+- FastAPI endpoint pulls **aggregated, anonymized** metrics only (Quiet Index trend, check-in counts, quiet-minute totals, point accrual totals, peak windows, redemptions) — no user-level data leaves the boundary.
 - Claude call: structured prompt → **JSON-schema'd response** for reliable rendering; `claude-haiku-4-5` default, `claude-opus-4-8` for the demo showcase. Claude key lives **only** in the service env (SR-2).
 - The endpoint requires a valid operator JWT and is scoped to that operator's zones (SR-3/SR-7); input validated with Pydantic (SR-4); rate-limited (SR-1).
 - Dashboard renders the digest as readable prose + a few suggestion cards.
 - Error hygiene: no stack traces/keys leaked to client on failure (SR-15).
 
-**Deliverable/demo:** Click "Generate weekly digest" on the dashboard → Claude-written summary + suggestions appear for the demo zone.
+**Deliverable/demo:** Click "Generate weekly digest" on the dashboard → Claude-written summary + suggestions appear for the demo zone, including how quiet-minute earning and redemptions are performing.
 
-**Exit criteria:** digest generates from aggregated data only; auth+validation enforced; failures return clean generic errors; key never client-exposed.
+**Exit criteria:** digest generates from aggregated data only; no per-user wallet or score history is sent to the LLM; auth+validation enforced; failures return clean generic errors; key never client-exposed.
 
 **Security gates:** SR-1, SR-2, SR-3, SR-4, SR-7, SR-15.
 
@@ -256,13 +260,13 @@ Phase 0  Foundation
 
 **Key tasks:**
 - Rule-based nudge engine running **on-device only** — operates on local signals from Phase 4; behavioural data never leaves the phone (HR-P1).
-- Curated message library keyed to events (phone picked up early, streak about to break, goal reached). Tone: encouraging, calm, **never guilt** (respects the freedom to reconnect — PRD §8.1).
+- Curated message library keyed to events (phone picked up early, quiet streak improving, intention nearly reached, points steadily accumulating, session complete). Tone: encouraging, calm, **never guilt** (respects the freedom to reconnect — PRD §8.1).
 - Nudge UI per Design Brief "anti-notification" coach card (soft, dismissible, low-urgency).
 - Unit-test the rule engine: given signal state X → expected nudge category Y (no network involved).
 
-**Deliverable/demo:** During a session, pick the phone up early → a gentle, supportive nudge appears (not a scolding).
+**Deliverable/demo:** During a session, pick the phone up early → a gentle, supportive nudge appears (not a scolding); return to quiet mode → the app can acknowledge that points are continuing to accrue.
 
-**Exit criteria:** rule engine unit tests pass; nudges fire on the right local events; nothing is transmitted; tone reviewed against the never-shaming rule.
+**Exit criteria:** rule engine unit tests pass; nudges fire on the right local events; point-related messages are framed as calm feedback, not pressure; nothing is transmitted; tone reviewed against the never-shaming rule.
 
 **Security gates:** privacy-by-construction (assert no network egress from the coach).
 
@@ -277,13 +281,13 @@ Phase 0  Foundation
 **Modules:** analytics charts · badge service.
 
 **Key tasks:**
-- Analytics (O3): historical Quiet Index trend (Recharts), peak quiet windows, digest panel (from Phase 7).
+- Analytics (O3): historical Quiet Index trend (Recharts), peak quiet windows, aggregate quiet minutes, aggregate points awarded/redeemed, digest panel (from Phase 7).
 - Live feed polish (O2).
 - Certification badge (O4): a **signed, short-TTL token** endpoint (SR-11) → embeddable SVG/iframe showing average Quiet Index. Test that a forged/stale value is rejected.
 
-**Deliverable/demo:** Operator views trend chart + digest; copies an embed snippet; the badge renders the real average and rejects tampering.
+**Deliverable/demo:** Operator views trend chart + digest + reward economics snapshot; copies an embed snippet; the badge renders the real average and rejects tampering.
 
-**Exit criteria:** charts render real history; badge token is signed + TTL-bounded (tested); embed works on an external page.
+**Exit criteria:** charts render real history; points/reward analytics are aggregate-only; badge token is signed + TTL-bounded (tested); embed works on an external page.
 
 **Security gates:** SR-11, SR-3, SR-7.
 
@@ -300,11 +304,11 @@ Phase 0  Foundation
 **Key tasks:**
 - **Full SR-* sweep:** verify SR-1 (rate limits on every endpoint), SR-2 (no secrets in any bundle — grep build output), SR-3 (auth on all internal/AI endpoints), SR-4 (validation everywhere), SR-6 (no string-interpolated SQL — grep), SR-7 (re-run IDOR negative tests), SR-8 (deny-by-default audit), SR-12 (delete-my-data works), SR-13 (audit logs present), SR-14 (`pip-audit`/`npm audit` clean), SR-15 (no leaked errors). Run `/security-review`.
 - Accessibility + reduced-motion pass (Design Brief §8).
-- Empty/edge states (no zones nearby; cold-start solo mode, risk R3).
-- Rehearse the PRD §12.4 demo script end-to-end on a real device.
-- Pitch assets: map glow screenshot, live Quiet Index, coach nudge, digest, badge.
+- Empty/edge states (no zones nearby; cold-start solo mode, risk R3; quiet session with too little signal confidence to award points).
+- Rehearse the PRD §12.4 demo script end-to-end on a real device, updated for continuous point accrual: check in → set optional intention → lock phone → Quiet Index climbs → points estimate grows → checkout finalizes award → redeem reward → digest.
+- Pitch assets: map glow screenshot, live Quiet Index, coach nudge, point accrual/wallet flow, digest, badge.
 
-**Deliverable/demo:** The full loop runs on a real Android device in ≤90s; security checklist fully green.
+**Deliverable/demo:** The full loop runs on a real Android device in ≤90s: verified disconnection produces Quiet Index updates and points, then the wallet redemption succeeds; security checklist fully green.
 
 **Exit criteria:** all `SR-*` gates pass; demo runs reliably; reduced-motion + empty states handled.
 
@@ -323,7 +327,7 @@ Phase 0  Foundation
 | U5 coach | 8 |
 | U6 wallet / U7 summary | 6 |
 | B1 Quiet Index / B2 realtime | 5 |
-| B3 rewards | 6 |
+| B3 continuous point accrual / rewards | 6 |
 | B5 weekly digest | 7 |
 | O1 zone setup / O5 rewards | 2 |
 | O2 live feed / O3 analytics / O4 badge | 9 |

@@ -521,7 +521,7 @@ git commit -m "feat(db): add zones table with PostGIS polygon, vertex cap, and o
 ```sql
 -- supabase/tests/database/004_sessions_rls.sql
 begin;
-select plan(3);
+select plan(4);
 
 select tests.create_test_user('88888888-8888-8888-8888-888888888888'::uuid);
 select tests.create_test_user('99999999-9999-9999-9999-999999999999'::uuid);
@@ -533,7 +533,7 @@ insert into public.zones (id, operator_id, name, geofence) values (
   'Zone',
   st_geogfromtext('POLYGON((0 0, 0 1, 1 1, 1 0, 0 0))')
 );
-insert into public.sessions (id, user_id, zone_id, committed_minutes) values (
+insert into public.sessions (id, user_id, zone_id, intended_minutes) values (
   'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
   '88888888-8888-8888-8888-888888888888',
   'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
@@ -550,7 +550,7 @@ select is(
 );
 
 select throws_ok(
-  $$ insert into public.sessions (user_id, zone_id, committed_minutes)
+  $$ insert into public.sessions (user_id, zone_id, intended_minutes)
      values ('88888888-8888-8888-8888-888888888888', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 10) $$,
   '42501',
   null,
@@ -563,13 +563,22 @@ select throws_ok(
 select results_eq(
   $$
     with updated as (
-      update public.sessions set committed_minutes = 1
+      update public.sessions set intended_minutes = 1
       where id = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
       returning 1
     ) select count(*)::int from updated
   $$,
   $$ select 0 $$,
   'user B cannot update user A''s session (IDOR guard: 0 rows affected)'
+);
+
+-- A quiet intention is optional now: points accrue later from verified
+-- disconnection (Phase 6), not from completing a fixed committed goal, so a
+-- session must be insertable with no intended_minutes at all.
+select lives_ok(
+  $$ insert into public.sessions (user_id, zone_id, intended_minutes)
+     values ('99999999-9999-9999-9999-999999999999', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', null) $$,
+  'a session can be created with no quiet intention (intended_minutes is optional)'
 );
 
 select * from finish();
@@ -591,8 +600,9 @@ create table public.sessions (
   zone_id uuid not null references public.zones(id) on delete cascade,
   start_ts timestamptz not null default now(),
   end_ts timestamptz,
-  -- max 8 hours: longest plausible single silence commitment
-  committed_minutes int not null check (committed_minutes > 0 and committed_minutes <= 480),
+  -- optional user intention; points are earned later from verified disconnection,
+  -- not from merely completing this target
+  intended_minutes int check (intended_minutes > 0 and intended_minutes <= 480),
   achieved_minutes int check (achieved_minutes >= 0),
   final_score int check (final_score between 0 and 100),
   created_at timestamptz not null default now()
@@ -624,14 +634,24 @@ Run:
 npx supabase db reset
 npx supabase test db
 ```
-Expected: PASS — 3/3 assertions ok for `004_sessions_rls.sql`.
+Expected: PASS — 4/4 assertions ok for `004_sessions_rls.sql`.
 
 - [ ] **Step 5: Commit**
 
 ```bash
 git add supabase/migrations/0005_sessions.sql supabase/tests/database/004_sessions_rls.sql
-git commit -m "feat(db): add sessions table with owner-scoped RLS"
+git commit -m "feat(db): add sessions table with optional quiet intention and owner-scoped RLS"
 ```
+
+> **Retroactive change (continuous point accrual):** per
+> `documents/Hush-Phase-1-Continuous-Points-Change.md`, the original Task 6
+> used a required `committed_minutes int not null` column with a pass/fail
+> reward gate implied by "commitment completed." This was changed to an
+> optional `intended_minutes int` (nullable) column, since points now accrue
+> continuously and server-side from verified disconnection signals (Phase 6),
+> not from completing a fixed committed goal. The test plan grew from 3 to 4
+> assertions to add a positive `lives_ok` case proving a session can be
+> created with `intended_minutes` omitted/null.
 
 ---
 
@@ -658,7 +678,7 @@ insert into public.zones (id, operator_id, name, geofence) values (
   'Zone',
   st_geogfromtext('POLYGON((0 0, 0 1, 1 1, 1 0, 0 0))')
 );
-insert into public.sessions (id, user_id, zone_id, committed_minutes) values (
+insert into public.sessions (id, user_id, zone_id, intended_minutes) values (
   'ffffffff-ffff-ffff-ffff-ffffffffffff',
   'cccccccc-cccc-cccc-cccc-cccccccccccc',
   'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee',
@@ -738,6 +758,13 @@ Expected: PASS — 2/2 assertions ok for `005_score_pings_rls.sql`.
 git add supabase/migrations/0006_score_pings.sql supabase/tests/database/005_score_pings_rls.sql
 git commit -m "feat(db): add score_pings table scoped via owning session's user"
 ```
+
+> **Retroactive change (continuous point accrual):** this test's setup
+> inserts a `sessions` row to attach `score_pings` to. When Task 6's
+> `committed_minutes` column was renamed to `intended_minutes` (see
+> `documents/Hush-Phase-1-Continuous-Points-Change.md`), this incidental
+> dependency was updated to match the new column name — no change to this
+> task's own RLS policies or assertions.
 
 ---
 
@@ -1038,8 +1065,13 @@ select tests.create_test_user('70707070-7070-7070-7070-707070707070'::uuid);
 select tests.create_test_user('80808080-8080-8080-8080-808080808080'::uuid);
 
 reset role;
-insert into public.wallet_ledger (user_id, delta, reason)
-values ('70707070-7070-7070-7070-707070707070', 50, 'session reward');
+insert into public.wallet_ledger (user_id, delta, reason, metadata)
+values (
+  '70707070-7070-7070-7070-707070707070',
+  50,
+  'quiet_minute_accrual',
+  '{"session_id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", "eligible_minutes": 25}'::jsonb
+);
 
 set local role authenticated;
 select tests.authenticate_as('80808080-8080-8080-8080-808080808080'::uuid);
@@ -1078,6 +1110,7 @@ create table public.wallet_ledger (
   -- business logic Phase 6 owns, but "did nothing" is universally invalid)
   delta int not null check (delta <> 0),
   reason text not null,
+  metadata jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now()
 );
 
@@ -1109,6 +1142,16 @@ Expected: PASS — all test files green (`001`...`008`), full suite reported as 
 git add supabase/migrations/0009_wallet_ledger.sql supabase/tests/database/008_wallet_ledger_rls.sql
 git commit -m "feat(db): add wallet_ledger table — read-own, server-only writes"
 ```
+
+> **Retroactive change (continuous point accrual):** per
+> `documents/Hush-Phase-1-Continuous-Points-Change.md`, added a
+> `metadata jsonb not null default '{}'::jsonb` column so Phase 6 can record
+> why points were earned or spent (e.g. originating session, eligible
+> minutes) without needing an immediate new table. Purely additive — the
+> `delta <> 0` check, the read-own RLS policy, the deliberate absence of
+> write grants, and the TRUNCATE revoke are unchanged. The test setup's
+> superuser INSERT (run via `reset role`) now populates `metadata`; the two
+> RLS assertions themselves are unchanged.
 
 ---
 
@@ -1150,8 +1193,8 @@ values (
   '00000000-0000-0000-0000-000000000001',
   'Demo Cafe',
   st_geogfromtext('POLYGON((121.05 14.55, 121.05 14.56, 121.06 14.56, 121.06 14.55, 121.05 14.55))'),
-  '{"committed_minutes": 45}'::jsonb,
-  '{"reward_name": "Free coffee", "zone_hours_required": 5}'::jsonb
+  '{"suggested_minutes": 45}'::jsonb,
+  '{"earn_rate_per_quiet_minute": 1, "min_score_for_earning": 70, "daily_point_cap": 120}'::jsonb
 )
 on conflict (id) do update set geofence = excluded.geofence;
 
@@ -1168,6 +1211,17 @@ values (
 )
 on conflict (id) do update set points_cost = excluded.points_cost;
 ```
+
+> **Retroactive change (continuous point accrual):** per
+> `documents/Hush-Phase-1-Continuous-Points-Change.md`, the zone's
+> `silence_contract` example changed from `{"committed_minutes": 45}` to
+> `{"suggested_minutes": 45}`, and `reward_config` changed from
+> `{"reward_name": "Free coffee", "zone_hours_required": 5}` to
+> `{"earn_rate_per_quiet_minute": 1, "min_score_for_earning": 70,
+> "daily_point_cap": 120}` — the zone now defines how points are earned
+> continuously, while the seeded `rewards` row (with its fixed id, kept
+> as-is) defines what those points can buy. The operator/zone setup and the
+> idempotency fix above are otherwise unchanged.
 
 Note: `update public.users set role = 'operator' ...` runs as the seed script's own Postgres role (the CLI applies seeds as the `postgres` superuser, which bypasses RLS and is exempt from the `users_prevent_role_escalation` trigger's `auth.role()` check since there is no `request.jwt.claims` set — `auth.role()` returns null, and the trigger only blocks when a row's `role` is *changing* under a non-`service_role` JWT; a superuser session with no JWT claims at all does not go through PostgREST's RLS path. If this seed step errors with the escalation-guard exception when running via `supabase db reset`, change the trigger's condition in `0002_roles_and_users.sql` to also allow `auth.role() is null` (direct Postgres/superuser sessions), since RLS already restricts non-superuser authenticated/anon access to this table.
 
@@ -1246,12 +1300,13 @@ export interface GeoJsonPolygon {
 }
 
 export interface SilenceContract {
-  committed_minutes: number;
+  suggested_minutes?: number;
 }
 
 export interface RewardConfig {
-  reward_name: string;
-  zone_hours_required: number;
+  earn_rate_per_quiet_minute: number;
+  min_score_for_earning: number;
+  daily_point_cap?: number;
 }
 
 export interface Zone {
@@ -1265,6 +1320,15 @@ export interface Zone {
 }
 ```
 
+> **Retroactive change (continuous point accrual):** per
+> `documents/Hush-Phase-1-Continuous-Points-Change.md`, `SilenceContract`'s
+> `committed_minutes: number` became optional `suggested_minutes?: number`,
+> and `RewardConfig` dropped the fixed `reward_name`/`zone_hours_required`
+> shape in favor of `earn_rate_per_quiet_minute: number`,
+> `min_score_for_earning: number`, and optional `daily_point_cap?: number` —
+> matching the zone now defining continuous earning rules rather than a
+> fixed reward threshold.
+
 - [ ] **Step 4: Write `session.ts`**
 
 ```typescript
@@ -1275,12 +1339,18 @@ export interface Session {
   zoneId: string;
   startTs: string;
   endTs: string | null;
-  committedMinutes: number;
+  intendedMinutes: number | null;
   achievedMinutes: number | null;
   finalScore: number | null;
   createdAt: string;
 }
 ```
+
+> **Retroactive change (continuous point accrual):** per
+> `documents/Hush-Phase-1-Continuous-Points-Change.md`,
+> `committedMinutes: number` became `intendedMinutes: number | null`, mirroring
+> the `sessions` migration's `committed_minutes` → `intended_minutes` change
+> (now optional/nullable).
 
 - [ ] **Step 5: Write `score-ping.ts`**
 
@@ -1331,9 +1401,15 @@ export interface WalletLedgerEntry {
   userId: string;
   delta: number;
   reason: string;
+  metadata: Record<string, unknown>;
   createdAt: string;
 }
 ```
+
+> **Retroactive change (continuous point accrual):** per
+> `documents/Hush-Phase-1-Continuous-Points-Change.md`, added
+> `metadata: Record<string, unknown>` to mirror the `wallet_ledger` migration's
+> new `metadata jsonb not null default '{}'::jsonb` column.
 
 - [ ] **Step 9: Re-export everything from `index.ts`**
 
