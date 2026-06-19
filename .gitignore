@@ -21,5 +21,8 @@ build/
 # os / editor
 .DS_Store
 Thumbs.db
+# supabase CLI local state
+supabase/.branches/
+supabase/.temp/
 # local agent state
 .claude/
