@@ -7,6 +7,10 @@ vi.mock("../modules/silence-signals", () => ({
 }));
 
 describe("needsSilenceAgentOnboarding", () => {
+  // The iOS test below mutates the shared mocked Platform object directly
+  // (vi.doMock was tried first but leaks its override into later tests in
+  // this file, since the registry isn't reset between tests) -- reset back
+  // to the mock's Android default here so later tests aren't affected.
   afterEach(() => {
     Platform.OS = "android";
   });
