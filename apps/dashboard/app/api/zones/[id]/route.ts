@@ -30,10 +30,20 @@ export async function PATCH(request: Request, { params }: RouteParams) {
   if (parsed.data.silenceContract !== undefined) update.silence_contract = parsed.data.silenceContract;
   if (parsed.data.rewardConfig !== undefined) update.reward_config = parsed.data.rewardConfig;
 
-  const { data, error } = await supabase.from("zones").update(update).eq("id", id).select().single();
+  const { data, error } = await supabase.from("zones").update(update).eq("id", id).select().maybeSingle();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    // Don't leak raw Postgres/PostgREST error text (constraint/column names) to the client.
+    console.error("PATCH /api/zones/[id] update failed:", error);
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+  }
+
+  // RLS's USING clause filters rows it denies rather than erroring (see
+  // supabase/tests/database/003_zones_rls.sql) -- a nonexistent id and an
+  // id another operator owns both land here as "zero rows updated", which
+  // is a 404 from the caller's point of view, not a 500.
+  if (!data) {
+    return NextResponse.json({ error: "Zone not found" }, { status: 404 });
   }
 
   return NextResponse.json(data, { status: 200 });
@@ -52,9 +62,17 @@ export async function DELETE(request: Request, { params }: RouteParams) {
     return NextResponse.json({ error: "Too many requests" }, { status: 429 });
   }
 
-  const { error } = await supabase.from("zones").delete().eq("id", id);
+  const { data, error } = await supabase.from("zones").delete().eq("id", id).select().maybeSingle();
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    // Don't leak raw Postgres/PostgREST error text (constraint/column names) to the client.
+    console.error("DELETE /api/zones/[id] delete failed:", error);
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+  }
+
+  // Same RLS-filters-rather-than-errors reasoning as PATCH above: a no-op
+  // delete (wrong owner or nonexistent id) is a 404, not a false-positive 204.
+  if (!data) {
+    return NextResponse.json({ error: "Zone not found" }, { status: 404 });
   }
 
   return new NextResponse(null, { status: 204 });

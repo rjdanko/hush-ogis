@@ -34,7 +34,9 @@ export async function POST(request: Request) {
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    // Don't leak raw Postgres/PostgREST error text (constraint/column names) to the client.
+    console.error("POST /api/zones insert failed:", error);
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 
   return NextResponse.json(data, { status: 201 });

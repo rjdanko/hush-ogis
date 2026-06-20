@@ -35,8 +35,11 @@ function jsonRequest(body: unknown) {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mockSelect.mockReturnValue({ single: () => Promise.resolve({ data: { id: "zone-1" }, error: null }) });
-  mockEq.mockReturnValue({ select: mockSelect, single: () => Promise.resolve({ data: {}, error: null }) });
+  mockSelect.mockReturnValue({
+    single: () => Promise.resolve({ data: { id: "zone-1" }, error: null }),
+    maybeSingle: () => Promise.resolve({ data: { id: "zone-1" }, error: null }),
+  });
+  mockEq.mockReturnValue({ select: mockSelect });
   mockInsert.mockReturnValue({ select: mockSelect });
   mockUpdate.mockReturnValue({ eq: mockEq });
   mockDelete.mockReturnValue({ eq: mockEq });
@@ -98,6 +101,17 @@ describe("PATCH /api/zones/[id]", () => {
     expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({ name: "Renamed" }));
     expect(mockEq).toHaveBeenCalledWith("id", "zone-1");
   });
+
+  it("returns 404 when RLS filters the update to zero rows (not owned or doesn't exist)", async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: "user-1" } } });
+    mockSelect.mockReturnValue({ maybeSingle: () => Promise.resolve({ data: null, error: null }) });
+    const request = new Request("http://localhost/api/zones/zone-1", {
+      method: "PATCH",
+      body: JSON.stringify({ name: "Renamed" }),
+    });
+    const response = await PATCH(request, { params: Promise.resolve({ id: "zone-1" }) });
+    expect(response.status).toBe(404);
+  });
 });
 
 describe("DELETE /api/zones/[id]", () => {
@@ -114,5 +128,13 @@ describe("DELETE /api/zones/[id]", () => {
     const response = await DELETE(request, { params: Promise.resolve({ id: "zone-1" }) });
     expect(response.status).toBe(204);
     expect(mockEq).toHaveBeenCalledWith("id", "zone-1");
+  });
+
+  it("returns 404 when RLS filters the delete to zero rows (not owned or doesn't exist)", async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: "user-1" } } });
+    mockSelect.mockReturnValue({ maybeSingle: () => Promise.resolve({ data: null, error: null }) });
+    const request = new Request("http://localhost/api/zones/zone-1", { method: "DELETE" });
+    const response = await DELETE(request, { params: Promise.resolve({ id: "zone-1" }) });
+    expect(response.status).toBe(404);
   });
 });
