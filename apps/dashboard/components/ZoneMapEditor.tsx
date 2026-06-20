@@ -66,6 +66,15 @@ export function ZoneMapEditor({ initialPolygon, onChange }: ZoneMapEditorProps) 
     return () => {
       map.remove();
     };
+    // Deliberately mount-once: re-running this on every render would tear
+    // down and recreate the whole WebGL map on every keystroke elsewhere in
+    // the form. Two implicit contracts this depends on, for whoever wires up
+    // a caller: (1) `onChange` must stay referentially side-effect-free (only
+    // call stable setters, never close over per-render values) since the
+    // captured reference from first mount is what fires for the component's
+    // entire lifetime; (2) to load a different `initialPolygon` (e.g. editing
+    // a different zone), remount this component (e.g. `key={zone.id}`) rather
+    // than relying on a prop change -- it is never re-synced after mount.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
