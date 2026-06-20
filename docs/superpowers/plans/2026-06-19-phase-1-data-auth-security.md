@@ -1565,3 +1565,11 @@ Expected: no output (no dynamic SQL string-building of user input anywhere in th
 git status
 ```
 Expected: working tree clean (everything already committed task-by-task in Tasks 1–13). If anything is unstaged, stage and commit it now with a message describing what it is — do not bundle unrelated changes into one commit.
+
+---
+
+### Additional items closed out during Task 14 (deferred from earlier code reviews)
+
+- **Root `tsconfig.json` was missing** (a Phase 0 gap, not caught until this step's `npm run typecheck` actually tried to run `tsc -b`). Added a minimal composite root referencing `packages/shared-types` and `packages/config` (the two composite-buildable packages — `apps/dashboard`/`apps/mobile` have their own independent `typecheck` scripts since Next.js/Expo's tsconfigs aren't composite-buildable).
+- **FK index pass** (`supabase/migrations/0010_fk_indexes.sql`): every foreign key column across all 8 tables now has a dedicated index (`zones.operator_id`, `sessions.user_id`/`zone_id`, `score_pings.session_id`, `quiet_index.zone_id`, `rewards.zone_id`, `wallet_ledger.user_id`) — flagged during Task 7's code review as a schema-wide gap (Postgres never auto-indexes FK columns) and intentionally deferred to one consolidated sweep here rather than fixed piecemeal per table.
+- **Storage/Edge-Functions TRUNCATE check** (flagged during Task 8's review as a follow-up): `storage.buckets`/`storage.objects`/`supabase_functions.hooks`/`supabase_functions.migrations` all have the same default TRUNCATE grant to `anon`/`authenticated` that `public` schema tables had before Task 8's fix. **Deliberately left as-is**: Hush's architecture doesn't use Supabase Storage or Edge Functions (the AI service is a separate FastAPI app; no file storage is planned), these tables are empty, and revoking privileges on Supabase-platform-owned admin schemas (owned by `supabase_storage_admin`/`supabase_functions_admin`, not `postgres`) carries upgrade-path risk for no current benefit — same reasoning as leaving the PostGIS system tables alone. Revisit if a later phase adopts Supabase Storage.
