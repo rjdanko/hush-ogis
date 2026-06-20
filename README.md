@@ -22,6 +22,12 @@ npm run dev:ai -- --setup     # creates the Python venv + installs ai-service de
 npm run dev                   # boots dashboard + mobile + ai-service
 ```
 
+Next.js only reads `.env*` files from the package it's run in, not the repo
+root — `apps/dashboard` needs its own `.env.local` with the `NEXT_PUBLIC_*`
+values from the root `.env` (same values `npx supabase status -o env` prints),
+or `npm run dev:dashboard` will 500 with "Your project's URL and Key are
+required."
+
 ## Security baseline
 - No secrets in any client bundle (SR-2). Clients use only the Supabase **anon** key.
   The service-role key and Claude key live only in `apps/ai-service` env.
