@@ -36,9 +36,11 @@ export default function App() {
     ensureSession().finally(() => setAuthReady(true));
   }, []);
 
-  if (!fontsLoaded) return null;
-
-  if (!authReady) {
+  // One combined loading state -- fonts and auth resolve independently, and
+  // whichever is slower shouldn't matter: render either as a bare blank
+  // frame (fonts) or a spinner (auth) depending on which gate is unready,
+  // rather than always showing a blank frame until both happen to be ready.
+  if (!fontsLoaded || !authReady) {
     return (
       <View style={styles.center}>
         <ActivityIndicator color="#E8C170" />
