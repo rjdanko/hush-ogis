@@ -13,12 +13,15 @@ import {
 import { Newsreader_300Light } from "@expo-google-fonts/newsreader";
 import type { Session, Zone } from "@hush/shared-types";
 import { ensureSession } from "./lib/auth";
+import { needsSilenceAgentOnboarding } from "./lib/permissions";
 import { MapScreen } from "./screens/MapScreen";
+import { PermissionOnboardingScreen } from "./screens/PermissionOnboardingScreen";
 import { ZoneDetailScreen } from "./screens/ZoneDetailScreen";
 import { ActiveSessionScreen } from "./screens/ActiveSessionScreen";
 
 type Screen =
   | { name: "map" }
+  | { name: "permissionOnboarding"; zone: Zone }
   | { name: "zoneDetail"; zone: Zone }
   | { name: "activeSession"; session: Session };
 
@@ -49,10 +52,21 @@ export default function App() {
     );
   }
 
+  async function handleSelectZone(zone: Zone) {
+    if (await needsSilenceAgentOnboarding()) {
+      setScreen({ name: "permissionOnboarding", zone });
+    } else {
+      setScreen({ name: "zoneDetail", zone });
+    }
+  }
+
   return (
     <View style={styles.container}>
-      {screen.name === "map" && (
-        <MapScreen onSelectZone={(zone) => setScreen({ name: "zoneDetail", zone })} />
+      {screen.name === "map" && <MapScreen onSelectZone={handleSelectZone} />}
+      {screen.name === "permissionOnboarding" && (
+        <PermissionOnboardingScreen
+          onContinue={() => setScreen({ name: "zoneDetail", zone: screen.zone })}
+        />
       )}
       {screen.name === "zoneDetail" && (
         <ZoneDetailScreen
