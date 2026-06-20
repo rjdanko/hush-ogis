@@ -17,6 +17,10 @@ additional_redirect_urls = []
 jwt_expiry = 3600
 enable_signup = true
 
+# LOCAL DEV ONLY: skips email confirmation so the demo flow needs no mail
+# server. A real Supabase project MUST set enable_confirmations = true (or
+# omit this override) -- do not carry this section forward unchanged when
+# provisioning a production/staging project in a later phase.
 [auth.email]
 enable_signup = true
 double_confirm_changes = false
