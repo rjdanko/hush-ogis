@@ -14,6 +14,18 @@ export const colors = {
   nightBorder: "#34301F",
   iconChip: "#EFE9DD",
   footerHint: "#9A9182",
+  // Quiet Index "glow" scale, high-quiet band (Design Brief §3, the one
+  // place color carries real meaning) -- used for the in-zone hero orb and
+  // its accents (Hush Wireframes.dc.html, "in-zone / active session" frame).
+  glowHigh: "#E8C170",
+  glowHighHalo: "rgba(232,193,112,0.25)",
+  glowHighCore: "#E0B86A",
+  glowHighCoreText: "#3E3320",
+  glowHighCoreLabel: "#6E5A30",
+  nightLabel: "#8A7A54",
+  nightHint: "#C9C0AE",
+  nightWarmText: "#F2ECE0",
+  alert: "#B07A5E",
 } as const;
 
 export const fonts = {
