@@ -19,7 +19,12 @@
     "typecheck": "tsc -b"
   },
   "devDependencies": {
+    "expo": "~52.0.0",
     "supabase": "^2.107.0",
     "typescript": "^5.6.0"
+  },
+  "overrides": {
+    "expo": "~52.0.0",
+    "react-native": "0.76.5"
   }
 }

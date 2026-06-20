@@ -5,15 +5,18 @@
   "main": "index.ts",
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
+    "android": "expo run:android",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "ios": "expo run:ios"
   },
   "dependencies": {
     "@hush/shared-types": "*",
     "@react-native-async-storage/async-storage": "1.23.1",
     "@supabase/supabase-js": "^2.108.0",
     "expo": "~52.0.0",
+    "expo-asset": "~11.0.5",
+    "expo-build-properties": "~0.13.0",
     "expo-location": "~18.0.0",
     "expo-status-bar": "~2.0.0",
     "react": "18.3.1",

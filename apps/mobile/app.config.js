@@ -21,13 +21,37 @@ module.exports = {
         },
       },
     },
-    newArchEnabled: true,
+    // react-native-maps@1.18.0 doesn't fully support Fabric (the New
+    // Architecture) yet -- its native view managers (MapManager,
+    // MapMarkerManager, etc.) are missing generated codegen setters under
+    // Fabric, so MapView never receives its props and renders blank white
+    // (confirmed via logcat: "Could not find generated setter for class
+    // com.rnmaps.maps.MapManager" and similar for every map sub-component).
+    // Disable until react-native-maps ships full Fabric support.
+    newArchEnabled: false,
     plugins: [
       [
         "expo-location",
         {
           locationAlwaysAndWhenInUsePermission:
             "Hush uses your location to detect when you've entered a quiet zone.",
+        },
+      ],
+      [
+        "expo-build-properties",
+        {
+          // expo-modules-core 2.2.3's Compose Compiler version mapping
+          // (versionsMap in expo-modules-core/android/build.gradle) expects
+          // Kotlin 1.9.25, but react-native 0.76.5's Gradle plugin actually
+          // resolves the Kotlin Gradle plugin to 1.9.24 regardless of the
+          // root build.gradle's declared default -- pin to 1.9.24 (the
+          // version that's actually resolved) rather than fight Gradle's
+          // resolution. Without this, `expo run:android` fails at
+          // :expo-modules-core:compileDebugKotlin with a Compose/Kotlin
+          // version mismatch.
+          android: {
+            kotlinVersion: "1.9.24",
+          },
         },
       ],
     ],

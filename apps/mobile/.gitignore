@@ -1,0 +1,9 @@
+# expo run:android / expo run:ios generate these via Continuous Native
+# Generation (CNG) from app.config.js -- they're build output, not source.
+# Re-run `npx expo prebuild` (or `expo run:android`/`expo run:ios`, which
+# does it automatically) to regenerate.
+/android
+/ios
+
+node_modules/
+.expo/
