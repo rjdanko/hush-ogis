@@ -10,6 +10,7 @@ import { computeSilenceScore } from "../lib/scoring";
 import { sendScorePing } from "../lib/ingest";
 import { colors, fonts } from "../lib/theme";
 
+// PRD §7.1: device reports a fresh silence score roughly every 15s.
 const PING_INTERVAL_MS = 15_000;
 
 export function ActiveSessionScreen({
@@ -45,9 +46,12 @@ export function ActiveSessionScreen({
           score,
           ts: new Date().toISOString(),
         });
-      } catch {
+      } catch (err) {
         // A dropped ping is not fatal -- the next interval tries again.
-        // Never surface ingest errors to the calm session UI.
+        // Never surface ingest errors to the calm session UI, but don't fly
+        // fully blind either -- log in dev so a misconfigured endpoint or an
+        // expired token doesn't silently degrade the Quiet Index unnoticed.
+        if (__DEV__) console.warn("sendScorePing failed", err);
       }
     }
 
@@ -57,6 +61,11 @@ export function ActiveSessionScreen({
       cancelled = true;
       clearInterval(interval);
     };
+    // session is replaced (not mutated) only on a fresh check-in, i.e. before
+    // this screen mounts -- depending on its scalar fields rather than the
+    // object reference is equivalent today, but says explicitly that a
+    // future App.tsx refactor swapping the session reference under an
+    // unchanged anonToken/zoneId shouldn't restart this loop.
   }, [session.anonToken, session.zoneId]);
 
   useEffect(() => {
