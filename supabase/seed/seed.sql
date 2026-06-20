@@ -5,6 +5,9 @@ insert into auth.users (
   id, instance_id, aud, role, email, encrypted_password,
   email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
   is_super_admin, created_at, updated_at, is_sso_user, is_anonymous,
+  -- these four token columns have no column default (NULL otherwise); GoTrue's
+  -- Go code panics scanning NULL into a string field once a real password makes
+  -- this row reachable via the password-grant lookup, so they must be set to ''.
   confirmation_token, recovery_token, email_change_token_new, email_change
 )
 values (
@@ -15,7 +18,7 @@ values (
   extensions.crypt('DemoOperator123!', extensions.gen_salt('bf')),
   now(), '{}'::jsonb, '{}'::jsonb,
   false, now(), now(), false, false,
-  '', '', '', ''
+  '', '', '', '' -- confirmation_token, recovery_token, email_change_token_new, email_change
 )
 on conflict (id) do update set encrypted_password = excluded.encrypted_password;
 
