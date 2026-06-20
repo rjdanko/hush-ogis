@@ -1,19 +1,23 @@
 -- supabase/seed/seed.sql
 -- Demo operator + demo zone for downstream phases (Phase 2 dashboard, Phase 3 mobile map).
+-- Demo login: demo-operator@hush.local / DemoOperator123! (local-only; never used outside this seed).
 insert into auth.users (
   id, instance_id, aud, role, email, encrypted_password,
   email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
-  is_super_admin, created_at, updated_at, is_sso_user, is_anonymous
+  is_super_admin, created_at, updated_at, is_sso_user, is_anonymous,
+  confirmation_token, recovery_token, email_change_token_new, email_change
 )
 values (
   '00000000-0000-0000-0000-000000000001',
   '00000000-0000-0000-0000-000000000000',
   'authenticated', 'authenticated',
-  'demo-operator@hush.local', '',
+  'demo-operator@hush.local',
+  extensions.crypt('DemoOperator123!', extensions.gen_salt('bf')),
   now(), '{}'::jsonb, '{}'::jsonb,
-  false, now(), now(), false, false
+  false, now(), now(), false, false,
+  '', '', '', ''
 )
-on conflict (id) do nothing;
+on conflict (id) do update set encrypted_password = excluded.encrypted_password;
 
 insert into public.operators (id, venue_name)
 values ('00000000-0000-0000-0000-000000000001', 'Demo Cafe')
