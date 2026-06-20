@@ -17,6 +17,10 @@ import java.util.concurrent.TimeUnit
 // Tracks how long the screen has been off via a registered broadcast
 // receiver rather than polling, so getSignals() is cheap to call frequently.
 private object ScreenStateTracker {
+  // Plain assignment reads/writes only (no compound read-modify-write), so
+  // @Volatile alone is sufficient for cross-thread visibility. If this ever
+  // grows a compound update (e.g. increment/accumulate), switch to proper
+  // synchronization (e.g. a lock or AtomicLong) instead.
   @Volatile private var screenOffSince: Long? = null
 
   fun onScreenOff() { screenOffSince = System.currentTimeMillis() }
@@ -28,6 +32,16 @@ private object ScreenStateTracker {
 }
 
 class SilenceSignalsModule : Module() {
+  private val screenStateReceiver = object : BroadcastReceiver() {
+    override fun onReceive(context: Context?, intent: Intent?) {
+      when (intent?.action) {
+        Intent.ACTION_SCREEN_OFF -> ScreenStateTracker.onScreenOff()
+        Intent.ACTION_SCREEN_ON -> ScreenStateTracker.onScreenOn()
+      }
+    }
+  }
+  private var isReceiverRegistered = false
+
   override fun definition() = ModuleDefinition {
     Name("SilenceSignals")
 
@@ -37,17 +51,15 @@ class SilenceSignalsModule : Module() {
         addAction(Intent.ACTION_SCREEN_OFF)
         addAction(Intent.ACTION_SCREEN_ON)
       }
-      context.registerReceiver(
-        object : BroadcastReceiver() {
-          override fun onReceive(context: Context?, intent: Intent?) {
-            when (intent?.action) {
-              Intent.ACTION_SCREEN_OFF -> ScreenStateTracker.onScreenOff()
-              Intent.ACTION_SCREEN_ON -> ScreenStateTracker.onScreenOn()
-            }
-          }
-        },
-        filter
-      )
+      context.registerReceiver(screenStateReceiver, filter)
+      isReceiverRegistered = true
+    }
+
+    OnDestroy {
+      if (isReceiverRegistered) {
+        appContext.reactContext?.unregisterReceiver(screenStateReceiver)
+        isReceiverRegistered = false
+      }
     }
 
     AsyncFunction("getSignals") {
@@ -70,6 +82,9 @@ class SilenceSignalsModule : Module() {
       hasUsageAccess(appContext.reactContext ?: throw IllegalStateException("no react context"))
     }
 
+    // Intentionally a synchronous Function (not AsyncFunction): there is no
+    // promise to reject, so a missing react context silently no-ops rather
+    // than throwing — that's the only sane behavior here.
     Function("openUsageAccessSettings") {
       val context = appContext.reactContext
       if (context != null) {
@@ -93,6 +108,9 @@ class SilenceSignalsModule : Module() {
   private fun isAnyAppForeground(context: Context): Boolean {
     val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
     val end = System.currentTimeMillis()
+    // A 30s trailing window is enough to catch recent foreground activity
+    // without polling continuously; an empty event window (no events found)
+    // defaults to false (not foreground) as the safe assumption.
     val start = end - TimeUnit.SECONDS.toMillis(30)
     val events = usageStatsManager.queryEvents(start, end)
     val event = UsageEvents.Event()
