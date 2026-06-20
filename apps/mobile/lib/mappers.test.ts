@@ -52,6 +52,7 @@ describe("toSession", () => {
       intended_minutes: 20,
       achieved_minutes: null,
       final_score: null,
+      anon_token: "tok-abc",
       created_at: "2026-01-01T00:00:00Z",
     };
     expect(toSession(row)).toEqual({
@@ -63,7 +64,24 @@ describe("toSession", () => {
       intendedMinutes: 20,
       achievedMinutes: null,
       finalScore: null,
+      anonToken: "tok-abc",
       createdAt: "2026-01-01T00:00:00Z",
     });
+  });
+
+  it("maps anon_token to anonToken", () => {
+    const session = toSession({
+      id: "s1",
+      user_id: "u1",
+      zone_id: "z1",
+      start_ts: "2026-01-01T00:00:00Z",
+      end_ts: null,
+      intended_minutes: null,
+      achieved_minutes: null,
+      final_score: null,
+      anon_token: "tok-123",
+      created_at: "2026-01-01T00:00:00Z",
+    });
+    expect(session.anonToken).toBe("tok-123");
   });
 });

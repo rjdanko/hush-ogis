@@ -3,7 +3,8 @@ import { supabase } from "./supabase";
 import { toSession } from "./mappers";
 import { validateIntendedMinutes } from "./validation";
 
-const SESSION_SELECT = "id, user_id, zone_id, start_ts, end_ts, intended_minutes, achieved_minutes, final_score, created_at";
+const SESSION_SELECT =
+  "id, user_id, zone_id, start_ts, end_ts, intended_minutes, achieved_minutes, final_score, anon_token, created_at";
 
 // Creates a session row for the current user. RLS (sessions_insert_own,
 // 0005_sessions.sql) is the real enforcement that a user can only check

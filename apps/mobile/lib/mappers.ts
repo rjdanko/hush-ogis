@@ -37,6 +37,7 @@ export function toSession(row: {
   intended_minutes: number | null;
   achieved_minutes: number | null;
   final_score: number | null;
+  anon_token: string;
   created_at: string;
 }): Session {
   return {
@@ -48,6 +49,7 @@ export function toSession(row: {
     intendedMinutes: row.intended_minutes,
     achievedMinutes: row.achieved_minutes,
     finalScore: row.final_score,
+    anonToken: row.anon_token,
     createdAt: row.created_at,
   };
 }
