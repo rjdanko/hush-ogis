@@ -1,0 +1,29 @@
+apply plugin: 'com.android.library'
+
+group = 'expo.modules.silencesignals'
+version = '0.0.1'
+
+// expo-modules-core's ExpoModulesCorePlugin.gradle defines `safeExtGet`,
+// applies the `kotlin-android` plugin, and wires up the Kotlin/Compose
+// compiler versions that match the rest of this project (see the
+// kotlinVersion pin in app.config.js's expo-build-properties plugin) --
+// applying `kotlin-android` directly without this would leave `safeExtGet`
+// undefined and risk a Kotlin/Compose compiler version mismatch.
+def expoModulesCorePlugin = new File(project(":expo-modules-core").projectDir.absolutePath, "ExpoModulesCorePlugin.gradle")
+apply from: expoModulesCorePlugin
+applyKotlinExpoModulesCorePlugin()
+useCoreDependencies()
+useDefaultAndroidSdkVersions()
+
+android {
+  namespace "expo.modules.silencesignals"
+
+  defaultConfig {
+    minSdkVersion safeExtGet("minSdkVersion", 24)
+    targetSdkVersion safeExtGet("targetSdkVersion", 34)
+  }
+}
+
+dependencies {
+  implementation project(':expo-modules-core')
+}
