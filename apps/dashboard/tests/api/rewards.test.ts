@@ -90,6 +90,17 @@ describe("PATCH /api/rewards/[id]", () => {
     expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({ points_cost: 75 }));
   });
 
+  it("rejects an attempt to reassign zoneId via the request body (strict schema has no such field)", async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: "user-1" } } });
+    const request = new Request("http://localhost/api/rewards/reward-1", {
+      method: "PATCH",
+      body: JSON.stringify({ pointsCost: 75, zoneId: "00000000-0000-0000-0000-000000000099" }),
+    });
+    const response = await PATCH(request, { params: Promise.resolve({ id: "reward-1" }) });
+    expect(response.status).toBe(400);
+    expect(mockUpdate).not.toHaveBeenCalled();
+  });
+
   it("returns 404 when RLS filters the update to zero rows (not owned or doesn't exist)", async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: "user-1" } } });
     mockSelect.mockReturnValue({ maybeSingle: () => Promise.resolve({ data: null, error: null }) });

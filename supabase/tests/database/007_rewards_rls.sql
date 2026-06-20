@@ -1,5 +1,5 @@
 begin;
-select plan(4);
+select plan(5);
 
 select tests.create_test_user('30303030-3030-3030-3030-303030303030'::uuid);
 select tests.create_test_user('40404040-4040-4040-4040-404040404040'::uuid);
@@ -11,6 +11,11 @@ insert into public.zones (id, operator_id, name, geofence) values (
   '50505050-5050-5050-5050-505050505050',
   '30303030-3030-3030-3030-303030303030',
   'Zone A',
+  st_geogfromtext('POLYGON((0 0, 0 1, 1 1, 1 0, 0 0))')
+), (
+  '50505050-5050-5050-5050-505050505051',
+  '40404040-4040-4040-4040-404040404040',
+  'Zone B',
   st_geogfromtext('POLYGON((0 0, 0 1, 1 1, 1 0, 0 0))')
 );
 insert into public.rewards (id, zone_id, name, points_cost) values (
@@ -67,6 +72,20 @@ select results_eq(
   $$,
   $$ select 0 $$,
   'operator B cannot delete operator A''s reward (IDOR guard: 0 rows affected)'
+);
+
+-- the owning operator (A, not B) tries to move their own reward into a zone
+-- they don't own. USING alone would pass (A owns the pre-update row, via
+-- its current zone_id) -- only a WITH CHECK on the post-update row catches
+-- a reassignment to a zone owned by someone else.
+select tests.authenticate_as('30303030-3030-3030-3030-303030303030'::uuid);
+
+select throws_ok(
+  $$ update public.rewards set zone_id = '50505050-5050-5050-5050-505050505051'
+     where id = '60606060-6060-6060-6060-606060606060' $$,
+  '42501',
+  null,
+  'operator A cannot reassign their own reward to operator B''s zone (WITH CHECK guard)'
 );
 
 select * from finish();

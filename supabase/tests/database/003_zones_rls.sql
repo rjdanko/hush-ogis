@@ -1,6 +1,6 @@
 -- supabase/tests/database/003_zones_rls.sql
 begin;
-select plan(4);
+select plan(5);
 
 select tests.create_test_user('55555555-5555-5555-5555-555555555555'::uuid);
 select tests.create_test_user('66666666-6666-6666-6666-666666666666'::uuid);
@@ -62,6 +62,19 @@ select isnt(
   (select name from public.zones where id = '77777777-7777-7777-7777-777777777777'),
   'Hijacked',
   'zone name was not changed by the blocked update'
+);
+
+-- the owning operator (A, not B) tries to give their own zone away by
+-- reassigning operator_id. USING alone would pass (A owns the pre-update
+-- row) -- only a WITH CHECK on the post-update row catches this.
+select tests.authenticate_as('55555555-5555-5555-5555-555555555555'::uuid);
+
+select throws_ok(
+  $$ update public.zones set operator_id = '66666666-6666-6666-6666-666666666666'
+     where id = '77777777-7777-7777-7777-777777777777' $$,
+  '42501',
+  null,
+  'operator A cannot reassign their own zone''s operator_id to operator B (WITH CHECK guard)'
 );
 
 select * from finish();
