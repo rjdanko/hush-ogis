@@ -12,6 +12,8 @@ export const colors = {
   mutedText: "#8A8478",
   nightMutedText: "#8A7E6C",
   nightBorder: "#34301F",
+  iconChip: "#EFE9DD",
+  footerHint: "#9A9182",
 } as const;
 
 export const fonts = {
