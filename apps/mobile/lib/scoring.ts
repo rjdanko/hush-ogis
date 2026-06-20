@@ -32,17 +32,23 @@ function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
 }
 
+// Exponential smoothing toward `target`, snapping to `target` once the
+// remaining gap would round-trip forever without ever reaching it exactly
+// (e.g. Math.round(1 * 0.6) = 1, an infinite floor just above 0). Shared by
+// both the foreground-override branch and the normal path so the
+// rounding-floor fix only has to live in one place.
+function smoothToward(previous: number, target: number, alpha: number): number {
+  const smoothed = previous + alpha * (target - previous);
+  if (Math.abs(smoothed - target) < 1) return target;
+  return Math.round(clamp(smoothed, 0, 100));
+}
+
 export function computeSilenceScore(signals: SilenceSignals, previousScore: number | null): number {
   if (signals.isForeground) {
     // Actively looking at any app overrides every other signal -- this is
     // the opposite of silence, regardless of recent screen-off history.
-    // Decay toward a target raw score of 0 using the same smoothing formula
-    // as the normal path. A pure exponential decay rounds to a floor of 1
-    // forever (e.g. Math.round(1 * 0.6) = 1), so snap small remainders to 0
-    // explicitly to guarantee convergence in finite ticks.
     if (previousScore === null) return 0;
-    const smoothed = previousScore + SMOOTHING_ALPHA * (0 - previousScore);
-    return smoothed < 1 ? 0 : Math.round(clamp(smoothed, 0, 100));
+    return smoothToward(previousScore, 0, SMOOTHING_ALPHA);
   }
 
   const screenOffScore = clamp(signals.screenOffMs / SCREEN_OFF_SATURATION_MS, 0, 1) * 100;
@@ -51,6 +57,5 @@ export function computeSilenceScore(signals: SilenceSignals, previousScore: numb
 
   if (previousScore === null) return Math.round(raw);
 
-  const smoothed = previousScore + SMOOTHING_ALPHA * (raw - previousScore);
-  return Math.round(clamp(smoothed, 0, 100));
+  return smoothToward(previousScore, raw, SMOOTHING_ALPHA);
 }

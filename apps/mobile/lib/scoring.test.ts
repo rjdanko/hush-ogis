@@ -63,6 +63,21 @@ describe("computeSilenceScore", () => {
     expect(score).toBe(0);
   });
 
+  it("decays to exactly 0 within a reasonable number of ticks via the normal (non-foreground) path", () => {
+    let score: number | null = 90;
+    const noSilenceSignals = signals({ screenOffMs: 0, interruptionFilter: 1, isForeground: false });
+    let reachedZero = false;
+    for (let i = 0; i < 20; i++) {
+      score = computeSilenceScore(noSilenceSignals, score);
+      if (score === 0) {
+        reachedZero = true;
+        break;
+      }
+    }
+    expect(reachedZero).toBe(true);
+    expect(score).toBe(0);
+  });
+
   it("scores reflect the PRIORITY interruption filter (2) distinctly from NONE (3) and ALARMS (4)", () => {
     const priorityScore = computeSilenceScore(signals({ screenOffMs: 0, interruptionFilter: 2 }), null);
     const noneScore = computeSilenceScore(signals({ screenOffMs: 0, interruptionFilter: 3 }), null);
