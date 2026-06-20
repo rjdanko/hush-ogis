@@ -11,12 +11,15 @@
     "ios": "expo run:ios"
   },
   "dependencies": {
+    "@expo-google-fonts/hanken-grotesk": "^0.4.1",
+    "@expo-google-fonts/newsreader": "^0.4.1",
     "@hush/shared-types": "*",
     "@react-native-async-storage/async-storage": "1.23.1",
     "@supabase/supabase-js": "^2.108.0",
     "expo": "~52.0.0",
     "expo-asset": "~11.0.5",
     "expo-build-properties": "~0.13.0",
+    "expo-font": "~13.0.1",
     "expo-location": "~18.0.0",
     "expo-modules-core": "~2.2.0",
     "expo-status-bar": "~2.0.0",

@@ -5,6 +5,12 @@
 import { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
+import { useFonts } from "expo-font";
+import {
+  HankenGrotesk_400Regular,
+  HankenGrotesk_600SemiBold,
+} from "@expo-google-fonts/hanken-grotesk";
+import { Newsreader_300Light } from "@expo-google-fonts/newsreader";
 import type { Session, Zone } from "@hush/shared-types";
 import { ensureSession } from "./lib/auth";
 import { MapScreen } from "./screens/MapScreen";
@@ -17,12 +23,20 @@ type Screen =
   | { name: "activeSession"; session: Session };
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    HankenGrotesk_400Regular,
+    HankenGrotesk_600SemiBold,
+    Newsreader_300Light,
+  });
+
   const [authReady, setAuthReady] = useState(false);
   const [screen, setScreen] = useState<Screen>({ name: "map" });
 
   useEffect(() => {
     ensureSession().finally(() => setAuthReady(true));
   }, []);
+
+  if (!fontsLoaded) return null;
 
   if (!authReady) {
     return (
