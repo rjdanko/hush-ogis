@@ -8,5 +8,6 @@ export interface Session {
   intendedMinutes: number | null;
   achievedMinutes: number | null;
   finalScore: number | null;
+  anonToken: string;
   createdAt: string;
 }
