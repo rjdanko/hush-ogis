@@ -94,8 +94,12 @@ export function ZoneMapEditor({ initialPolygon, onChange }: ZoneMapEditorProps) 
   }, []);
 
   if (!hasToken) {
+    // Styled the same red as ZoneForm's mapError paragraph (a separate
+    // surface this never populates, see the comment above) so a
+    // misconfigured token reads as "something is broken," not as a neutral
+    // "this zone has no map feature."
     return (
-      <div className="flex h-[400px] w-full items-center justify-center rounded border border-dashed text-sm text-gray-500">
+      <div className="flex h-[400px] w-full items-center justify-center rounded border border-dashed border-red-600 text-sm text-red-600">
         Map unavailable: set NEXT_PUBLIC_MAPBOX_TOKEN to draw a zone boundary.
       </div>
     );

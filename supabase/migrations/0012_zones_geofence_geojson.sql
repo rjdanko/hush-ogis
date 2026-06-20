@@ -16,4 +16,6 @@ as $$
   select st_asgeojson(z.geofence)::jsonb;
 $$;
 
-grant execute on function public.zones_geofence_geojson(public.zones) to authenticated, anon;
+-- authenticated only, matching every other grant in this schema (0004/0005/
+-- 0006/0008/0009) -- there is no anon-readable path to zones anywhere here.
+grant execute on function public.zones_geofence_geojson(public.zones) to authenticated;

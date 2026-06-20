@@ -70,6 +70,11 @@ export function ZoneForm({ initialValues, onSubmit, submitLabel }: ZoneFormProps
           setMapError(error);
         }}
       />
+      {/* ZoneMapEditor never calls onChange when no Mapbox token is configured
+          (it would otherwise wipe an existing zone's geofence on mount) -- that
+          state renders its own red placeholder instead of populating mapError
+          here. Don't "simplify" this into a single error surface without
+          re-reading ZoneMapEditor's mount-once comment. */}
       {mapError ? <p className="text-sm text-red-600">{mapError}</p> : null}
 
       <label className="flex flex-col gap-1">

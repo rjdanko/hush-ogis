@@ -5,6 +5,13 @@
 // can't silently drift if a column/field is ever added to one but not the other.
 import type { Reward, Zone } from "@hush/shared-types";
 
+// Single source of truth for selecting a zone row in the shape toZone()
+// below expects. geofence:zones_geofence_geojson -- a `geography` column's
+// default PostgREST serialization is raw WKB hex, not GeoJSON; this computed
+// column (supabase/migrations/0012_zones_geofence_geojson.sql) converts it.
+export const ZONE_SELECT =
+  "id, operator_id, name, geofence:zones_geofence_geojson, silence_contract, reward_config, created_at";
+
 export function toZone(row: {
   id: string;
   operator_id: string;

@@ -3,13 +3,13 @@ import { createClient } from "../../../lib/supabase/server";
 import { checkRateLimit } from "../../../lib/rate-limit";
 import { zoneCreateSchema } from "../../../lib/validation/zone";
 import { geoJsonPolygonToWkt } from "../../../lib/geo";
+import { ZONE_SELECT } from "../../../lib/mappers";
 
 // PostgREST rejects a GeoJSON object written into a `geography` column
 // outright ("parse error - invalid geometry") -- it only accepts WKT text,
-// which Postgres casts implicitly. Read-back uses the zones_geofence_geojson
-// computed column (supabase/migrations/0012_zones_geofence_geojson.sql) so
-// the response shape still matches what clients expect (GeoJSON).
-const ZONE_SELECT = "id, operator_id, name, geofence:zones_geofence_geojson, silence_contract, reward_config, created_at";
+// which Postgres casts implicitly. ZONE_SELECT (lib/mappers.ts) reads it
+// back as GeoJSON via a computed column so the response shape still
+// matches what clients expect.
 
 export async function POST(request: Request) {
   const supabase = await createClient();

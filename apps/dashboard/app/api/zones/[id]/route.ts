@@ -3,12 +3,9 @@ import { createClient } from "../../../../lib/supabase/server";
 import { checkRateLimit } from "../../../../lib/rate-limit";
 import { zoneUpdateSchema } from "../../../../lib/validation/zone";
 import { geoJsonPolygonToWkt } from "../../../../lib/geo";
+import { ZONE_SELECT } from "../../../../lib/mappers";
 
 type RouteParams = { params: Promise<{ id: string }> };
-
-// See app/api/zones/route.ts for why writes go through WKT and reads go
-// through the zones_geofence_geojson computed column.
-const ZONE_SELECT = "id, operator_id, name, geofence:zones_geofence_geojson, silence_contract, reward_config, created_at";
 
 export async function PATCH(request: Request, { params }: RouteParams) {
   const { id } = await params;
