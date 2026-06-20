@@ -17,6 +17,10 @@ additional_redirect_urls = []
 jwt_expiry = 3600
 enable_signup = true
 
+# Mobile demo auth (Phase 3): the app signs users in anonymously rather than
+# requiring email signup, matching the PRD's "anon or email for demo" choice.
+enable_anonymous_sign_ins = true
+
 # LOCAL DEV ONLY: skips email confirmation so the demo flow needs no mail
 # server. A real Supabase project MUST set enable_confirmations = true (or
 # omit this override) -- do not carry this section forward unchanged when
