@@ -1,13 +1,20 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { createClient } from "../../../lib/supabase/server";
 
 export default async function ZonesPage() {
   const supabase = await createClient();
   const { data: userData } = await supabase.auth.getUser();
+  // The (dashboard) layout already redirects unauthenticated requests before
+  // this page renders; this is a defensive re-check, not the primary gate.
+  if (!userData.user) {
+    redirect("/login");
+  }
+
   const { data: zones } = await supabase
     .from("zones")
     .select("id, name, created_at")
-    .eq("operator_id", userData.user!.id)
+    .eq("operator_id", userData.user.id)
     .order("created_at", { ascending: false });
 
   return (

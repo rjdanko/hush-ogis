@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ZoneForm, type ZoneFormValues } from "../../../../components/ZoneForm";
 import { RewardForm } from "../../../../components/RewardForm";
+import { toReward } from "../../../../lib/mappers";
 import type { Reward, Zone } from "@hush/shared-types";
 
 interface ZoneEditClientProps {
@@ -45,18 +46,11 @@ export function ZoneEditClient({ zone, rewards: initialRewards }: ZoneEditClient
     }
     // The API route returns the raw inserted row with DB column names
     // (e.g. points_cost), not the camelCase Reward shape used by this
-    // component's state -- map it here so every entry in `rewards` has the
-    // same shape regardless of whether it came from the initial server-side
-    // load or a fresh POST.
+    // component's state -- map it (via the same toReward() the initial
+    // server-side load uses) so every entry in `rewards` has the same shape
+    // regardless of whether it came from the initial load or a fresh POST.
     const row = await response.json();
-    const reward: Reward = {
-      id: row.id,
-      zoneId: row.zone_id,
-      name: row.name,
-      pointsCost: row.points_cost,
-      createdAt: row.created_at,
-    };
-    setRewards((current) => [...current, reward]);
+    setRewards((current) => [...current, toReward(row)]);
   }
 
   return (

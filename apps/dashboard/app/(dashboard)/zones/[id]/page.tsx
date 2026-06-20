@@ -1,4 +1,5 @@
 import { createClient } from "../../../../lib/supabase/server";
+import { toReward, toZone } from "../../../../lib/mappers";
 import { ZoneEditClient } from "./zone-edit-client";
 
 export default async function ZoneDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -18,29 +19,8 @@ export default async function ZoneDetailPage({ params }: { params: Promise<{ id:
     return <p>Zone not found.</p>;
   }
 
-  // Supabase JS returns raw DB column names (snake_case). The dashboard's
-  // client components consistently use the camelCase @hush/shared-types
-  // shape (Zone, Reward), so we map at this server/client boundary -- the
-  // one place raw rows are read -- rather than letting snake_case leak into
-  // ZoneEditClient and mixing with the camelCase rows the API routes return
-  // on POST.
-  const zone = {
-    id: zoneRow.id,
-    operatorId: zoneRow.operator_id,
-    name: zoneRow.name,
-    geofence: zoneRow.geofence,
-    silenceContract: zoneRow.silence_contract,
-    rewardConfig: zoneRow.reward_config,
-    createdAt: zoneRow.created_at,
-  };
-
-  const rewards = (rewardRows ?? []).map((row) => ({
-    id: row.id,
-    zoneId: row.zone_id,
-    name: row.name,
-    pointsCost: row.points_cost,
-    createdAt: row.created_at,
-  }));
+  const zone = toZone(zoneRow);
+  const rewards = (rewardRows ?? []).map(toReward);
 
   return <ZoneEditClient zone={zone} rewards={rewards} />;
 }
