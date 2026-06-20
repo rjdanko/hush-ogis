@@ -1,6 +1,11 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "strict": true
+    "strict": true,
+    // expo/tsconfig.base doesn't set `module`, which leaves tsc on a default
+    // that rejects dynamic `import()` (TS1323) -- needed by Vitest tests that
+    // mock a dependency (react-native, supabase, the native signals module)
+    // before dynamically importing the module under test.
+    "module": "esnext"
   }
 }
