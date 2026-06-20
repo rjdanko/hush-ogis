@@ -1,21 +1,61 @@
+// No navigation library: Phase 3 only needs a 3-screen linear flow (map ->
+// zone detail -> active session), and react-navigation pulls in
+// react-native-screens/gesture-handler native deps this phase doesn't need.
+// Revisit if a later phase needs deep linking or a tab bar.
+import { useEffect, useState } from "react";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+import type { Session, Zone } from "@hush/shared-types";
+import { ensureSession } from "./lib/auth";
+import { MapScreen } from "./screens/MapScreen";
+import { ZoneDetailScreen } from "./screens/ZoneDetailScreen";
+import { ActiveSessionScreen } from "./screens/ActiveSessionScreen";
+
+type Screen =
+  | { name: "map" }
+  | { name: "zoneDetail"; zone: Zone }
+  | { name: "activeSession"; session: Session };
 
 export default function App() {
+  const [authReady, setAuthReady] = useState(false);
+  const [screen, setScreen] = useState<Screen>({ name: "map" });
+
+  useEffect(() => {
+    ensureSession().finally(() => setAuthReady(true));
+  }, []);
+
+  if (!authReady) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator color="#E8C170" />
+        <StatusBar style="light" />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Hush</Text>
+      {screen.name === "map" && (
+        <MapScreen onSelectZone={(zone) => setScreen({ name: "zoneDetail", zone })} />
+      )}
+      {screen.name === "zoneDetail" && (
+        <ZoneDetailScreen
+          zone={screen.zone}
+          onCheckedIn={(session) => setScreen({ name: "activeSession", session })}
+        />
+      )}
+      {screen.name === "activeSession" && (
+        <ActiveSessionScreen
+          session={screen.session}
+          onCheckedOut={() => setScreen({ name: "map" })}
+        />
+      )}
       <StatusBar style="light" />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#0E1116",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  title: { color: "#F4F6F8", fontSize: 28, fontWeight: "200", letterSpacing: 2 },
+  container: { flex: 1, backgroundColor: "#0E1116" },
+  center: { flex: 1, backgroundColor: "#0E1116", alignItems: "center", justifyContent: "center" },
 });
