@@ -5,6 +5,16 @@ export const MAX_POLYGON_VERTICES = 64;
 
 export type Point = [number, number];
 
+// PostgREST/PostGIS rejects a raw GeoJSON object written to a `geography`
+// column (it tries to parse the JSON as WKT and errors with "invalid
+// geometry") -- but it DOES accept WKT text, which Postgres casts
+// implicitly. Convert at the API boundary before any insert/update.
+export function geoJsonPolygonToWkt(polygon: { coordinates: Point[][] }): string {
+  const ring = polygon.coordinates[0] ?? [];
+  const points = ring.map(([lng, lat]) => `${lng} ${lat}`).join(", ");
+  return `POLYGON((${points}))`;
+}
+
 export function closeRing(ring: Point[]): Point[] {
   const [first] = ring;
   const last = ring[ring.length - 1];

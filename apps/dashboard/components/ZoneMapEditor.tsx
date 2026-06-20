@@ -17,8 +17,23 @@ interface ZoneMapEditorProps {
 export function ZoneMapEditor({ initialPolygon, onChange }: ZoneMapEditorProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
+  const hasToken = Boolean(process.env.NEXT_PUBLIC_MAPBOX_TOKEN);
 
   useEffect(() => {
+    // new mapboxgl.Map() throws synchronously (not just blank tiles) when
+    // accessToken is empty -- without this guard, a missing token crashes
+    // the whole form, not just the map. Skip map construction entirely and
+    // let the placeholder below carry the error visually.
+    //
+    // Deliberately do NOT call onChange(null, ...) here: doing so would
+    // overwrite a caller's existing valid geofence (e.g. ZoneForm's
+    // initialValues when editing an already-saved zone) with null on every
+    // mount, blocking edits to unrelated fields whenever no token is
+    // configured. With no map, this component has no opinion on the
+    // current geofence -- it leaves whatever the caller already had alone.
+    if (!hasToken) {
+      return;
+    }
     if (!containerRef.current) return;
 
     mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? "";
@@ -77,6 +92,14 @@ export function ZoneMapEditor({ initialPolygon, onChange }: ZoneMapEditorProps) 
     // than relying on a prop change -- it is never re-synced after mount.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  if (!hasToken) {
+    return (
+      <div className="flex h-[400px] w-full items-center justify-center rounded border border-dashed text-sm text-gray-500">
+        Map unavailable: set NEXT_PUBLIC_MAPBOX_TOKEN to draw a zone boundary.
+      </div>
+    );
+  }
 
   return <div ref={containerRef} style={{ width: "100%", height: "400px" }} />;
 }

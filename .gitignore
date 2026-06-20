@@ -26,3 +26,5 @@ supabase/.branches/
 supabase/.temp/
 # local agent state
 .claude/
+# scripts/e2e-check.mjs output (requires `npm install --no-save playwright`)
+.e2e-shots/

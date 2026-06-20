@@ -2,8 +2,13 @@ import { NextResponse } from "next/server";
 import { createClient } from "../../../../lib/supabase/server";
 import { checkRateLimit } from "../../../../lib/rate-limit";
 import { zoneUpdateSchema } from "../../../../lib/validation/zone";
+import { geoJsonPolygonToWkt } from "../../../../lib/geo";
 
 type RouteParams = { params: Promise<{ id: string }> };
+
+// See app/api/zones/route.ts for why writes go through WKT and reads go
+// through the zones_geofence_geojson computed column.
+const ZONE_SELECT = "id, operator_id, name, geofence:zones_geofence_geojson, silence_contract, reward_config, created_at";
 
 export async function PATCH(request: Request, { params }: RouteParams) {
   const { id } = await params;
@@ -26,11 +31,11 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 
   const update: Record<string, unknown> = {};
   if (parsed.data.name !== undefined) update.name = parsed.data.name;
-  if (parsed.data.geofence !== undefined) update.geofence = parsed.data.geofence;
+  if (parsed.data.geofence !== undefined) update.geofence = geoJsonPolygonToWkt(parsed.data.geofence);
   if (parsed.data.silenceContract !== undefined) update.silence_contract = parsed.data.silenceContract;
   if (parsed.data.rewardConfig !== undefined) update.reward_config = parsed.data.rewardConfig;
 
-  const { data, error } = await supabase.from("zones").update(update).eq("id", id).select().maybeSingle();
+  const { data, error } = await supabase.from("zones").update(update).eq("id", id).select(ZONE_SELECT).maybeSingle();
 
   if (error) {
     // Don't leak raw Postgres/PostgREST error text (constraint/column names) to the client.
