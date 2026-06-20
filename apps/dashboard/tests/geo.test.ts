@@ -46,4 +46,9 @@ describe("validatePolygonRing", () => {
     const result = validatePolygonRing([[0, 95], [0, 1], [1, 1], [0, 95]]);
     expect(result).toEqual({ ok: false, reason: "Latitude must be between -90 and 90." });
   });
+
+  it("rejects a NaN coordinate in an interior vertex", () => {
+    const result = validatePolygonRing([[0, 0], [NaN, 1], [1, 1], [0, 0]]);
+    expect(result).toEqual({ ok: false, reason: "Coordinates must be finite numbers." });
+  });
 });

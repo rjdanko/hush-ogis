@@ -31,6 +31,9 @@ export function validatePolygonRing(ring: Point[]): PolygonValidationResult {
     return { ok: false, reason: `Polygon exceeds the ${MAX_POLYGON_VERTICES}-vertex cap.` };
   }
   for (const [lng, lat] of ring) {
+    if (!Number.isFinite(lng) || !Number.isFinite(lat)) {
+      return { ok: false, reason: "Coordinates must be finite numbers." };
+    }
     if (lng < -180 || lng > 180) {
       return { ok: false, reason: "Longitude must be between -180 and 180." };
     }
