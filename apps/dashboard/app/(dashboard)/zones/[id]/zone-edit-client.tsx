@@ -5,6 +5,7 @@ import { useState } from "react";
 import { ZoneForm, type ZoneFormValues } from "../../../../components/ZoneForm";
 import { RewardForm } from "../../../../components/RewardForm";
 import { LiveQuietIndex } from "../../../../components/LiveQuietIndex";
+import { DigestPanel } from "../../../../components/DigestPanel";
 import { toReward } from "../../../../lib/mappers";
 import type { Reward, Zone } from "@hush/shared-types";
 
@@ -59,6 +60,7 @@ export function ZoneEditClient({ zone, rewards: initialRewards, initialQuietInde
     <div className="flex flex-col gap-8">
       <h1 className="text-2xl font-light tracking-wide">{zone.name}</h1>
       <LiveQuietIndex zoneId={zone.id} initialValue={initialQuietIndex} />
+      <DigestPanel zoneId={zone.id} />
       <ZoneForm
         key={zone.id}
         initialValues={{
