@@ -3,7 +3,7 @@
 // @hush/shared-types shape. geofence:zones_geofence_geojson works around a
 // `geography` column's default PostgREST serialization being raw WKB hex,
 // not GeoJSON (supabase/migrations/0012_zones_geofence_geojson.sql).
-import type { Session, Zone } from "@hush/shared-types";
+import type { Redemption, Reward, Session, WalletLedgerEntry, Zone } from "@hush/shared-types";
 
 export const ZONE_SELECT =
   "id, operator_id, name, geofence:zones_geofence_geojson, silence_contract, reward_config, created_at";
@@ -50,6 +50,58 @@ export function toSession(row: {
     achievedMinutes: row.achieved_minutes,
     finalScore: row.final_score,
     anonToken: row.anon_token,
+    createdAt: row.created_at,
+  };
+}
+
+export function toReward(row: {
+  id: string;
+  zone_id: string;
+  name: string;
+  points_cost: number;
+  created_at: string;
+}): Reward {
+  return {
+    id: row.id,
+    zoneId: row.zone_id,
+    name: row.name,
+    pointsCost: row.points_cost,
+    createdAt: row.created_at,
+  };
+}
+
+export function toWalletLedgerEntry(row: {
+  id: string;
+  user_id: string;
+  delta: number;
+  reason: string;
+  metadata: Record<string, unknown>;
+  created_at: string;
+}): WalletLedgerEntry {
+  return {
+    id: row.id,
+    userId: row.user_id,
+    delta: row.delta,
+    reason: row.reason,
+    metadata: row.metadata,
+    createdAt: row.created_at,
+  };
+}
+
+export function toRedemption(row: {
+  id: string;
+  user_id: string;
+  reward_id: string;
+  zone_id: string;
+  points_spent: number;
+  created_at: string;
+}): Redemption {
+  return {
+    id: row.id,
+    userId: row.user_id,
+    rewardId: row.reward_id,
+    zoneId: row.zone_id,
+    pointsSpent: row.points_spent,
     createdAt: row.created_at,
   };
 }

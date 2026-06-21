@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { toZone, toSession, ZONE_SELECT } from "./mappers";
+import { toRedemption, toReward, toSession, toWalletLedgerEntry, toZone, ZONE_SELECT } from "./mappers";
 
 describe("ZONE_SELECT", () => {
   it("selects the geofence via the GeoJSON computed column", () => {
@@ -83,5 +83,69 @@ describe("toSession", () => {
       created_at: "2026-01-01T00:00:00Z",
     });
     expect(session.anonToken).toBe("tok-123");
+  });
+});
+
+describe("toReward", () => {
+  it("maps snake_case DB columns to the Reward shape", () => {
+    expect(
+      toReward({
+        id: "r1",
+        zone_id: "z1",
+        name: "Free coffee",
+        points_cost: 50,
+        created_at: "2026-01-01T00:00:00Z",
+      })
+    ).toEqual({
+      id: "r1",
+      zoneId: "z1",
+      name: "Free coffee",
+      pointsCost: 50,
+      createdAt: "2026-01-01T00:00:00Z",
+    });
+  });
+});
+
+describe("toWalletLedgerEntry", () => {
+  it("maps snake_case DB columns to the WalletLedgerEntry shape", () => {
+    expect(
+      toWalletLedgerEntry({
+        id: "w1",
+        user_id: "u1",
+        delta: 5,
+        reason: "quiet_minute_accrual",
+        metadata: { session_id: "s1" },
+        created_at: "2026-01-01T00:00:00Z",
+      })
+    ).toEqual({
+      id: "w1",
+      userId: "u1",
+      delta: 5,
+      reason: "quiet_minute_accrual",
+      metadata: { session_id: "s1" },
+      createdAt: "2026-01-01T00:00:00Z",
+    });
+  });
+});
+
+describe("toRedemption", () => {
+  it("maps snake_case DB columns to the Redemption shape", () => {
+    expect(
+      toRedemption({
+        id: "rd1",
+        user_id: "u1",
+        reward_id: "r1",
+        zone_id: "z1",
+        points_spent: 50,
+        created_at: "2026-01-01T00:00:00Z",
+      })
+    ).toEqual({
+      id: "rd1",
+      userId: "u1",
+      rewardId: "r1",
+      zoneId: "z1",
+      pointsSpent: 50,
+      createdAt: "2026-01-01T00:00:00Z",
+    });
   });
 });
