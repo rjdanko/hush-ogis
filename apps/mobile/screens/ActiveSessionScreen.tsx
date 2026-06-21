@@ -8,6 +8,9 @@ import { checkOutSession } from "../lib/checkin";
 import { getSilenceSignals } from "../lib/signals";
 import { computeSilenceScore } from "../lib/scoring";
 import { sendScorePing } from "../lib/ingest";
+import { evaluateCoach, STREAK_LOOKBACK, type CoachMemory } from "../lib/coach";
+import { pickMessage } from "../lib/coach-messages";
+import { CoachCard } from "../components/CoachCard";
 import { colors, fonts } from "../lib/theme";
 
 // PRD §7.1: device reports a fresh silence score roughly every 15s.
@@ -24,8 +27,11 @@ export function ActiveSessionScreen({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [liveScore, setLiveScore] = useState<number | null>(null);
   const [elapsedMs, setElapsedMs] = useState(0);
+  const [coachNudge, setCoachNudge] = useState<string | null>(null);
   const breath = useRef(new Animated.Value(1)).current;
   const startedAt = useRef(Date.now());
+  const coachMemory = useRef<CoachMemory>({ lastNudgeAt: null, firedOneShots: [] });
+  const recentScores = useRef<number[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -39,6 +45,28 @@ export function ActiveSessionScreen({
       if (cancelled) return;
       setLiveScore(score);
       setElapsedMs(elapsed);
+      try {
+        const now = Date.now();
+        const updatedRecentScores = [...recentScores.current, score].slice(-STREAK_LOOKBACK);
+        const coachState = {
+          liveScore: score,
+          previousScore,
+          isForeground: signals.isForeground,
+          elapsedMs: elapsed,
+          intendedMinutes: session.intendedMinutes,
+          recentScores: updatedRecentScores,
+        };
+        const { nudge, memory } = evaluateCoach(coachState, coachMemory.current, now);
+        coachMemory.current = memory;
+        recentScores.current = updatedRecentScores;
+        if (nudge) {
+          setCoachNudge(pickMessage(nudge.category, memory, now));
+        }
+      } catch (err) {
+        // The coach is a calm, non-essential overlay -- it must never be
+        // allowed to interrupt the privacy-critical score/ping loop below.
+        if (__DEV__) console.warn("coach evaluation failed", err);
+      }
       try {
         await sendScorePing({
           anonSessionToken: session.anonToken,
@@ -124,6 +152,11 @@ export function ActiveSessionScreen({
           <Text style={styles.tileLabel}>YOUR SILENCE</Text>
         </View>
       </View>
+      {coachNudge && (
+        <View style={styles.coachWrap}>
+          <CoachCard message={coachNudge} onDismiss={() => setCoachNudge(null)} />
+        </View>
+      )}
       <Pressable style={styles.button} onPress={handleCheckOut} disabled={submitting}>
         <Text style={styles.buttonText}>{submitting ? "Checking out…" : "Check out"}</Text>
       </Pressable>
@@ -162,6 +195,7 @@ const styles = StyleSheet.create({
   tileValue: { fontFamily: fonts.hero, fontSize: 26, color: colors.nightWarmText },
   tileValueAccent: { color: colors.glowHigh },
   tileLabel: { fontFamily: fonts.bodySemiBold, fontSize: 9, letterSpacing: 1.5, color: colors.nightMutedText, marginTop: 4 },
+  coachWrap: { width: "100%", maxWidth: 280, marginBottom: 18 },
   button: { backgroundColor: colors.glowHigh, borderRadius: 16, paddingVertical: 15, paddingHorizontal: 32 },
   buttonText: { fontFamily: fonts.bodySemiBold, color: colors.night },
 });
