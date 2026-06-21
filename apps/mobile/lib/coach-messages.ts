@@ -9,6 +9,7 @@
 //    not personalized with remembered history (deferred to V1).
 //  - quiet_accumulating is calm-presence / quiet-time feedback, never a
 //    points figure -- "your quiet time is adding up", not "+5 points".
+import { NUDGE_COOLDOWN_MS } from "./coach";
 import type { CoachMemory, CoachNudgeCategory } from "./coach";
 
 // 2-3 warm variants per category. Every variant must clear the
@@ -50,12 +51,27 @@ export const MESSAGES: Record<CoachNudgeCategory, string[]> = {
 };
 
 // Deterministic by design: tests (and any future UI snapshot) need a
-// reproducible mapping from (category, memory) to a single message, with no
-// randomness or hidden state. firedOneShots.length is a stand-in cycling
-// counter -- it grows over the life of a session, so consecutive nudges in
-// the same category naturally rotate through the available variants.
-export function pickMessage(category: CoachNudgeCategory, memory: CoachMemory): string {
+// reproducible mapping from (category, now) to a single message, with no
+// true randomness or hidden state. Rotation is keyed off `now` (bucketed by
+// NUDGE_COOLDOWN_MS, the same cadence coach.ts already uses to gate how
+// often a nudge can fire) rather than memory.firedOneShots.length: that
+// counter only grows for the one-shot categories (settling, goal_nearing,
+// goal_reached -- see ONE_SHOT_CATEGORIES in coach.ts), so for the three
+// repeatable categories (phone_picked_up, streak_improving,
+// quiet_accumulating) it would stay flat for the rest of the session,
+// freezing every later nudge in that category onto the same fixed variant.
+// Bucketing by time instead guarantees real rotation across a session for
+// every category, repeatable or one-shot. `memory` is accepted but unused
+// today; kept for a future personalized-copy hook (see the "no
+// cross-session baseline learning" note above) without another signature
+// change.
+export function pickMessage(
+  category: CoachNudgeCategory,
+  memory: CoachMemory,
+  now: number
+): string {
   const variants = MESSAGES[category];
-  const index = memory.firedOneShots.length % variants.length;
+  const bucket = Math.floor(now / NUDGE_COOLDOWN_MS);
+  const index = bucket % variants.length;
   return variants[index];
 }

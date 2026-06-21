@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { MESSAGES, pickMessage } from "./coach-messages";
+import { NUDGE_COOLDOWN_MS } from "./coach";
 import type { CoachMemory, CoachNudgeCategory } from "./coach";
 
 // PRD §8.1 tone gate: the coach must never read as scolding, even subtly.
@@ -57,7 +58,7 @@ describe("MESSAGES", () => {
 describe("pickMessage", () => {
   it("resolves every CoachNudgeCategory to a non-empty message", () => {
     for (const category of CATEGORIES) {
-      const message = pickMessage(category, memory());
+      const message = pickMessage(category, memory(), 0);
       expect(typeof message).toBe("string");
       expect(message.trim().length).toBeGreaterThan(0);
     }
@@ -65,33 +66,55 @@ describe("pickMessage", () => {
 
   it("never matches the never-shaming denylist for any resolved message", () => {
     for (const category of CATEGORIES) {
-      for (let fired = 0; fired < 5; fired++) {
-        const mem = memory({ firedOneShots: Array(fired).fill(category) });
-        const message = pickMessage(category, mem);
+      for (let tick = 0; tick < 5; tick++) {
+        const mem = memory();
+        const message = pickMessage(category, mem, tick * NUDGE_COOLDOWN_MS);
         expect(message).not.toMatch(SHAMING_DENYLIST);
       }
     }
   });
 
-  it("is deterministic -- same category and memory always resolve to the same message", () => {
+  it("is deterministic -- same category, memory, and now always resolve to the same message", () => {
     const mem = memory({ firedOneShots: ["settling", "settling"] });
-    const first = pickMessage("streak_improving", mem);
-    const second = pickMessage("streak_improving", mem);
+    const first = pickMessage("streak_improving", mem, 123_456);
+    const second = pickMessage("streak_improving", mem, 123_456);
     expect(first).toBe(second);
   });
 
-  it("selects among the declared variants for a category, indexed deterministically by memory", () => {
+  it("selects among the declared variants for a category, indexed deterministically by now", () => {
     const variants = MESSAGES.goal_nearing;
     const seen = new Set<string>();
-    for (let fired = 0; fired < variants.length * 2; fired++) {
-      const mem = memory({ firedOneShots: Array(fired).fill("goal_nearing") });
-      const message = pickMessage("goal_nearing", mem);
+    const mem = memory();
+    for (let tick = 0; tick < variants.length * 2; tick++) {
+      const message = pickMessage("goal_nearing", mem, tick * NUDGE_COOLDOWN_MS);
       expect(variants).toContain(message);
       seen.add(message);
     }
     // Over enough ticks, more than one variant should have been seen --
     // proves selection isn't hardcoded to index 0.
     expect(seen.size).toBeGreaterThan(1);
+  });
+
+  it("rotates a repeatable category's variants across ticks even though memory.firedOneShots never grows for it -- the bug this guards: phone_picked_up, streak_improving, and quiet_accumulating are never added to firedOneShots by coach.ts's recordNudge, so a count-based index would freeze on one variant for the rest of the session", () => {
+    const variants = MESSAGES.phone_picked_up;
+    const seen = new Set<string>();
+    // memory is held constant -- exactly the real-world shape once an
+    // unrelated one-shot (e.g. settling) has already fired earlier in the
+    // session and phone_picked_up keeps firing on every subsequent tick.
+    const mem = memory({ firedOneShots: ["settling"] });
+    for (let tick = 0; tick < variants.length * 2; tick++) {
+      const message = pickMessage("phone_picked_up", mem, tick * NUDGE_COOLDOWN_MS);
+      expect(variants).toContain(message);
+      seen.add(message);
+    }
+    expect(seen.size).toBeGreaterThan(1);
+  });
+
+  it("does not rotate within the same NUDGE_COOLDOWN_MS bucket -- rotation granularity matches the real nudge cadence, not every render", () => {
+    const mem = memory();
+    const first = pickMessage("quiet_accumulating", mem, 1_000);
+    const second = pickMessage("quiet_accumulating", mem, 1_500);
+    expect(first).toBe(second);
   });
 });
 
