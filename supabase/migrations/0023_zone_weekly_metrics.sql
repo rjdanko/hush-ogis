@@ -134,8 +134,14 @@ begin
 end;
 $$;
 
--- No broad grant. The FastAPI digest builder calls this via the service-role
--- key, which bypasses grants entirely; exposing it to anon/authenticated would
--- hand any signed-in client a cross-user read primitive. Mirror the
--- compute_eligible_quiet_minutes / wallet_ledger stance: revoke, never grant.
+-- Revoke the default PUBLIC execute grant, then hand execute to service_role
+-- ONLY. service_role has BYPASSRLS but is NOT exempt from function EXECUTE
+-- privilege, so the FastAPI digest builder (which calls this as service_role
+-- via PostgREST RPC) needs an explicit grant; revoking from PUBLIC without it
+-- would lock the service out too. anon/authenticated are deliberately left
+-- without execute: exposing this to a signed-in client would hand them a
+-- cross-user read primitive. (Same revoke-then-grant-the-caller idiom as
+-- ingest_score_ping / redeem_reward, but the caller here is the server, not
+-- the user, so the grant target is service_role rather than authenticated.)
 revoke all on function public.zone_weekly_metrics(uuid, uuid) from public, anon, authenticated;
+grant execute on function public.zone_weekly_metrics(uuid, uuid) to service_role;
