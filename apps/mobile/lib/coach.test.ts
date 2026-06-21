@@ -170,4 +170,20 @@ describe("evaluateCoach", () => {
     );
     expect(second.nudge?.category).not.toBe("settling");
   });
+
+  it("fires settling even within the cooldown window, like other one-shots", () => {
+    const priorMemory = memory({ lastNudgeAt: NOW - 1_000 });
+    const result = evaluateCoach(
+      state({
+        liveScore: 10,
+        previousScore: 10,
+        elapsedMs: 5_000,
+        intendedMinutes: null,
+        recentScores: [10, 10],
+      }),
+      priorMemory,
+      NOW
+    );
+    expect(result.nudge?.category).toBe("settling");
+  });
 });

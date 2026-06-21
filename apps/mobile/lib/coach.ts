@@ -123,7 +123,7 @@ export function evaluateCoach(
     ["goal_nearing", isGoalNearing(state, memory)],
     ["streak_improving", isStreakImproving(state) && !withinCooldown(memory, now)],
     ["quiet_accumulating", isQuietAccumulating(state) && !withinCooldown(memory, now)],
-    ["settling", isSettling(state, memory) && !withinCooldown(memory, now)],
+    ["settling", isSettling(state, memory)],
   ];
 
   for (const [category, matches] of candidates) {
