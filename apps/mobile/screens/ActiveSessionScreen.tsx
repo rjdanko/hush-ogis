@@ -41,6 +41,7 @@ export function ActiveSessionScreen({
       const elapsed = Date.now() - startedAt.current;
       const signals = await getSilenceSignals(elapsed);
       const score = computeSilenceScore(signals, previousScore);
+      const priorScore = previousScore; // snapshot before mutating, for the coach's trend detection
       previousScore = score;
       if (cancelled) return;
       setLiveScore(score);
@@ -50,7 +51,7 @@ export function ActiveSessionScreen({
         const updatedRecentScores = [...recentScores.current, score].slice(-STREAK_LOOKBACK);
         const coachState = {
           liveScore: score,
-          previousScore,
+          previousScore: priorScore,
           isForeground: signals.isForeground,
           elapsedMs: elapsed,
           intendedMinutes: session.intendedMinutes,
