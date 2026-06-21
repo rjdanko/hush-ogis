@@ -2,21 +2,38 @@
 // first check-in starts the on-device silence agent. Usage access lets us
 // privately compute a 0-100 score on-device -- we never read app names,
 // notification content, or keystrokes (PRD §7.3).
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { AppState, Pressable, StyleSheet, Text, View } from "react-native";
 import { openUsageAccessSettings } from "../modules/silence-signals";
 import { colors, fonts } from "../lib/theme";
 
 export function PermissionOnboardingScreen({ onContinue }: { onContinue: () => void }) {
   // Settings deep links have no return callback, so the only signal that the
-  // user is back is the app going foreground again. Wait for that instead of
-  // navigating the instant the button is tapped -- continuing immediately
-  // would route straight to check-in even if the user backs out of Settings
-  // without granting anything, with no chance to notice. Either way the
-  // session still starts (the agent degrades gracefully without the
-  // permission), but at least the user has actually seen the Settings screen
-  // first rather than the app racing ahead of them.
+  // user is back is the app coming to the foreground again ("active" fires
+  // on every foreground, not specifically "returned from Settings" -- a
+  // loose but acceptable signal since this isn't a security gate, see
+  // below). Wait for that instead of navigating the instant the button is
+  // tapped -- continuing immediately would route straight to check-in even
+  // if the user backs out of Settings without granting anything, with no
+  // chance to notice. Either way the session still starts (the agent
+  // degrades gracefully without the permission), but at least the user has
+  // actually had a chance to grant it first rather than the app racing
+  // ahead of them.
   const waitingForReturn = useRef(false);
+
+  // Owned by an effect (not registered inside onPress) so it's torn down on
+  // unmount regardless of whether the user ever returns from Settings --
+  // otherwise a stale listener could later fire onContinue() against a
+  // screen the app has already navigated away from.
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", (state) => {
+      if (state === "active" && waitingForReturn.current) {
+        waitingForReturn.current = false;
+        onContinue();
+      }
+    });
+    return () => subscription.remove();
+  }, [onContinue]);
 
   return (
     <View style={styles.container}>
@@ -35,14 +52,10 @@ export function PermissionOnboardingScreen({ onContinue }: { onContinue: () => v
         <Pressable
           style={styles.button}
           onPress={() => {
+            // Guard against a double-tap registering this twice -- a no-op
+            // once we're already waiting for the user to come back.
+            if (waitingForReturn.current) return;
             waitingForReturn.current = true;
-            const subscription = AppState.addEventListener("change", (state) => {
-              if (state === "active" && waitingForReturn.current) {
-                waitingForReturn.current = false;
-                subscription.remove();
-                onContinue();
-              }
-            });
             openUsageAccessSettings();
           }}
         >
