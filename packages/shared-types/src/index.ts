@@ -8,3 +8,4 @@ export * from "./score-ping";
 export * from "./quiet-index";
 export * from "./reward";
 export * from "./wallet-ledger";
+export * from "./redemption";
