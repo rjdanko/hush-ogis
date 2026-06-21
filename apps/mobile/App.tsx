@@ -18,12 +18,17 @@ import { MapScreen } from "./screens/MapScreen";
 import { PermissionOnboardingScreen } from "./screens/PermissionOnboardingScreen";
 import { ZoneDetailScreen } from "./screens/ZoneDetailScreen";
 import { ActiveSessionScreen } from "./screens/ActiveSessionScreen";
+import { SessionSummaryScreen } from "./screens/SessionSummaryScreen";
+import { WalletScreen } from "./screens/WalletScreen";
+import { getSessionPointsAwarded } from "./lib/wallet";
 
 type Screen =
   | { name: "map" }
   | { name: "permissionOnboarding"; zone: Zone }
   | { name: "zoneDetail"; zone: Zone }
-  | { name: "activeSession"; session: Session };
+  | { name: "activeSession"; session: Session }
+  | { name: "sessionSummary"; session: Session; pointsAwarded: number }
+  | { name: "wallet"; returnTo: Screen };
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -60,9 +65,22 @@ export default function App() {
     }
   }
 
+  async function handleCheckedOut(session: Session) {
+    let pointsAwarded = 0;
+    try {
+      pointsAwarded = await getSessionPointsAwarded(session.id);
+    } catch {
+      // The session is already checked out either way -- a failed payout
+      // read just shows 0 rather than blocking the summary screen.
+    }
+    setScreen({ name: "sessionSummary", session, pointsAwarded });
+  }
+
   return (
     <View style={styles.container}>
-      {screen.name === "map" && <MapScreen onSelectZone={handleSelectZone} />}
+      {screen.name === "map" && (
+        <MapScreen onSelectZone={handleSelectZone} onOpenWallet={() => setScreen({ name: "wallet", returnTo: screen })} />
+      )}
       {screen.name === "permissionOnboarding" && (
         <PermissionOnboardingScreen
           onContinue={() => setScreen({ name: "zoneDetail", zone: screen.zone })}
@@ -75,11 +93,17 @@ export default function App() {
         />
       )}
       {screen.name === "activeSession" && (
-        <ActiveSessionScreen
+        <ActiveSessionScreen session={screen.session} onCheckedOut={handleCheckedOut} />
+      )}
+      {screen.name === "sessionSummary" && (
+        <SessionSummaryScreen
           session={screen.session}
-          onCheckedOut={() => setScreen({ name: "map" })}
+          pointsAwarded={screen.pointsAwarded}
+          onViewWallet={() => setScreen({ name: "wallet", returnTo: { name: "map" } })}
+          onDone={() => setScreen({ name: "map" })}
         />
       )}
+      {screen.name === "wallet" && <WalletScreen onClose={() => setScreen(screen.returnTo)} />}
       <StatusBar style="light" />
     </View>
   );

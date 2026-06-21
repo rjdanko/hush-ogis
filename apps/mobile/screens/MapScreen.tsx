@@ -1,7 +1,7 @@
 // U1 hero screen: zones render as soft glowing blooms sized/colored by the
 // live Quiet Index (Design Brief §5.2/§6, Phase 5's realtime engine).
 import { useEffect, useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import type { Zone } from "@hush/shared-types";
 import { fetchZones } from "../lib/zones";
@@ -13,7 +13,13 @@ import { fetchLatestQuietIndex, subscribeToQuietIndex } from "../lib/quietIndex"
 // same thing as "noisy" on the glow scale.
 const NO_READING_COLOR = "#3A3A3A";
 
-export function MapScreen({ onSelectZone }: { onSelectZone: (zone: Zone) => void }) {
+export function MapScreen({
+  onSelectZone,
+  onOpenWallet,
+}: {
+  onSelectZone: (zone: Zone) => void;
+  onOpenWallet: () => void;
+}) {
   const [zones, setZones] = useState<Zone[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -74,6 +80,9 @@ export function MapScreen({ onSelectZone }: { onSelectZone: (zone: Zone) => void
 
   return (
     <View style={styles.container}>
+      <Pressable style={styles.walletButton} onPress={onOpenWallet}>
+        <Text style={styles.walletButtonText}>Wallet</Text>
+      </Pressable>
       <MapView
         style={styles.map}
         initialRegion={{
@@ -127,4 +136,15 @@ const styles = StyleSheet.create({
   bloom: { width: 28, height: 28, borderRadius: 14, opacity: 0.85 },
   emptyOverlay: { position: "absolute", bottom: 32, alignSelf: "center" },
   emptyText: { color: "#A9A296" },
+  walletButton: {
+    position: "absolute",
+    top: 56,
+    right: 20,
+    zIndex: 1,
+    backgroundColor: "rgba(35,32,26,0.85)",
+    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+  },
+  walletButtonText: { color: "#E8C170", fontWeight: "600", fontSize: 12 },
 });
