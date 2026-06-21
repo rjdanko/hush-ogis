@@ -30,12 +30,20 @@ select is(
   'user B cannot read score_pings belonging to user A''s session (IDOR guard)'
 );
 
+-- NOTE: as of 0016_score_ping_ingest.sql, `insert` on score_pings is revoked
+-- from `authenticated` entirely -- this now fails for *every* authenticated
+-- user (not just user B) on the missing grant alone, before RLS is ever
+-- evaluated, so this is no longer an IDOR guard. The real IDOR coverage for
+-- the score-ping ingest path now lives in 012_score_ping_ingest.sql, which
+-- exercises the ingest_score_ping RPC (the only remaining write path). This
+-- assertion is kept only as a regression guard that direct inserts stay
+-- blocked at all.
 select throws_ok(
   $$ insert into public.score_pings (session_id, score)
      values ('ffffffff-ffff-ffff-ffff-ffffffffffff', 50) $$,
   '42501',
   null,
-  'user B cannot insert a score_ping into user A''s session'
+  'direct insert into score_pings remains blocked for any authenticated user'
 );
 
 select * from finish();

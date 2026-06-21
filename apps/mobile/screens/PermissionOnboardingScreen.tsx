@@ -2,11 +2,22 @@
 // first check-in starts the on-device silence agent. Usage access lets us
 // privately compute a 0-100 score on-device -- we never read app names,
 // notification content, or keystrokes (PRD §7.3).
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useRef } from "react";
+import { AppState, Pressable, StyleSheet, Text, View } from "react-native";
 import { openUsageAccessSettings } from "../modules/silence-signals";
 import { colors, fonts } from "../lib/theme";
 
 export function PermissionOnboardingScreen({ onContinue }: { onContinue: () => void }) {
+  // Settings deep links have no return callback, so the only signal that the
+  // user is back is the app going foreground again. Wait for that instead of
+  // navigating the instant the button is tapped -- continuing immediately
+  // would route straight to check-in even if the user backs out of Settings
+  // without granting anything, with no chance to notice. Either way the
+  // session still starts (the agent degrades gracefully without the
+  // permission), but at least the user has actually seen the Settings screen
+  // first rather than the app racing ahead of them.
+  const waitingForReturn = useRef(false);
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>A couple of{"\n"}plain-language asks.</Text>
@@ -24,8 +35,15 @@ export function PermissionOnboardingScreen({ onContinue }: { onContinue: () => v
         <Pressable
           style={styles.button}
           onPress={() => {
+            waitingForReturn.current = true;
+            const subscription = AppState.addEventListener("change", (state) => {
+              if (state === "active" && waitingForReturn.current) {
+                waitingForReturn.current = false;
+                subscription.remove();
+                onContinue();
+              }
+            });
             openUsageAccessSettings();
-            onContinue();
           }}
         >
           <Text style={styles.buttonText}>Allow & continue</Text>
