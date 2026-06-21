@@ -4,15 +4,17 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ZoneForm, type ZoneFormValues } from "../../../../components/ZoneForm";
 import { RewardForm } from "../../../../components/RewardForm";
+import { LiveQuietIndex } from "../../../../components/LiveQuietIndex";
 import { toReward } from "../../../../lib/mappers";
 import type { Reward, Zone } from "@hush/shared-types";
 
 interface ZoneEditClientProps {
   zone: Zone;
   rewards: Reward[];
+  initialQuietIndex: number | null;
 }
 
-export function ZoneEditClient({ zone, rewards: initialRewards }: ZoneEditClientProps) {
+export function ZoneEditClient({ zone, rewards: initialRewards, initialQuietIndex }: ZoneEditClientProps) {
   const router = useRouter();
   const [rewards, setRewards] = useState(initialRewards);
 
@@ -56,6 +58,7 @@ export function ZoneEditClient({ zone, rewards: initialRewards }: ZoneEditClient
   return (
     <div className="flex flex-col gap-8">
       <h1 className="text-2xl font-light tracking-wide">{zone.name}</h1>
+      <LiveQuietIndex zoneId={zone.id} initialValue={initialQuietIndex} />
       <ZoneForm
         key={zone.id}
         initialValues={{

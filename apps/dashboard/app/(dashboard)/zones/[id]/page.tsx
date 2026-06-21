@@ -1,5 +1,6 @@
 import { createClient } from "../../../../lib/supabase/server";
 import { toReward, toZone, ZONE_SELECT } from "../../../../lib/mappers";
+import { fetchLatestQuietIndex } from "../../../../lib/quiet-index";
 import { ZoneEditClient } from "./zone-edit-client";
 
 export default async function ZoneDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -17,6 +18,7 @@ export default async function ZoneDetailPage({ params }: { params: Promise<{ id:
 
   const zone = toZone(zoneRow);
   const rewards = (rewardRows ?? []).map(toReward);
+  const initialQuietIndex = await fetchLatestQuietIndex(supabase, zone.id);
 
-  return <ZoneEditClient zone={zone} rewards={rewards} />;
+  return <ZoneEditClient zone={zone} rewards={rewards} initialQuietIndex={initialQuietIndex} />;
 }

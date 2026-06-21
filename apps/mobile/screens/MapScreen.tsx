@@ -1,20 +1,23 @@
-// U1 hero screen: zones render as soft glowing blooms sized/colored by
-// Quiet Index (Design Brief §5.2/§6). Quiet Index is a static placeholder
-// (50) until Phase 5's realtime engine exists -- this screen only needs to
-// prove the map + zone-discovery + tap-to-select loop for Phase 3.
+// U1 hero screen: zones render as soft glowing blooms sized/colored by the
+// live Quiet Index (Design Brief §5.2/§6, Phase 5's realtime engine).
 import { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import type { Zone } from "@hush/shared-types";
 import { fetchZones } from "../lib/zones";
 import { quietIndexGlowColor } from "../lib/glow";
+import { fetchLatestQuietIndex, subscribeToQuietIndex } from "../lib/quietIndex";
 
-const PLACEHOLDER_QUIET_INDEX = 50;
+// A dim neutral baseline for zones where quorum (SR-10) has never been met --
+// deliberately not quietIndexGlowColor(0), since "no reading yet" is not the
+// same thing as "noisy" on the glow scale.
+const NO_READING_COLOR = "#3A3A3A";
 
 export function MapScreen({ onSelectZone }: { onSelectZone: (zone: Zone) => void }) {
   const [zones, setZones] = useState<Zone[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [quietIndexByZone, setQuietIndexByZone] = useState<Record<string, number | null>>({});
 
   useEffect(() => {
     fetchZones()
@@ -22,6 +25,33 @@ export function MapScreen({ onSelectZone }: { onSelectZone: (zone: Zone) => void
       .catch((err: Error) => setErrorMessage(err.message))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (zones.length === 0) return;
+
+    let cancelled = false;
+    zones.forEach((zone) => {
+      fetchLatestQuietIndex(zone.id)
+        .then((value) => {
+          if (!cancelled) setQuietIndexByZone((current) => ({ ...current, [zone.id]: value }));
+        })
+        .catch(() => {
+          // A failed initial read just leaves this zone at "no reading yet" --
+          // the realtime subscription below can still recover it.
+        });
+    });
+
+    const unsubscribes = zones.map((zone) =>
+      subscribeToQuietIndex(zone.id, (value) => {
+        setQuietIndexByZone((current) => ({ ...current, [zone.id]: value }));
+      })
+    );
+
+    return () => {
+      cancelled = true;
+      unsubscribes.forEach((unsubscribe) => unsubscribe());
+    };
+  }, [zones]);
 
   if (loading) {
     return (
@@ -68,7 +98,12 @@ export function MapScreen({ onSelectZone }: { onSelectZone: (zone: Zone) => void
               <View
                 style={[
                   styles.bloom,
-                  { backgroundColor: quietIndexGlowColor(PLACEHOLDER_QUIET_INDEX) },
+                  {
+                    backgroundColor:
+                      quietIndexByZone[zone.id] == null
+                        ? NO_READING_COLOR
+                        : quietIndexGlowColor(quietIndexByZone[zone.id]!),
+                  },
                 ]}
               />
             </Marker>
