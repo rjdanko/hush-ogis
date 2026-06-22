@@ -3,6 +3,7 @@
 import { StyleSheet, Pressable, Text, View } from "react-native";
 import type { Session } from "@hush/shared-types";
 import { colors, fonts } from "../lib/theme";
+import { sessionSummaryHint } from "../lib/scoring";
 
 export function SessionSummaryScreen({
   session,
@@ -33,9 +34,7 @@ export function SessionSummaryScreen({
         </View>
       </View>
       <Text style={styles.hint}>
-        {pointsAwarded > 0
-          ? "Your wallet has been credited."
-          : "No points this time -- stay quietly checked in longer to earn some."}
+        {sessionSummaryHint(pointsAwarded, session.achievedMinutes, session.finalScore)}
       </Text>
       <Pressable style={styles.primaryButton} onPress={onViewWallet}>
         <Text style={styles.primaryButtonText}>View wallet</Text>

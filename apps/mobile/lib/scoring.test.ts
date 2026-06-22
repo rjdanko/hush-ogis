@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeSilenceScore, type SilenceSignals } from "./scoring";
+import { computeSilenceScore, sessionSummaryHint, type SilenceSignals } from "./scoring";
 
 function signals(overrides: Partial<SilenceSignals> = {}): SilenceSignals {
   return {
@@ -108,5 +108,51 @@ describe("computeSilenceScore", () => {
     expect(rawNow).toBe(0);
     expect(smoothed).toBeLessThan(previousScore);
     expect(smoothed).toBeGreaterThan(rawNow);
+  });
+});
+
+describe("sessionSummaryHint", () => {
+  it("credits the wallet when points were awarded, regardless of minutes/score", () => {
+    expect(sessionSummaryHint(5, 1, 10)).toBe("Your wallet has been credited.");
+    expect(sessionSummaryHint(1, null, null)).toBe("Your wallet has been credited.");
+  });
+
+  it("falls back to the generic no-signal message when there's nothing to differentiate on", () => {
+    expect(sessionSummaryHint(0, null, null)).toBe(
+      "No points this time -- stay quietly checked in longer to earn some."
+    );
+  });
+
+  it("names the too-short / not-enough-signal cause when achievedMinutes is null", () => {
+    expect(sessionSummaryHint(0, null, 80)).toBe(
+      "Not enough quiet time recorded yet -- stay checked in a little longer."
+    );
+  });
+
+  it("names the too-short / not-enough-signal cause when achievedMinutes is under the threshold", () => {
+    expect(sessionSummaryHint(0, 1, 80)).toBe(
+      "Not enough quiet time recorded yet -- stay checked in a little longer."
+    );
+    expect(sessionSummaryHint(0, 1.9, null)).toBe(
+      "Not enough quiet time recorded yet -- stay checked in a little longer."
+    );
+  });
+
+  it("names the too-noisy cause when the session ran long enough but the score stayed low", () => {
+    expect(sessionSummaryHint(0, 10, 30)).toBe(
+      "This session didn't stay quiet enough to earn points this time."
+    );
+  });
+
+  it("treats the too-short threshold as exclusive at exactly 2 minutes (long enough to check the score instead)", () => {
+    expect(sessionSummaryHint(0, 2, 30)).toBe(
+      "This session didn't stay quiet enough to earn points this time."
+    );
+  });
+
+  it("falls back to the generic message when minutes are long enough but score is also missing", () => {
+    expect(sessionSummaryHint(0, 10, null)).toBe(
+      "No points this time -- stay quietly checked in longer to earn some."
+    );
   });
 });
