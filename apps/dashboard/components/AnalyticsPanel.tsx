@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { prefersReducedMotion } from "../lib/motion";
 
 interface TrendPoint {
   day: string;
@@ -73,7 +74,13 @@ export function AnalyticsPanel({ zoneId }: { zoneId: string }) {
               <XAxis dataKey="day" tick={{ fontSize: 11 }} />
               <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
               <Tooltip />
-              <Line type="monotone" dataKey="avg_value" stroke="#1c1c1e" dot={false} />
+              <Line
+                type="monotone"
+                dataKey="avg_value"
+                stroke="#1c1c1e"
+                dot={false}
+                isAnimationActive={!prefersReducedMotion()}
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>
