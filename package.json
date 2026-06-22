@@ -13,6 +13,7 @@
     "dev:dashboard": "npm run dev --workspace apps/dashboard",
     "dev:mobile": "npm run start --workspace apps/mobile",
     "dev:ai": "bash scripts/run-ai.sh",
+    "e2e:full-loop": "node scripts/e2e-full-loop.mjs",
     "audit:js": "npm audit --audit-level=high",
     "audit:py": "bash scripts/audit-py.sh",
     "audit": "npm run audit:js && npm run audit:py",
