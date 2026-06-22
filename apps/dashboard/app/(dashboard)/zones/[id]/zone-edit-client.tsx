@@ -5,6 +5,7 @@ import { useState } from "react";
 import { ZoneForm, type ZoneFormValues } from "../../../../components/ZoneForm";
 import { RewardForm } from "../../../../components/RewardForm";
 import { LiveQuietIndex } from "../../../../components/LiveQuietIndex";
+import { AnalyticsPanel } from "../../../../components/AnalyticsPanel";
 import { DigestPanel } from "../../../../components/DigestPanel";
 import { toReward } from "../../../../lib/mappers";
 import type { QuietIndexReading } from "../../../../lib/quiet-index";
@@ -61,6 +62,7 @@ export function ZoneEditClient({ zone, rewards: initialRewards, initialReading }
     <div className="flex flex-col gap-8">
       <h1 className="text-2xl font-light tracking-wide">{zone.name}</h1>
       <LiveQuietIndex zoneId={zone.id} initialReading={initialReading} />
+      <AnalyticsPanel zoneId={zone.id} />
       <DigestPanel zoneId={zone.id} />
       <ZoneForm
         key={zone.id}
