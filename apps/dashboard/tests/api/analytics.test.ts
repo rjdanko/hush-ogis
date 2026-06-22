@@ -47,7 +47,7 @@ describe("POST /api/analytics", () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
-  it("relays the upstream analytics JSON with the Bearer header on a GET", async () => {
+  it("relays the upstream analytics JSON, forwarding the Bearer token on the upstream GET", async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: "happy-user" } } });
     const analytics = { zone_name: "Demo Cafe", quiet_index_trend: [] };
     (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({

@@ -61,19 +61,23 @@ export function AnalyticsPanel({ zoneId }: { zoneId: string }) {
 
   return (
     <section className="flex flex-col gap-4 rounded border border-neutral-200 p-4">
-      <h2 className="text-sm uppercase tracking-wide text-neutral-500">7-day analytics</h2>
+      <h2 className="text-sm uppercase tracking-wide text-neutral-500">{analytics.window_days}-day analytics</h2>
 
-      <div style={{ width: "100%", height: 200 }}>
-        <ResponsiveContainer>
-          <LineChart data={analytics.quiet_index_trend}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
-            <XAxis dataKey="day" tick={{ fontSize: 11 }} />
-            <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
-            <Tooltip />
-            <Line type="monotone" dataKey="avg_value" stroke="#1c1c1e" dot={false} />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+      {analytics.quiet_index_trend.length === 0 ? (
+        <p className="text-sm font-light text-neutral-400">No Quiet Index history yet for this zone.</p>
+      ) : (
+        <div style={{ width: "100%", height: 200 }}>
+          <ResponsiveContainer>
+            <LineChart data={analytics.quiet_index_trend}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
+              <XAxis dataKey="day" tick={{ fontSize: 11 }} />
+              <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
+              <Tooltip />
+              <Line type="monotone" dataKey="avg_value" stroke="#1c1c1e" dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Metric label="Check-ins" value={analytics.check_in_count} />
