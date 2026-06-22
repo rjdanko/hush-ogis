@@ -26,8 +26,8 @@ type Screen =
   | { name: "map" }
   | { name: "permissionOnboarding"; zone: Zone }
   | { name: "zoneDetail"; zone: Zone }
-  | { name: "activeSession"; session: Session }
-  | { name: "sessionSummary"; session: Session; pointsAwarded: number }
+  | { name: "activeSession"; session: Session; zone: Zone }
+  | { name: "sessionSummary"; session: Session; pointsAwarded: number; zone: Zone }
   | { name: "wallet"; returnTo: Screen };
 
 export default function App() {
@@ -65,7 +65,7 @@ export default function App() {
     }
   }
 
-  async function handleCheckedOut(session: Session) {
+  async function handleCheckedOut(session: Session, zone: Zone) {
     let pointsAwarded = 0;
     try {
       pointsAwarded = await getSessionPointsAwarded(session.id);
@@ -73,7 +73,7 @@ export default function App() {
       // The session is already checked out either way -- a failed payout
       // read just shows 0 rather than blocking the summary screen.
     }
-    setScreen({ name: "sessionSummary", session, pointsAwarded });
+    setScreen({ name: "sessionSummary", session, pointsAwarded, zone });
   }
 
   return (
@@ -89,16 +89,20 @@ export default function App() {
       {screen.name === "zoneDetail" && (
         <ZoneDetailScreen
           zone={screen.zone}
-          onCheckedIn={(session) => setScreen({ name: "activeSession", session })}
+          onCheckedIn={(session) => setScreen({ name: "activeSession", session, zone: screen.zone })}
         />
       )}
       {screen.name === "activeSession" && (
-        <ActiveSessionScreen session={screen.session} onCheckedOut={handleCheckedOut} />
+        <ActiveSessionScreen
+          session={screen.session}
+          onCheckedOut={(session) => handleCheckedOut(session, screen.zone)}
+        />
       )}
       {screen.name === "sessionSummary" && (
         <SessionSummaryScreen
           session={screen.session}
           pointsAwarded={screen.pointsAwarded}
+          zone={screen.zone}
           onViewWallet={() => setScreen({ name: "wallet", returnTo: { name: "map" } })}
           onDone={() => setScreen({ name: "map" })}
         />

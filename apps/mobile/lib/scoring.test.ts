@@ -112,47 +112,66 @@ describe("computeSilenceScore", () => {
 });
 
 describe("sessionSummaryHint", () => {
+  const TOO_NOISY_MESSAGE =
+    "This session was a bit too lively to earn points this time -- a quieter stretch next time should do it.";
+
   it("credits the wallet when points were awarded, regardless of minutes/score", () => {
-    expect(sessionSummaryHint(5, 1, 10)).toBe("Your wallet has been credited.");
-    expect(sessionSummaryHint(1, null, null)).toBe("Your wallet has been credited.");
+    expect(sessionSummaryHint(5, 1, 10, 50)).toBe("Your wallet has been credited.");
+    expect(sessionSummaryHint(1, null, null, 50)).toBe("Your wallet has been credited.");
   });
 
   it("falls back to the generic no-signal message when there's nothing to differentiate on", () => {
-    expect(sessionSummaryHint(0, null, null)).toBe(
+    expect(sessionSummaryHint(0, null, null, 50)).toBe(
       "No points this time -- stay quietly checked in longer to earn some."
     );
   });
 
   it("names the too-short / not-enough-signal cause when achievedMinutes is null", () => {
-    expect(sessionSummaryHint(0, null, 80)).toBe(
+    expect(sessionSummaryHint(0, null, 80, 50)).toBe(
       "Not enough quiet time recorded yet -- stay checked in a little longer."
     );
   });
 
   it("names the too-short / not-enough-signal cause when achievedMinutes is under the threshold", () => {
-    expect(sessionSummaryHint(0, 1, 80)).toBe(
+    expect(sessionSummaryHint(0, 1, 80, 50)).toBe(
       "Not enough quiet time recorded yet -- stay checked in a little longer."
     );
-    expect(sessionSummaryHint(0, 1.9, null)).toBe(
+    expect(sessionSummaryHint(0, 1.9, null, 50)).toBe(
       "Not enough quiet time recorded yet -- stay checked in a little longer."
     );
   });
 
   it("names the too-noisy cause when the session ran long enough but the score stayed low", () => {
-    expect(sessionSummaryHint(0, 10, 30)).toBe(
-      "This session didn't stay quiet enough to earn points this time."
-    );
+    expect(sessionSummaryHint(0, 10, 30, 50)).toBe(TOO_NOISY_MESSAGE);
   });
 
   it("treats the too-short threshold as exclusive at exactly 2 minutes (long enough to check the score instead)", () => {
-    expect(sessionSummaryHint(0, 2, 30)).toBe(
-      "This session didn't stay quiet enough to earn points this time."
-    );
+    expect(sessionSummaryHint(0, 2, 30, 50)).toBe(TOO_NOISY_MESSAGE);
   });
 
   it("falls back to the generic message when minutes are long enough but score is also missing", () => {
-    expect(sessionSummaryHint(0, 10, null)).toBe(
+    expect(sessionSummaryHint(0, 10, null, 50)).toBe(
       "No points this time -- stay quietly checked in longer to earn some."
     );
+  });
+
+  it("uses the real per-zone threshold rather than a fixed guess -- a score of 60 is below the zone's default 100 threshold", () => {
+    // Regression test: the old implementation hardcoded a 50-point
+    // threshold, so a score of 60 (>= 50) fell through to the generic
+    // fallback even though it's well below the zone's actual default
+    // min_score_for_earning of 100 (0019_session_points_accrual.sql).
+    expect(sessionSummaryHint(0, 10, 60, 100)).toBe(TOO_NOISY_MESSAGE);
+  });
+
+  it("does not call it too-noisy when the score is exactly at the zone's threshold, matching the server's >= eligibility", () => {
+    // compute_eligible_quiet_minutes treats score >= p_min_score as
+    // eligible, so a score exactly at the threshold is NOT "too noisy."
+    expect(sessionSummaryHint(0, 10, 100, 100)).toBe(
+      "No points this time -- stay quietly checked in longer to earn some."
+    );
+  });
+
+  it("calls it too-noisy when the score is one point below the zone's threshold", () => {
+    expect(sessionSummaryHint(0, 10, 99, 100)).toBe(TOO_NOISY_MESSAGE);
   });
 });

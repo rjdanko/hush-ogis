@@ -68,13 +68,6 @@ export function computeSilenceScore(signals: SilenceSignals, previousScore: numb
 // "unlucky," and the honest fix is to stay checked in longer.
 const TOO_SHORT_MINUTES_THRESHOLD = 2;
 
-// Below this average silence score, the session ran long enough to have a
-// real signal, but that signal says "not quiet" rather than "not long
-// enough." 50 is the midpoint of the 0-100 score scale -- a deliberately
-// coarse, zone-threshold-agnostic stand-in for "below half the scale," since
-// this screen has no access to the zone's actual min_score_for_earning.
-const TOO_NOISY_SCORE_THRESHOLD = 50;
-
 // Zero points can mean two structurally different things (see
 // compute_eligible_quiet_minutes): the session never ran long enough to
 // produce eligible quiet minutes, or it ran long enough but the average
@@ -83,10 +76,19 @@ const TOO_NOISY_SCORE_THRESHOLD = 50;
 // actively wrong advice -- they need to be quieter, not longer. When neither
 // field carries a usable signal (e.g. zero pings at all), fall back to the
 // original generic message.
+//
+// `minScoreForEarning` is the zone's real eligibility threshold
+// (zones.reward_config.min_score_for_earning, default 100 -- see
+// 0019_session_points_accrual.sql), threaded in from the Zone the session
+// belongs to. The comparison polarity below (finalScore < minScoreForEarning)
+// deliberately mirrors compute_eligible_quiet_minutes's own
+// `score >= p_min_score` eligibility check, just inverted, so the client's
+// message never disagrees with the server's actual accrual decision.
 export function sessionSummaryHint(
   pointsAwarded: number,
   achievedMinutes: number | null,
-  finalScore: number | null
+  finalScore: number | null,
+  minScoreForEarning: number
 ): string {
   if (pointsAwarded > 0) return "Your wallet has been credited.";
 
@@ -101,8 +103,8 @@ export function sessionSummaryHint(
     return "Not enough quiet time recorded yet -- stay checked in a little longer.";
   }
 
-  if (finalScore != null && finalScore < TOO_NOISY_SCORE_THRESHOLD) {
-    return "This session didn't stay quiet enough to earn points this time.";
+  if (finalScore != null && finalScore < minScoreForEarning) {
+    return "This session was a bit too lively to earn points this time -- a quieter stretch next time should do it.";
   }
 
   return "No points this time -- stay quietly checked in longer to earn some.";

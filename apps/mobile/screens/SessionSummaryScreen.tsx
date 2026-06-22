@@ -1,18 +1,20 @@
 // U7: shown once after check-out. Calm celebration per Design Brief --
 // no confetti, no urgency, just the numbers the server already finalized.
 import { StyleSheet, Pressable, Text, View } from "react-native";
-import type { Session } from "@hush/shared-types";
+import type { Session, Zone } from "@hush/shared-types";
 import { colors, fonts } from "../lib/theme";
 import { sessionSummaryHint } from "../lib/scoring";
 
 export function SessionSummaryScreen({
   session,
   pointsAwarded,
+  zone,
   onViewWallet,
   onDone,
 }: {
   session: Session;
   pointsAwarded: number;
+  zone: Zone;
   onViewWallet: () => void;
   onDone: () => void;
 }) {
@@ -34,7 +36,12 @@ export function SessionSummaryScreen({
         </View>
       </View>
       <Text style={styles.hint}>
-        {sessionSummaryHint(pointsAwarded, session.achievedMinutes, session.finalScore)}
+        {sessionSummaryHint(
+          pointsAwarded,
+          session.achievedMinutes,
+          session.finalScore,
+          zone.rewardConfig.min_score_for_earning
+        )}
       </Text>
       <Pressable style={styles.primaryButton} onPress={onViewWallet}>
         <Text style={styles.primaryButtonText}>View wallet</Text>
