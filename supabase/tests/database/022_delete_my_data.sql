@@ -5,7 +5,31 @@
 -- "wrong id" attempt; the IDOR-relevant assertion here is simply that
 -- deleting your own data never touches another user's rows.
 begin;
-select plan(10);
+select plan(12);
+
+-- FK cascade invariant pin: delete_my_data() depends on auth.users -> public.users
+-- -> {sessions, wallet_ledger, redemptions} and sessions -> score_pings all being
+-- ON DELETE CASCADE. If any of these regress to a non-cascade delete rule, this
+-- assertion exists because delete_my_data() depends on this cascade chain -- if
+-- it fails, delete_my_data() is silently incomplete (rows would be orphaned or
+-- the delete would raise a FK violation instead of cascading).
+select is(
+  (
+    select count(*)::int
+    from pg_constraint
+    where contype = 'f'
+      and confdeltype = 'c'
+      and (
+        (conrelid = 'public.users'::regclass and confrelid = 'auth.users'::regclass)
+        or (conrelid = 'public.sessions'::regclass and confrelid = 'public.users'::regclass)
+        or (conrelid = 'public.wallet_ledger'::regclass and confrelid = 'public.users'::regclass)
+        or (conrelid = 'public.redemptions'::regclass and confrelid = 'public.users'::regclass)
+        or (conrelid = 'public.score_pings'::regclass and confrelid = 'public.sessions'::regclass)
+      )
+  ),
+  5,
+  'all 5 FK links in the delete_my_data() cascade chain (auth.users->public.users->{sessions,wallet_ledger,redemptions}, sessions->score_pings) are ON DELETE CASCADE'
+);
 
 select tests.create_test_user('c1c1c1c1-c1c1-c1c1-c1c1-c1c1c1c1c1c1'::uuid); -- userA (deletes self)
 select tests.create_test_user('c2c2c2c2-c2c2-c2c2-c2c2-c2c2c2c2c2c2'::uuid); -- userB (must survive untouched)
@@ -13,6 +37,8 @@ select tests.create_test_user('d0d0d0d0-d0d0-d0d0-d0d0-d0d0d0d0d0d0'::uuid); -- 
 
 reset role;
 
+-- operators row exists only as an FK parent for zones/rewards below (zones.operator_id,
+-- and transitively rewards.zone_id) -- it is not itself a deletion subject for this RPC.
 insert into public.operators (id, venue_name) values
   ('d0d0d0d0-d0d0-d0d0-d0d0-d0d0d0d0d0d0', 'Op')
 on conflict do nothing;
@@ -57,9 +83,15 @@ select lives_ok(
 reset role;
 
 select is(
+  (select count(*)::int from auth.users where id = 'c1c1c1c1-c1c1-c1c1-c1c1-c1c1c1c1c1c1'),
+  0,
+  'the caller''s own auth.users row (login identity) is removed'
+);
+
+select is(
   (select count(*)::int from public.users where id = 'c1c1c1c1-c1c1-c1c1-c1c1-c1c1c1c1c1c1'),
   0,
-  'the caller''s own public.users row is removed'
+  'the caller''s own public.users row is removed via cascade from auth.users'
 );
 
 select is(
@@ -86,9 +118,12 @@ select is(
   'the caller''s redemptions are removed via cascade'
 );
 
--- IDOR guard: userB's rows across every table are completely untouched.
+-- IDOR guard: userB's rows across every table (including their auth.users
+-- login identity) are completely untouched.
 select is(
   (
+    select count(*)::int from auth.users where id = 'c2c2c2c2-c2c2-c2c2-c2c2-c2c2c2c2c2c2'
+  ) + (
     select count(*)::int from public.users where id = 'c2c2c2c2-c2c2-c2c2-c2c2-c2c2c2c2c2c2'
   ) + (
     select count(*)::int from public.sessions where user_id = 'c2c2c2c2-c2c2-c2c2-c2c2-c2c2c2c2c2c2'
@@ -97,8 +132,8 @@ select is(
   ) + (
     select count(*)::int from public.redemptions where user_id = 'c2c2c2c2-c2c2-c2c2-c2c2-c2c2c2c2c2c2'
   ),
-  4,
-  'userB still has exactly 1 row in each of users/sessions/wallet_ledger/redemptions -- untouched by userA''s deletion (IDOR guard)'
+  5,
+  'userB still has exactly 1 row in each of auth.users/public.users/sessions/wallet_ledger/redemptions -- untouched by userA''s deletion (IDOR guard)'
 );
 
 -- Grants: anon must never be able to execute this; authenticated must.
@@ -116,6 +151,9 @@ select is(
 
 -- Unauthenticated call (no JWT claims at all -> auth.uid() is null) must
 -- raise, never silently no-op or delete under a null identity.
+-- (role is already `authenticated` from line 75; re-set here -- redundant but
+-- harmless -- to keep this block self-contained: authenticated role, but no
+-- JWT claims, simulating a stale/cleared session.)
 set local role authenticated;
 select set_config('request.jwt.claims', '', true);
 select throws_ok(
