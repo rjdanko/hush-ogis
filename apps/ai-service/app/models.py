@@ -18,3 +18,8 @@ class Suggestion(BaseModel):
 class DigestResponse(BaseModel):
     summary: str
     suggestions: list[Suggestion]
+
+
+class BadgeTokenResponse(BaseModel):
+    token: str
+    expires_in: int
