@@ -7,15 +7,16 @@ import { RewardForm } from "../../../../components/RewardForm";
 import { LiveQuietIndex } from "../../../../components/LiveQuietIndex";
 import { DigestPanel } from "../../../../components/DigestPanel";
 import { toReward } from "../../../../lib/mappers";
+import type { QuietIndexReading } from "../../../../lib/quiet-index";
 import type { Reward, Zone } from "@hush/shared-types";
 
 interface ZoneEditClientProps {
   zone: Zone;
   rewards: Reward[];
-  initialQuietIndex: number | null;
+  initialReading: QuietIndexReading;
 }
 
-export function ZoneEditClient({ zone, rewards: initialRewards, initialQuietIndex }: ZoneEditClientProps) {
+export function ZoneEditClient({ zone, rewards: initialRewards, initialReading }: ZoneEditClientProps) {
   const router = useRouter();
   const [rewards, setRewards] = useState(initialRewards);
 
@@ -59,7 +60,7 @@ export function ZoneEditClient({ zone, rewards: initialRewards, initialQuietInde
   return (
     <div className="flex flex-col gap-8">
       <h1 className="text-2xl font-light tracking-wide">{zone.name}</h1>
-      <LiveQuietIndex zoneId={zone.id} initialValue={initialQuietIndex} />
+      <LiveQuietIndex zoneId={zone.id} initialReading={initialReading} />
       <DigestPanel zoneId={zone.id} />
       <ZoneForm
         key={zone.id}

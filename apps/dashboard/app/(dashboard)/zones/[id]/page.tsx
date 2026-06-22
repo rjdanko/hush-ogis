@@ -18,7 +18,7 @@ export default async function ZoneDetailPage({ params }: { params: Promise<{ id:
 
   const zone = toZone(zoneRow);
   const rewards = (rewardRows ?? []).map(toReward);
-  const initialQuietIndex = await fetchLatestQuietIndex(supabase, zone.id);
+  const initialReading = await fetchLatestQuietIndex(supabase, zone.id);
 
-  return <ZoneEditClient zone={zone} rewards={rewards} initialQuietIndex={initialQuietIndex} />;
+  return <ZoneEditClient zone={zone} rewards={rewards} initialReading={initialReading} />;
 }
