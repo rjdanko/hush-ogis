@@ -7,6 +7,7 @@ import { RewardForm } from "../../../../components/RewardForm";
 import { LiveQuietIndex } from "../../../../components/LiveQuietIndex";
 import { AnalyticsPanel } from "../../../../components/AnalyticsPanel";
 import { DigestPanel } from "../../../../components/DigestPanel";
+import { BadgeEmbed } from "../../../../components/BadgeEmbed";
 import { toReward } from "../../../../lib/mappers";
 import type { QuietIndexReading } from "../../../../lib/quiet-index";
 import type { Reward, Zone } from "@hush/shared-types";
@@ -64,6 +65,7 @@ export function ZoneEditClient({ zone, rewards: initialRewards, initialReading }
       <LiveQuietIndex zoneId={zone.id} initialReading={initialReading} />
       <AnalyticsPanel zoneId={zone.id} />
       <DigestPanel zoneId={zone.id} />
+      <BadgeEmbed zoneId={zone.id} />
       <ZoneForm
         key={zone.id}
         initialValues={{
