@@ -1,7 +1,11 @@
 import pytest
 
 from app import supabase_client
-from app.supabase_client import ZoneNotAuthorizedError, fetch_zone_weekly_metrics
+from app.supabase_client import (
+    ZoneNotAuthorizedError,
+    fetch_zone_badge_average,
+    fetch_zone_weekly_metrics,
+)
 
 SAMPLE_METRICS = {"zone_id": "z1", "sessions": 12, "avg_silence_score": 87}
 
@@ -61,3 +65,23 @@ def test_other_errors_propagate(monkeypatch):
 
     with pytest.raises(RuntimeError):
         fetch_zone_weekly_metrics("zone-123", "op-456")
+
+
+def test_fetch_badge_average_passes_rpc_name_and_params_and_returns_data(monkeypatch):
+    fake = _FakeClient(data=87.5)
+    monkeypatch.setattr(supabase_client, "_client", lambda: fake)
+
+    result = fetch_zone_badge_average("zone-123", "op-456")
+
+    assert fake.last_rpc_name == "zone_badge_average"
+    assert fake.last_rpc_params == {"p_zone_id": "zone-123", "p_operator_id": "op-456"}
+    assert result == 87.5
+
+
+def test_fetch_badge_average_not_authorized_translates_to_custom_error(monkeypatch):
+    err = Exception("PostgREST error: not_authorized")
+    fake = _FakeClient(raise_error=err)
+    monkeypatch.setattr(supabase_client, "_client", lambda: fake)
+
+    with pytest.raises(ZoneNotAuthorizedError):
+        fetch_zone_badge_average("zone-123", "op-456")

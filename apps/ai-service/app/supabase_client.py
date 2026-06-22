@@ -46,6 +46,29 @@ def fetch_zone_weekly_metrics(zone_id: str, operator_id: str) -> dict:
     return response.data
 
 
+def fetch_zone_badge_average(zone_id: str, operator_id: str) -> float | None:
+    """Call the ``zone_badge_average`` RPC; ``None`` means no data yet.
+
+    Translates the DB function's ``not_authorized`` error into
+    ``ZoneNotAuthorizedError``, same as ``fetch_zone_weekly_metrics`` above.
+    """
+    try:
+        response = (
+            _client()
+            .rpc(
+                "zone_badge_average",
+                {"p_zone_id": zone_id, "p_operator_id": operator_id},
+            )
+            .execute()
+        )
+    except Exception as exc:  # noqa: BLE001 -- inspect, then re-raise or translate
+        if "not_authorized" in _error_text(exc):
+            raise ZoneNotAuthorizedError(str(exc)) from exc
+        raise
+
+    return response.data
+
+
 def _error_text(exc: Exception) -> str:
     """Gather searchable text from an exception (message + any PostgREST details)."""
     parts = [str(exc)]

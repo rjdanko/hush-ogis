@@ -8,6 +8,7 @@ REQUIRED = {
     "SUPABASE_URL": "https://example.supabase.co",
     "SUPABASE_SERVICE_ROLE_KEY": "service-role-key",
     "SUPABASE_JWT_SECRET": "jwt-secret",
+    "BADGE_SIGNING_SECRET": "badge-signing-secret",
 }
 
 
@@ -31,6 +32,8 @@ def test_all_required_present_and_digest_model_defaults(monkeypatch):
     assert settings.SUPABASE_SERVICE_ROLE_KEY == "service-role-key"
     assert settings.SUPABASE_JWT_SECRET == "jwt-secret"
     assert settings.DIGEST_MODEL == "claude-haiku-4-5"
+    assert settings.BADGE_SIGNING_SECRET == "badge-signing-secret"
+    assert settings.BADGE_TOKEN_TTL_SECONDS == 300
 
 
 def test_digest_model_override(monkeypatch):

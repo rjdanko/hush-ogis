@@ -16,6 +16,7 @@ REQUIRED_ENV = {
     "SUPABASE_URL": "https://example.supabase.co",
     "SUPABASE_SERVICE_ROLE_KEY": "service-role-key",
     "SUPABASE_JWT_SECRET": TEST_SECRET,
+    "BADGE_SIGNING_SECRET": "badge-signing-secret",
 }
 
 

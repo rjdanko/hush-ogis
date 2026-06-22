@@ -18,6 +18,8 @@ class Settings(BaseSettings):
     SUPABASE_SERVICE_ROLE_KEY: str
     SUPABASE_JWT_SECRET: str
     DIGEST_MODEL: str = "claude-haiku-4-5"
+    BADGE_SIGNING_SECRET: str
+    BADGE_TOKEN_TTL_SECONDS: int = 300
 
 
 @lru_cache
