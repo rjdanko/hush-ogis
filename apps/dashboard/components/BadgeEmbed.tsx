@@ -4,14 +4,17 @@ import { useState } from "react";
 
 export function BadgeEmbed({ zoneId }: { zoneId: string }) {
   const [embedUrl, setEmbedUrl] = useState<string | null>(null);
+  const [expiresIn, setExpiresIn] = useState<number | null>(null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [copyError, setCopyError] = useState<string | null>(null);
 
   async function handleGenerate() {
     setPending(true);
     setError(null);
     setCopied(false);
+    setCopyError(null);
     try {
       const response = await fetch("/api/badge-token", {
         method: "POST",
@@ -19,8 +22,9 @@ export function BadgeEmbed({ zoneId }: { zoneId: string }) {
         body: JSON.stringify({ zoneId }),
       });
       if (!response.ok) throw new Error("failed");
-      const data = (await response.json()) as { embedUrl: string };
+      const data = (await response.json()) as { embedUrl: string; expiresIn: number };
       setEmbedUrl(data.embedUrl);
+      setExpiresIn(data.expiresIn);
     } catch {
       setError("Could not generate the badge just now.");
     } finally {
@@ -34,8 +38,13 @@ export function BadgeEmbed({ zoneId }: { zoneId: string }) {
 
   async function handleCopy() {
     if (!snippet) return;
-    await navigator.clipboard.writeText(snippet);
-    setCopied(true);
+    try {
+      await navigator.clipboard.writeText(snippet);
+      setCopied(true);
+      setCopyError(null);
+    } catch {
+      setCopyError("Couldn't copy automatically — select the text above and copy manually.");
+    }
   }
 
   return (
@@ -58,6 +67,11 @@ export function BadgeEmbed({ zoneId }: { zoneId: string }) {
 
       {snippet && !pending && (
         <div className="flex flex-col gap-2">
+          {expiresIn !== null && (
+            <p className="text-xs font-light text-neutral-400">
+              This link expires in {expiresIn} seconds — regenerate before adding it to a live page.
+            </p>
+          )}
           <textarea
             readOnly
             value={snippet}
@@ -74,6 +88,7 @@ export function BadgeEmbed({ zoneId }: { zoneId: string }) {
             </button>
             {copied && <span className="text-xs font-light text-neutral-400">Copied</span>}
           </div>
+          {copyError && <p className="text-xs font-light text-neutral-500">{copyError}</p>}
           {/* eslint-disable-next-line @next/next/no-img-element -- external badge image, not a local asset */}
           <img src={embedUrl ?? ""} alt="Hush Quiet Index — verified" width={220} height={60} />
         </div>
