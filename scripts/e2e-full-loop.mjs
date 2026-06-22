@@ -18,6 +18,11 @@
 //   npx supabase db reset && npx supabase start
 //   bash scripts/run-ai.sh   (or: npm run dev:ai)   -- required for step 5 (badge)
 //   node scripts/e2e-full-loop.mjs
+//
+// No cleanup: each run leaves ~8 anonymous auth.users + sessions rows behind
+// (one per createAnonSession() call across the 5 steps). Harmless on a local
+// dev stack -- run `npx supabase db reset` between runs if the accumulation
+// matters to you.
 import { createClient } from "@supabase/supabase-js";
 
 const SUPABASE_URL = "http://127.0.0.1:54321";
@@ -173,6 +178,10 @@ async function stepSubQuorum() {
   // new row was inserted for this 2-session-only state).
   const latest = await fetchLatestQuietIndex();
   const latestTs = latest ? new Date(latest.ts).getTime() : null;
+  // This second sleep is just a sanity poll, not a tick-spanning wait -- the
+  // 16s sleep above already spanned a full cron tick. Soundness here comes
+  // from the quorum-gate logic itself (verified in the comment above), not
+  // from this gap's duration.
   await sleep(1000);
   const stillLatest = await fetchLatestQuietIndex();
   const stillTs = stillLatest ? new Date(stillLatest.ts).getTime() : null;
@@ -273,6 +282,9 @@ async function stepLowConfidenceNoCredit() {
 async function checkAiServiceReachable() {
   try {
     const res = await fetch(`${AI_SERVICE_URL}/health`, { signal: AbortSignal.timeout(3000) });
+    // Treat any non-5xx as "the server is up" -- a 404/401 still proves
+    // something is listening and responding, regardless of /health's own
+    // status-code semantics.
     return res.ok || res.status < 500;
   } catch {
     return false;
@@ -296,6 +308,8 @@ async function stepBadge() {
     return;
   }
 
+  // Seeded demo account from supabase/seed/seed.sql -- local-stack-only, not
+  // a real credential.
   const opClient = createClient(SUPABASE_URL, ANON_KEY);
   const { data: opSignIn, error: opSignInError } = await opClient.auth.signInWithPassword({
     email: "demo-operator@hush.local",
