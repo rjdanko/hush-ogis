@@ -116,7 +116,26 @@ try {
   if (!finalText.includes("Free pastry")) throw new Error("Reward lost after reload");
   console.log("   OK, reward persisted across reload");
 
+  console.log("6. confirm the analytics panel degrades gracefully when ai-service is unreachable");
+  await page.waitForSelector("text=Could not load analytics just now.", { timeout: 10000 });
+  const analyticsCrash = await page.locator("text=Runtime Error").isVisible().catch(() => false);
+  if (analyticsCrash) throw new Error("AnalyticsPanel crashed instead of showing its error state");
+  console.log("   OK, analytics panel shows its error state without crashing (ai-service not running in this script)");
+
+  console.log("7. confirm the badge embed generator degrades gracefully when ai-service is unreachable");
+  await page.click('button:has-text("Generate embed snippet")');
+  await page.waitForSelector("text=Could not generate the badge just now.", { timeout: 10000 });
+  const badgeCrash = await page.locator("text=Runtime Error").isVisible().catch(() => false);
+  if (badgeCrash) throw new Error("BadgeEmbed crashed instead of showing its error state");
+  console.log("   OK, badge embed generator shows its error state without crashing (ai-service not running in this script)");
+  await page.screenshot({ path: `${shots}/6-analytics-and-badge-graceful-degradation.png` });
+
   console.log("\nConsole errors captured during run:", errors.length ? errors : "(none)");
+  console.log("NOTE: steps 6-7 verify graceful degradation only -- this script does not start");
+  console.log("apps/ai-service, so the real analytics-chart-renders and badge-image-loads paths");
+  console.log("were NOT exercised here. Run apps/ai-service locally and re-check those panels");
+  console.log("manually for the full happy-path verification.");
+
   console.log("\nGOLDEN PATH: PASS (with the documented Mapbox-token gap above)");
 } catch (err) {
   await page.screenshot({ path: `${shots}/FAILURE.png` });
