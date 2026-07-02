@@ -1,7 +1,3 @@
-// No navigation library: Phase 3 only needs a 3-screen linear flow (map ->
-// zone detail -> active session), and react-navigation pulls in
-// react-native-screens/gesture-handler native deps this phase doesn't need.
-// Revisit if a later phase needs deep linking or a tab bar.
 import { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
@@ -11,24 +7,33 @@ import {
   HankenGrotesk_600SemiBold,
 } from "@expo-google-fonts/hanken-grotesk";
 import { Newsreader_300Light } from "@expo-google-fonts/newsreader";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { Session, Zone } from "@hush/shared-types";
 import { ensureSession } from "./lib/auth";
 import { needsSilenceAgentOnboarding } from "./lib/permissions";
+import { getSessionPointsAwarded } from "./lib/wallet";
+import { colors } from "./lib/theme";
+import { TabBar, type Tab } from "./components/TabBar";
+import { OnboardingScreen, ONBOARDING_KEY } from "./screens/OnboardingScreen";
 import { MapScreen } from "./screens/MapScreen";
 import { PermissionOnboardingScreen } from "./screens/PermissionOnboardingScreen";
 import { ZoneDetailScreen } from "./screens/ZoneDetailScreen";
 import { ActiveSessionScreen } from "./screens/ActiveSessionScreen";
 import { SessionSummaryScreen } from "./screens/SessionSummaryScreen";
 import { WalletScreen } from "./screens/WalletScreen";
-import { getSessionPointsAwarded } from "./lib/wallet";
+import { TrendsScreen } from "./screens/TrendsScreen";
+import { SettingsScreen } from "./screens/SettingsScreen";
 
-type Screen =
-  | { name: "map" }
+type Overlay =
   | { name: "permissionOnboarding"; zone: Zone }
   | { name: "zoneDetail"; zone: Zone }
   | { name: "activeSession"; session: Session; zone: Zone }
-  | { name: "sessionSummary"; session: Session; pointsAwarded: number; zone: Zone }
-  | { name: "wallet"; returnTo: Screen };
+  | { name: "sessionSummary"; session: Session; pointsAwarded: number; zone: Zone };
+
+type AppState =
+  | { name: "loading" }
+  | { name: "onboarding" }
+  | { name: "main"; tab: Tab; overlay: Overlay | null };
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -37,31 +42,47 @@ export default function App() {
     Newsreader_300Light,
   });
 
-  const [authReady, setAuthReady] = useState(false);
-  const [screen, setScreen] = useState<Screen>({ name: "map" });
+  const [appState, setAppState] = useState<AppState>({ name: "loading" });
 
   useEffect(() => {
-    ensureSession().finally(() => setAuthReady(true));
+    Promise.all([ensureSession(), AsyncStorage.getItem(ONBOARDING_KEY)]).then(
+      ([, seenOnboarding]) => {
+        if (!seenOnboarding) {
+          setAppState({ name: "onboarding" });
+        } else {
+          setAppState({ name: "main", tab: "map", overlay: null });
+        }
+      }
+    );
   }, []);
 
-  // One combined loading state -- fonts and auth resolve independently, and
-  // whichever is slower shouldn't matter: render either as a bare blank
-  // frame (fonts) or a spinner (auth) depending on which gate is unready,
-  // rather than always showing a blank frame until both happen to be ready.
-  if (!fontsLoaded || !authReady) {
+  if (!fontsLoaded || appState.name === "loading") {
     return (
       <View style={styles.center}>
-        <ActivityIndicator color="#E8C170" />
-        <StatusBar style="light" />
+        <ActivityIndicator color={colors.glowHigh} />
+        <StatusBar style="dark" />
       </View>
     );
   }
 
+  if (appState.name === "onboarding") {
+    return (
+      <View style={styles.container}>
+        <OnboardingScreen
+          onComplete={() => setAppState({ name: "main", tab: "map", overlay: null })}
+        />
+        <StatusBar style="dark" />
+      </View>
+    );
+  }
+
+  const { tab, overlay } = appState;
+
   async function handleSelectZone(zone: Zone) {
     if (await needsSilenceAgentOnboarding()) {
-      setScreen({ name: "permissionOnboarding", zone });
+      setAppState({ name: "main", tab, overlay: { name: "permissionOnboarding", zone } });
     } else {
-      setScreen({ name: "zoneDetail", zone });
+      setAppState({ name: "main", tab, overlay: { name: "zoneDetail", zone } });
     }
   }
 
@@ -70,50 +91,95 @@ export default function App() {
     try {
       pointsAwarded = await getSessionPointsAwarded(session.id);
     } catch {
-      // The session is already checked out either way -- a failed payout
-      // read just shows 0 rather than blocking the summary screen.
+      // Show 0 rather than blocking the summary screen.
     }
-    setScreen({ name: "sessionSummary", session, pointsAwarded, zone });
+    setAppState({
+      name: "main",
+      tab,
+      overlay: { name: "sessionSummary", session, pointsAwarded, zone },
+    });
   }
+
+  function setTab(newTab: Tab) {
+    setAppState({ name: "main", tab: newTab, overlay: null });
+  }
+
+  function clearOverlay() {
+    setAppState({ name: "main", tab, overlay: null });
+  }
+
+  // Determine whether to show the tab bar (hidden during active session)
+  const hideTabBar = overlay?.name === "activeSession";
+  // Active session uses dark mode; everything else is light
+  const isDark = overlay?.name === "activeSession";
 
   return (
     <View style={styles.container}>
-      {screen.name === "map" && (
-        <MapScreen onSelectZone={handleSelectZone} onOpenWallet={() => setScreen({ name: "wallet", returnTo: screen })} />
+      {/* Tab content */}
+      {!overlay && tab === "map" && (
+        <MapScreen onSelectZone={handleSelectZone} />
       )}
-      {screen.name === "permissionOnboarding" && (
+      {!overlay && tab === "trends" && <TrendsScreen />}
+      {!overlay && tab === "wallet" && <WalletScreen />}
+      {!overlay && tab === "settings" && <SettingsScreen />}
+
+      {/* Overlays */}
+      {overlay?.name === "permissionOnboarding" && (
         <PermissionOnboardingScreen
-          onContinue={() => setScreen({ name: "zoneDetail", zone: screen.zone })}
+          onContinue={() =>
+            setAppState({
+              name: "main",
+              tab,
+              overlay: { name: "zoneDetail", zone: overlay.zone },
+            })
+          }
         />
       )}
-      {screen.name === "zoneDetail" && (
+      {overlay?.name === "zoneDetail" && (
         <ZoneDetailScreen
-          zone={screen.zone}
-          onCheckedIn={(session) => setScreen({ name: "activeSession", session, zone: screen.zone })}
+          zone={overlay.zone}
+          onCheckedIn={(session) =>
+            setAppState({
+              name: "main",
+              tab,
+              overlay: { name: "activeSession", session, zone: overlay.zone },
+            })
+          }
+          onClose={clearOverlay}
         />
       )}
-      {screen.name === "activeSession" && (
+      {overlay?.name === "activeSession" && (
         <ActiveSessionScreen
-          session={screen.session}
-          onCheckedOut={(session) => handleCheckedOut(session, screen.zone)}
+          session={overlay.session}
+          onCheckedOut={(session) => handleCheckedOut(session, overlay.zone)}
         />
       )}
-      {screen.name === "sessionSummary" && (
+      {overlay?.name === "sessionSummary" && (
         <SessionSummaryScreen
-          session={screen.session}
-          pointsAwarded={screen.pointsAwarded}
-          zone={screen.zone}
-          onViewWallet={() => setScreen({ name: "wallet", returnTo: { name: "map" } })}
-          onDone={() => setScreen({ name: "map" })}
+          session={overlay.session}
+          pointsAwarded={overlay.pointsAwarded}
+          zone={overlay.zone}
+          onViewWallet={() => setTab("wallet")}
+          onDone={clearOverlay}
         />
       )}
-      {screen.name === "wallet" && <WalletScreen onClose={() => setScreen(screen.returnTo)} />}
-      <StatusBar style="light" />
+
+      {/* Bottom tab bar (hidden during active session) */}
+      {!hideTabBar && (
+        <TabBar activeTab={tab} onTabPress={setTab} />
+      )}
+
+      <StatusBar style={isDark ? "light" : "dark"} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#0E1116" },
-  center: { flex: 1, backgroundColor: "#0E1116", alignItems: "center", justifyContent: "center" },
+  container: { flex: 1, backgroundColor: colors.background },
+  center: {
+    flex: 1,
+    backgroundColor: colors.background,
+    alignItems: "center",
+    justifyContent: "center",
+  },
 });
