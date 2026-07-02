@@ -1,8 +1,9 @@
 // Pure math helpers for CommitmentArcDial. Angles are degrees clockwise from
 // 12 o'clock. The arc spans 240° with the 120° gap centered at 6 o'clock.
-// Start = 150° (roughly 7 o'clock), End = 150° + 240° = 390° (≡ 30°, ~1 o'clock).
+// Start = 240° (8 o'clock), End = 240° + 240° = 480° ≡ 120° (4 o'clock).
+// Gap: 120° → 240°, centered at 180° = 6 o'clock (bottom). ✓
 
-export const ARC_START_ANGLE = 150; // degrees from 12 o'clock, clockwise
+export const ARC_START_ANGLE = 240; // degrees from 12 o'clock, clockwise — 8 o'clock
 export const ARC_SWEEP = 240;       // total arc degrees
 export const DIAL_MIN = 5;          // minutes
 export const DIAL_MAX = 120;        // minutes
@@ -47,7 +48,13 @@ export function valueToAngle(value: number): number {
  * Clamps to [DIAL_MIN, DIAL_MAX] and snaps to the nearest DIAL_STEP.
  */
 export function angleToValue(angle: number): number {
-  let normalized = angle - ARC_START_ANGLE;
+  // Angles in [0, ARC_START_ANGLE) that fall within the arc's upper segment
+  // (the part that crossed 360°) need to be shifted up by 360 before mapping.
+  let adjusted = angle;
+  if (adjusted < ARC_START_ANGLE && adjusted + 360 <= ARC_START_ANGLE + ARC_SWEEP) {
+    adjusted += 360;
+  }
+  let normalized = adjusted - ARC_START_ANGLE;
   if (normalized < 0) normalized = 0;
   if (normalized > ARC_SWEEP) normalized = ARC_SWEEP;
   const raw = DIAL_MIN + (normalized / ARC_SWEEP) * (DIAL_MAX - DIAL_MIN);

@@ -9,6 +9,7 @@ import {
   angleToValue,
   polarToXY,
   describeArc,
+  xyToAngle,
 } from "./arc-dial";
 
 describe("valueToAngle", () => {
@@ -66,12 +67,30 @@ describe("polarToXY", () => {
 
 describe("describeArc", () => {
   it("returns an SVG path string", () => {
-    const path = describeArc(100, 100, 50, 150, 390);
+    const path = describeArc(100, 100, 50, ARC_START_ANGLE, ARC_START_ANGLE + ARC_SWEEP);
     expect(path).toMatch(/^M .+ A .+/);
   });
 
   it("uses large-arc flag 1 for sweep > 180°", () => {
-    const path = describeArc(100, 100, 50, 150, 390); // 240° sweep
+    const path = describeArc(100, 100, 50, ARC_START_ANGLE, ARC_START_ANGLE + ARC_SWEEP);
     expect(path).toContain(" 1 1 ");
+  });
+});
+
+describe("xyToAngle", () => {
+  it("returns 0° for 12 o'clock (up)", () => {
+    expect(xyToAngle(0, -1)).toBeCloseTo(0);
+  });
+  it("returns 90° for 3 o'clock (right)", () => {
+    expect(xyToAngle(1, 0)).toBeCloseTo(90);
+  });
+  it("returns 180° for 6 o'clock (down)", () => {
+    expect(xyToAngle(0, 1)).toBeCloseTo(180);
+  });
+  it("returns 270° for 9 o'clock (left)", () => {
+    expect(xyToAngle(-1, 0)).toBeCloseTo(270);
+  });
+  it("never returns a negative angle", () => {
+    expect(xyToAngle(-1, -0.001)).toBeGreaterThanOrEqual(0);
   });
 });
