@@ -5,7 +5,7 @@ import type { Reward } from "@hush/shared-types";
 import { getWalletBalance, listRewards, redeemReward } from "../lib/wallet";
 import { colors, fonts } from "../lib/theme";
 
-export function WalletScreen({ onClose }: { onClose: () => void }) {
+export function WalletScreen() {
   const [balance, setBalance] = useState<number | null>(null);
   const [rewards, setRewards] = useState<Reward[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,9 +49,6 @@ export function WalletScreen({ onClose }: { onClose: () => void }) {
 
   return (
     <View style={styles.container}>
-      <Pressable onPress={onClose} style={styles.closeButton}>
-        <Text style={styles.closeButtonText}>Close</Text>
-      </Pressable>
       <Text style={styles.balanceLabel}>YOUR BALANCE</Text>
       <Text style={styles.balanceValue}>{balance ?? 0}</Text>
       {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
@@ -84,10 +81,8 @@ export function WalletScreen({ onClose }: { onClose: () => void }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.night, padding: 24, paddingTop: 56 },
-  center: { flex: 1, backgroundColor: colors.night, alignItems: "center", justifyContent: "center" },
-  closeButton: { position: "absolute", top: 20, right: 20 },
-  closeButtonText: { fontFamily: fonts.body, color: colors.nightHint },
+  container: { flex: 1, backgroundColor: colors.background, padding: 24, paddingTop: 56 },
+  center: { flex: 1, backgroundColor: colors.background, alignItems: "center", justifyContent: "center" },
   balanceLabel: { fontFamily: fonts.bodySemiBold, fontSize: 10, letterSpacing: 2, color: colors.nightLabel, textAlign: "center" },
   balanceValue: { fontFamily: fonts.hero, fontSize: 48, color: colors.glowHigh, textAlign: "center", marginBottom: 24 },
   errorText: { fontFamily: fonts.body, color: colors.alert, textAlign: "center", marginBottom: 12 },
