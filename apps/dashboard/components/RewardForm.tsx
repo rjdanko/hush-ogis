@@ -29,10 +29,10 @@ export function RewardForm({ onSubmit }: RewardFormProps) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <fieldset className="flex flex-wrap items-end gap-4 border-0 p-0 m-0 min-w-0">
+      <fieldset className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end border-0 p-0 m-0 min-w-0">
         <legend className="sr-only">Add a new reward</legend>
 
-        <label className="flex flex-col gap-2">
+        <label className="flex flex-col gap-2 sm:flex-1 sm:min-w-[160px]">
           <span className={labelClass}>Reward name</span>
           <input
             value={name}
@@ -43,7 +43,7 @@ export function RewardForm({ onSubmit }: RewardFormProps) {
           />
         </label>
 
-        <label className="flex flex-col gap-2">
+        <label className="flex flex-col gap-2 sm:w-28">
           <span className={labelClass}>Point cost</span>
           <input
             type="number"
@@ -56,7 +56,7 @@ export function RewardForm({ onSubmit }: RewardFormProps) {
 
         {error && <p className="w-full font-sans text-sm text-alert" role="alert">{error}</p>}
 
-        <button type="submit" disabled={submitting} className={primaryButtonClass}>
+        <button type="submit" disabled={submitting} className={`${primaryButtonClass} w-full sm:w-auto`}>
           {submitting ? "Adding…" : "Add reward"}
         </button>
       </fieldset>
