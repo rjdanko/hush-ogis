@@ -8,6 +8,7 @@ export interface SessionDaySummary {
   date: string;        // ISO "YYYY-MM-DD"
   avgScore: number | null;
   totalMinutes: number;
+  bestMinutes: number;  // best single session duration for this day
 }
 
 /**
@@ -27,19 +28,21 @@ export async function getSessionHistory(numDays = 84): Promise<SessionDaySummary
 
   if (error) throw new Error(error.message);
 
-  // Build a map of date → { scores, minutes }
-  const byDate = new Map<string, { scores: number[]; minutes: number }>();
+  // Build a map of date → { scores, minutes, bestMinutes }
+  const byDate = new Map<string, { scores: number[]; minutes: number; bestMinutes: number }>();
   for (const row of data ?? []) {
     const date = row.checked_in_at.slice(0, 10); // "YYYY-MM-DD"
-    const existing = byDate.get(date) ?? { scores: [], minutes: 0 };
+    const existing = byDate.get(date) ?? { scores: [], minutes: 0, bestMinutes: 0 };
     if (row.final_score != null) existing.scores.push(row.final_score);
     existing.minutes += row.achieved_minutes ?? 0;
+    existing.bestMinutes = Math.max(existing.bestMinutes, row.achieved_minutes ?? 0);
     byDate.set(date, existing);
   }
 
   // Produce one entry per calendar day in the window
   const result: SessionDaySummary[] = [];
   const cursor = new Date(since);
+  cursor.setDate(cursor.getDate() + 1); // include today in the window
   for (let i = 0; i < numDays; i++) {
     const date = cursor.toISOString().slice(0, 10);
     const entry = byDate.get(date);
@@ -50,6 +53,7 @@ export async function getSessionHistory(numDays = 84): Promise<SessionDaySummary
           ? Math.round(entry.scores.reduce((s, v) => s + v, 0) / entry.scores.length)
           : null,
       totalMinutes: entry?.minutes ?? 0,
+      bestMinutes: entry?.bestMinutes ?? 0,
     });
     cursor.setDate(cursor.getDate() + 1);
   }
@@ -74,5 +78,5 @@ export function totalQuietHours(history: SessionDaySummary[]): number {
 
 /** Best single session in minutes. */
 export function bestSessionMinutes(history: SessionDaySummary[]): number {
-  return history.reduce((best, d) => Math.max(best, d.totalMinutes), 0);
+  return history.reduce((best, d) => Math.max(best, d.bestMinutes), 0);
 }

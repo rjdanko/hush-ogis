@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
     padding: 14,
     alignItems: "center",
   },
-  tileValue: { fontFamily: fonts.hero, fontSize: 24, color: colors.ink },
+  tileValue: { fontFamily: fonts.hero, fontSize: 28, color: colors.ink },
   tileValueGold: { color: colors.rewardGold },
   tileLabel: {
     fontFamily: fonts.bodySemiBold,

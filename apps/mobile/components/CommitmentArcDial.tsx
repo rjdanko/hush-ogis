@@ -31,7 +31,6 @@ interface CommitmentArcDialProps {
 }
 
 export function CommitmentArcDial({ value, onChange }: CommitmentArcDialProps) {
-  const layoutRef = useRef<{ x: number; y: number } | null>(null);
   const currentAngle = valueToAngle(value);
   const trackPath = describeArc(CX, CY, RADIUS, ARC_START_ANGLE, ARC_START_ANGLE + 240);
   const fillPath = describeArc(CX, CY, RADIUS, ARC_START_ANGLE, currentAngle);
@@ -61,12 +60,6 @@ export function CommitmentArcDial({ value, onChange }: CommitmentArcDialProps) {
     <View style={styles.container}>
       <View
         style={{ width: DIAL_SIZE, height: DIAL_SIZE }}
-        onLayout={(e) => {
-          layoutRef.current = {
-            x: e.nativeEvent.layout.x,
-            y: e.nativeEvent.layout.y,
-          };
-        }}
         {...panResponder.panHandlers}
         accessibilityRole="adjustable"
         accessibilityLabel="Silence commitment dial"

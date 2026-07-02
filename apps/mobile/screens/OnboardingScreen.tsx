@@ -1,6 +1,7 @@
 // apps/mobile/screens/OnboardingScreen.tsx
 // Spec §3.1–3.3. Three orb-led slides (cold → amber → gold), ending with
 // "Get started" → Map. Writes hasSeenOnboarding to AsyncStorage on complete.
+// Cross-fades slide content on advance (600ms, Easing.inOut).
 import { useRef, useState } from "react";
 import {
   AccessibilityInfo,
@@ -21,22 +22,22 @@ const SLIDES: { headline: string; body: string; color: string }[] = [
   {
     headline: "Disconnect, together.",
     body: "Find spaces where putting your phone down is the norm — not the exception.",
-    color: "#8A98A6", // cold grey-blue (QI 0–30)
+    color: "#8A98A6",
   },
   {
     headline: "Earn for your silence.",
     body: "Every quiet minute earns points redeemable at the venue.",
-    color: "#D9A85E", // warm amber (QI 31–70)
+    color: "#D9A85E",
   },
   {
     headline: "Only a score leaves your phone.",
     body: "Nothing you do, read, or say is ever seen. Just a number from 0 to 100.",
-    color: "#E8C170", // full warm gold (QI 71–100)
+    color: "#E8C170",
   },
 ];
 
 const CHIP_TEXT = "No content · No location history · No names";
-const TRANSITION_DURATION = 600;
+const TRANSITION_DURATION = 300; // half of 600ms: fade-out then fade-in
 
 interface OnboardingScreenProps {
   onComplete: () => void;
@@ -44,7 +45,7 @@ interface OnboardingScreenProps {
 
 export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
   const [slideIndex, setSlideIndex] = useState(0);
-  const orbColor = useRef(new Animated.Value(0)).current; // 0=cold, 1=amber, 2=gold
+  const fadeAnim = useRef(new Animated.Value(1)).current;
 
   const slide = SLIDES[slideIndex];
   const isLast = slideIndex === SLIDES.length - 1;
@@ -61,20 +62,27 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
         setSlideIndex((i) => i + 1);
         return;
       }
-      Animated.timing(orbColor, {
-        toValue: slideIndex + 1,
+      // Fade out, swap slide, fade back in
+      Animated.timing(fadeAnim, {
+        toValue: 0,
         duration: TRANSITION_DURATION,
         easing: Easing.inOut(Easing.ease),
-        useNativeDriver: false, // color interpolation can't use native driver
-      }).start(() => setSlideIndex((i) => i + 1));
+        useNativeDriver: true,
+      }).start(() => {
+        setSlideIndex((i) => i + 1);
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: TRANSITION_DURATION,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }).start();
+      });
     });
   }
 
-  // The orb uses colorOverride so we can animate it independently of quietIndex.
-  // On the final slide, add the privacy chip.
   return (
     <View style={styles.container}>
-      <View style={styles.content}>
+      <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
         <QuietIndexOrb
           quietIndex={null}
           size="small"
@@ -87,7 +95,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
             <Text style={styles.chipText}>{CHIP_TEXT}</Text>
           </View>
         )}
-      </View>
+      </Animated.View>
       <Pressable style={styles.button} onPress={advance}>
         <Text style={styles.buttonText}>
           {isLast ? "Get started" : "Continue"}

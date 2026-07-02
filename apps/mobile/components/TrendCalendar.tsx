@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
   },
   chipValue: {
     fontFamily: fonts.hero,
-    fontSize: 22,
+    fontSize: 28,
     color: colors.ink,
   },
   chipLabel: {

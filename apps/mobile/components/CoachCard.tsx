@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
   message: {
     flex: 1,
     fontFamily: fonts.body,
-    fontSize: 14,
+    fontSize: 15,
     lineHeight: 20,
     paddingRight: 12,
   },
