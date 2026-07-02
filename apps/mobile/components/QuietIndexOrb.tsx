@@ -122,9 +122,9 @@ export function QuietIndexOrb({ quietIndex, size, colorOverride }: QuietIndexOrb
 
 /** Converts a 6-digit hex color to rgba with the given alpha. */
 function hexToHaloRgba(hex: string, alpha: number): string {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
+  const r = parseInt(hex.slice(1, 3), 16) || 0;
+  const g = parseInt(hex.slice(3, 5), 16) || 0;
+  const b = parseInt(hex.slice(5, 7), 16) || 0;
   return `rgba(${r},${g},${b},${alpha})`;
 }
 
