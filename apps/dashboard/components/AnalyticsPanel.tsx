@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { prefersReducedMotion } from "../lib/motion";
+import { usePrefersReducedMotion } from "../lib/motion";
 
 interface TrendPoint {
   day: string;
@@ -27,6 +27,7 @@ interface Analytics {
 }
 
 export function AnalyticsPanel({ zoneId }: { zoneId: string }) {
+  const prefersReduced = usePrefersReducedMotion();
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -96,7 +97,7 @@ export function AnalyticsPanel({ zoneId }: { zoneId: string }) {
                 stroke="var(--color-accent)"
                 strokeWidth={1.5}
                 dot={false}
-                isAnimationActive={!prefersReducedMotion()}
+                isAnimationActive={!prefersReduced}
               />
             </LineChart>
           </ResponsiveContainer>
