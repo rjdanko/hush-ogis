@@ -52,16 +52,16 @@ export function ZoneForm({ initialValues, onSubmit, submitLabel }: ZoneFormProps
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <label className="flex flex-col gap-1">
-        Zone name
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      <Field label="Zone name">
         <input
           value={name}
           onChange={(event) => setName(event.target.value)}
           required
-          className="rounded border px-3 py-2"
+          placeholder="e.g. Reading Room A"
+          className={inputClass}
         />
-      </label>
+      </Field>
 
       <ZoneMapEditor
         initialPolygon={initialValues?.geofence ?? undefined}
@@ -75,47 +75,70 @@ export function ZoneForm({ initialValues, onSubmit, submitLabel }: ZoneFormProps
           state renders its own red placeholder instead of populating mapError
           here. Don't "simplify" this into a single error surface without
           re-reading ZoneMapEditor's mount-once comment. */}
-      {mapError ? <p className="text-sm text-red-600">{mapError}</p> : null}
+      {mapError && <p className="font-sans text-sm text-alert" role="alert">{mapError}</p>}
 
-      <label className="flex flex-col gap-1">
-        Suggested silence minutes
+      <Field label="Suggested silence (minutes)">
         <input
           type="number"
           value={suggestedMinutes}
           onChange={(event) => setSuggestedMinutes(Number(event.target.value))}
           min={1}
-          className="rounded border px-3 py-2"
+          className={inputClass}
         />
-      </label>
+      </Field>
 
-      <label className="flex flex-col gap-1">
-        Earn rate (points per quiet minute)
+      <Field label="Earn rate (points per quiet minute)">
         <input
           type="number"
           value={earnRate}
           onChange={(event) => setEarnRate(Number(event.target.value))}
           min={0}
           step="0.1"
-          className="rounded border px-3 py-2"
+          className={inputClass}
         />
-      </label>
+      </Field>
 
-      <label className="flex flex-col gap-1">
-        Minimum score to earn (0-100)
+      <Field label="Minimum score to earn (0–100)">
         <input
           type="number"
           value={minScore}
           onChange={(event) => setMinScore(Number(event.target.value))}
           min={0}
           max={100}
-          className="rounded border px-3 py-2"
+          className={inputClass}
         />
-      </label>
+      </Field>
 
-      {submitError ? <p className="text-sm text-red-600">{submitError}</p> : null}
-      <button type="submit" disabled={submitting} className="rounded bg-black px-3 py-2 text-white">
+      {submitError && <p className="font-sans text-sm text-alert" role="alert">{submitError}</p>}
+
+      <button type="submit" disabled={submitting} className={primaryButtonClass}>
         {submitting ? "Saving…" : submitLabel}
       </button>
     </form>
   );
 }
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label className="flex flex-col gap-2">
+      <span className="font-sans text-[0.625rem] font-semibold uppercase tracking-[0.15em] text-charcoal">
+        {label}
+      </span>
+      {children}
+    </label>
+  );
+}
+
+const inputClass = [
+  "w-full rounded-[12px] border border-warm-border bg-surface px-4 py-2.5",
+  "font-sans text-sm text-ink placeholder:text-warm-muted",
+  "focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20",
+  "transition-colors duration-150",
+].join(" ");
+
+const primaryButtonClass = [
+  "self-start rounded-[16px] bg-glow-high px-6 py-3",
+  "font-sans text-[0.625rem] font-semibold uppercase tracking-[0.12em] text-ink",
+  "hover:bg-glow-high/90 focus:outline-none focus:ring-2 focus:ring-glow-high/40",
+  "disabled:opacity-40 transition-colors duration-150",
+].join(" ");
