@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 import { createClient } from "../lib/supabase/client";
 import {
   formatQuietIndex,
@@ -25,8 +26,7 @@ export function LiveZoneFeed({ zones: initialZones }: LiveZoneFeedProps) {
   const [zones, setZones] = useState<ZoneEntry[]>(initialZones);
   const [flashingIds, setFlashingIds] = useState<Set<string>>(new Set());
   const flashTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const channelsRef = useRef<any[]>([]);
+  const channelsRef = useRef<RealtimeChannel[]>([]);
 
   useEffect(() => {
     const supabase = createClient();
@@ -82,6 +82,7 @@ export function LiveZoneFeed({ zones: initialZones }: LiveZoneFeedProps) {
       channelsRef.current.forEach((ch) => ch.unsubscribe());
       channelsRef.current = [];
       flashTimers.current.forEach(clearTimeout);
+      flashTimers.current.clear();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -90,7 +91,7 @@ export function LiveZoneFeed({ zones: initialZones }: LiveZoneFeedProps) {
     return (
       <div className="flex flex-col items-center gap-3 py-20 text-center">
         <p className="font-sans text-warm-muted text-sm">No quiet zones yet.</p>
-        <p className="font-sans text-warm-muted/60 text-sm max-w-xs">
+        <p className="font-sans text-warm-muted text-sm max-w-xs">
           Create your first zone and it will appear here with its live Quiet Index.
         </p>
       </div>

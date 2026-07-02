@@ -29,7 +29,7 @@ export default function LoginPage() {
           <p className="font-display font-light text-mist/70 text-4xl leading-[1.15]">
             A quieter place,<br />measured.
           </p>
-          <p className="font-sans text-sm text-mist/35 leading-relaxed max-w-xs">
+          <p className="font-sans text-sm text-mist/55 leading-relaxed max-w-xs">
             The Quiet Index updates live. Your guests don&apos;t need to know
             you&apos;re watching — only that the room is calmer than yesterday.
           </p>
