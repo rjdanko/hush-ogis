@@ -1,31 +1,42 @@
-// Design Brief §2 palette + type system. Centralized so the two Phase 4
-// screens (and later phases) don't re-hardcode the same hex values.
+// Design Brief §1 + spec §1.1 — complete light-mode and dark-mode token set.
+// Light mode is the default. Dark mode tokens are used only by ActiveSessionScreen.
 export const colors = {
-  ink: "#22201D",
-  charcoal: "#4A463F",
-  paper: "#F5F1EA",
+  // Light mode
+  background: "#F5F1EA",
   surface: "#FBF8F2",
+  ink: "#22201D",
+  inkSecondary: "#4A463F",
+  border: "#E4DDD1",
+  muted: "#8A8478",
+  accent: "#6B7F6E",        // sage — check-in CTA, tab active state
+  alert: "#B07A5E",         // dusty clay — errors, delete action
+  rewardGold: "#C9A24B",    // wallet balance display
+
+  // Dark mode (ActiveSession only)
   night: "#16140F",
   nightCard: "#23201A",
-  accent: "#6B7F6E",
-  border: "#E4DDD1",
-  mutedText: "#8A8478",
-  nightMutedText: "#8A7E6C",
+  nightWarmText: "#F2ECE0",
+  nightMuted: "#A9A296",
   nightBorder: "#34301F",
-  iconChip: "#EFE9DD",
-  footerHint: "#9A9182",
-  // Quiet Index "glow" scale, high-quiet band (Design Brief §3, the one
-  // place color carries real meaning) -- used for the in-zone hero orb and
-  // its accents (Hush Wireframes.dc.html, "in-zone / active session" frame).
-  glowHigh: "#E8C170",
+  nightLabel: "#8A7A54",
+  nightHint: "#C9C0AE",
+
+  // Quiet Index glow scale (shared — the only place color carries meaning)
+  glowLow: "#8A98A6",       // 0–30 cold grey-blue
+  glowMid: "#D9A85E",       // 31–70 warm amber
+  glowHigh: "#E8C170",      // 71–100 full warm gold
   glowHighHalo: "rgba(232,193,112,0.25)",
   glowHighCore: "#E0B86A",
   glowHighCoreText: "#3E3320",
   glowHighCoreLabel: "#6E5A30",
-  nightLabel: "#8A7A54",
-  nightHint: "#C9C0AE",
-  nightWarmText: "#F2ECE0",
-  alert: "#B07A5E",
+
+  // Legacy aliases kept for backward compat with unchanged screens
+  paper: "#F5F1EA",
+  charcoal: "#4A463F",
+  mutedText: "#8A8478",
+  nightMutedText: "#A9A296",  // alias for nightMuted — used by ActiveSession/SessionSummary/WalletScreen
+  iconChip: "#EFE9DD",
+  footerHint: "#9A9182",
 } as const;
 
 export const fonts = {
