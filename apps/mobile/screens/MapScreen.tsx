@@ -1,29 +1,33 @@
-// U1 hero screen: zones render as soft glowing blooms sized/colored by the
-// live Quiet Index (Design Brief §5.2/§6, Phase 5's realtime engine).
+// apps/mobile/screens/MapScreen.tsx
+// Spec §3.4. Light mode. Floating Hush wordmark pill top-left.
+// Zone blooms scale size by Quiet Index (24–40px core) per spec §2.2.
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import type { Zone } from "@hush/shared-types";
 import { fetchZones } from "../lib/zones";
 import { quietIndexGlowColor } from "../lib/glow";
 import { fetchLatestQuietIndex, subscribeToQuietIndex } from "../lib/quietIndex";
+import { colors, fonts } from "../lib/theme";
 
-// A dim neutral baseline for zones where quorum (SR-10) has never been met --
-// deliberately not quietIndexGlowColor(0), since "no reading yet" is not the
-// same thing as "noisy" on the glow scale.
 const NO_READING_COLOR = "#3A3A3A";
+
+/** Maps a Quiet Index (0–100) to a bloom diameter in px: 24px at 0, 40px at 100. */
+function bloomSize(qi: number): number {
+  return Math.round(24 + (qi / 100) * 16);
+}
 
 export function MapScreen({
   onSelectZone,
-  onOpenWallet,
 }: {
   onSelectZone: (zone: Zone) => void;
-  onOpenWallet: () => void;
 }) {
   const [zones, setZones] = useState<Zone[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [quietIndexByZone, setQuietIndexByZone] = useState<Record<string, number | null>>({});
+  const [quietIndexByZone, setQuietIndexByZone] = useState<
+    Record<string, number | null>
+  >({});
 
   useEffect(() => {
     fetchZones()
@@ -34,35 +38,30 @@ export function MapScreen({
 
   useEffect(() => {
     if (zones.length === 0) return;
-
     let cancelled = false;
     zones.forEach((zone) => {
       fetchLatestQuietIndex(zone.id)
         .then((value) => {
-          if (!cancelled) setQuietIndexByZone((current) => ({ ...current, [zone.id]: value }));
+          if (!cancelled)
+            setQuietIndexByZone((cur) => ({ ...cur, [zone.id]: value }));
         })
-        .catch(() => {
-          // A failed initial read just leaves this zone at "no reading yet" --
-          // the realtime subscription below can still recover it.
-        });
+        .catch(() => {});
     });
-
-    const unsubscribes = zones.map((zone) =>
+    const unsubs = zones.map((zone) =>
       subscribeToQuietIndex(zone.id, (value) => {
-        setQuietIndexByZone((current) => ({ ...current, [zone.id]: value }));
+        setQuietIndexByZone((cur) => ({ ...cur, [zone.id]: value }));
       })
     );
-
     return () => {
       cancelled = true;
-      unsubscribes.forEach((unsubscribe) => unsubscribe());
+      unsubs.forEach((u) => u());
     };
   }, [zones]);
 
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator color="#E8C170" />
+        <ActivityIndicator color={colors.glowHigh} />
       </View>
     );
   }
@@ -70,7 +69,7 @@ export function MapScreen({
   if (errorMessage) {
     return (
       <View style={styles.center}>
-        <Text style={styles.errorText}>Couldn't load zones: {errorMessage}</Text>
+        <Text style={styles.errorText}>{errorMessage}</Text>
       </View>
     );
   }
@@ -80,9 +79,11 @@ export function MapScreen({
 
   return (
     <View style={styles.container}>
-      <Pressable style={styles.walletButton} onPress={onOpenWallet}>
-        <Text style={styles.walletButtonText}>Wallet</Text>
-      </Pressable>
+      {/* Wordmark pill (spec §3.4) */}
+      <View style={styles.wordmark} pointerEvents="none">
+        <Text style={styles.wordmarkText}>Hush</Text>
+      </View>
+
       <MapView
         style={styles.map}
         initialRegion={{
@@ -98,6 +99,12 @@ export function MapScreen({
             (acc, [lng, lat]) => [acc[0] + lng / ring.length, acc[1] + lat / ring.length],
             [0, 0]
           );
+          const qi = quietIndexByZone[zone.id];
+          const size = qi != null ? bloomSize(qi) : 24;
+          const bgColor = qi != null ? quietIndexGlowColor(qi) : NO_READING_COLOR;
+          const opacity = qi != null ? 0.85 : 0.5;
+          const borderRadius = size / 2;
+
           return (
             <Marker
               key={zone.id}
@@ -105,23 +112,16 @@ export function MapScreen({
               onPress={() => onSelectZone(zone)}
             >
               <View
-                style={[
-                  styles.bloom,
-                  {
-                    backgroundColor:
-                      quietIndexByZone[zone.id] == null
-                        ? NO_READING_COLOR
-                        : quietIndexGlowColor(quietIndexByZone[zone.id]!),
-                  },
-                ]}
+                style={{ width: size, height: size, borderRadius, backgroundColor: bgColor, opacity }}
               />
             </Marker>
           );
         })}
       </MapView>
+
       {zones.length === 0 && (
         <View style={styles.emptyOverlay}>
-          <Text style={styles.emptyText}>No quiet zones nearby yet.</Text>
+          <Text style={styles.emptyText}>No quiet zones near you yet.</Text>
         </View>
       )}
     </View>
@@ -131,20 +131,32 @@ export function MapScreen({
 const styles = StyleSheet.create({
   container: { flex: 1 },
   map: { flex: 1 },
-  center: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#0E1116" },
-  errorText: { color: "#B07A5E", paddingHorizontal: 24, textAlign: "center" },
-  bloom: { width: 28, height: 28, borderRadius: 14, opacity: 0.85 },
-  emptyOverlay: { position: "absolute", bottom: 32, alignSelf: "center" },
-  emptyText: { color: "#A9A296" },
-  walletButton: {
+  center: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.background,
+  },
+  errorText: { color: colors.alert, paddingHorizontal: 24, textAlign: "center" },
+  wordmark: {
     position: "absolute",
     top: 56,
-    right: 20,
+    left: 20,
     zIndex: 1,
-    backgroundColor: "rgba(35,32,26,0.85)",
-    borderRadius: 12,
-    paddingVertical: 8,
-    paddingHorizontal: 14,
+    backgroundColor: "rgba(251,248,242,0.92)",
+    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
   },
-  walletButtonText: { color: "#E8C170", fontWeight: "600", fontSize: 12 },
+  wordmarkText: {
+    fontFamily: fonts.bodySemiBold,
+    fontSize: 14,
+    color: colors.ink,
+  },
+  emptyOverlay: {
+    position: "absolute",
+    bottom: 32,
+    alignSelf: "center",
+  },
+  emptyText: { fontFamily: fonts.body, color: colors.muted },
 });
