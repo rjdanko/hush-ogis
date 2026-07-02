@@ -34,7 +34,9 @@ export const colors = {
   paper: "#F5F1EA",
   charcoal: "#4A463F",
   mutedText: "#8A8478",
-  nightMutedText: "#A9A296",  // alias for nightMuted — used by ActiveSession/SessionSummary/WalletScreen
+  // nightMutedText: design-brief-correct value (#A9A296, same as nightMuted).
+  // Old screens used #8A7E6C; updated to match Design Brief §4 dark-mode muted spec.
+  nightMutedText: "#A9A296",
   iconChip: "#EFE9DD",
   footerHint: "#9A9182",
 } as const;
