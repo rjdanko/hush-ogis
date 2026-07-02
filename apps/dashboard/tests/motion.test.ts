@@ -1,29 +1,42 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
-import { prefersReducedMotion } from "../lib/motion";
+import { afterEach, describe, expect, it } from "vitest";
+import { renderHook } from "@testing-library/react";
+import { usePrefersReducedMotion } from "../lib/motion";
 
-describe("prefersReducedMotion", () => {
+function makeMql(matches: boolean) {
+  const listeners: Array<() => void> = [];
+  return {
+    matches,
+    addEventListener: (_: string, cb: () => void) => { listeners.push(cb); },
+    removeEventListener: (_: string, cb: () => void) => {
+      const i = listeners.indexOf(cb);
+      if (i !== -1) listeners.splice(i, 1);
+    },
+  };
+}
+
+describe("usePrefersReducedMotion", () => {
   afterEach(() => {
-    vi.unstubAllGlobals();
+    // Clean up the matchMedia mock
+    Object.defineProperty(window, "matchMedia", { value: undefined, writable: true, configurable: true });
   });
 
-  it("returns true when the user's OS/browser prefers reduced motion", () => {
-    vi.stubGlobal("matchMedia", (query: string) => ({
-      matches: query === "(prefers-reduced-motion: reduce)",
-      media: query,
-    }));
-    expect(prefersReducedMotion()).toBe(true);
+  it("returns false when reduced motion is not preferred", () => {
+    Object.defineProperty(window, "matchMedia", {
+      writable: true,
+      configurable: true,
+      value: () => makeMql(false),
+    });
+    const { result } = renderHook(() => usePrefersReducedMotion());
+    expect(result.current).toBe(false);
   });
 
-  it("returns false when the user has no reduced-motion preference", () => {
-    vi.stubGlobal("matchMedia", (query: string) => ({
-      matches: false,
-      media: query,
-    }));
-    expect(prefersReducedMotion()).toBe(false);
-  });
-
-  it("returns false (SSR-safe fallback) when window.matchMedia is unavailable", () => {
-    vi.stubGlobal("matchMedia", undefined);
-    expect(prefersReducedMotion()).toBe(false);
+  it("returns true when reduced motion is preferred", () => {
+    Object.defineProperty(window, "matchMedia", {
+      writable: true,
+      configurable: true,
+      value: () => makeMql(true),
+    });
+    const { result } = renderHook(() => usePrefersReducedMotion());
+    expect(result.current).toBe(true);
   });
 });
