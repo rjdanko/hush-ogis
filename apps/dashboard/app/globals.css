@@ -1,9 +1,54 @@
+:root {
+  --color-accent: #6B7F6E;
+  --color-warm-muted: #6B6560;
+  --color-surface: #FBF8F2;
+  --color-warm-border: #E4DDD1;
+  --color-ink: #22201D;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 html,
 body {
-  background: theme(colors.ink);
-  color: theme(colors.mist);
+  background: theme(colors.paper);
+  color: theme(colors.ink);
+  font-family: var(--font-hanken), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Input base — prevents browser-default dark bg from leaking through */
+input,
+textarea,
+select {
+  background: theme(colors.surface);
+  color: theme(colors.ink);
+}
+
+/* Quiet Index breathing pulse — 4s ease-in-out, mirrors the orb rhythm */
+@keyframes qi-breathe {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+
+/* Amber flash on live update */
+@keyframes row-flash {
+  0%   { background-color: rgba(232, 193, 112, 0.10); }
+  100% { background-color: transparent; }
+}
+
+.animate-qi-breathe {
+  animation: qi-breathe 4s ease-in-out infinite;
+  will-change: opacity;
+}
+
+.animate-row-flash {
+  animation: row-flash 600ms ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-qi-breathe { animation: none; opacity: 1; will-change: auto; }
+  .animate-row-flash  { animation: none; }
 }

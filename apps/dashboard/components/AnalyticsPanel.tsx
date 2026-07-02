@@ -47,37 +47,54 @@ export function AnalyticsPanel({ zoneId }: { zoneId: string }) {
       }
     }
     load();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [zoneId]);
 
   if (error) {
-    return <p className="text-sm font-light text-neutral-500">{error}</p>;
+    return <p className="font-sans text-sm text-alert" role="alert">{error}</p>;
   }
 
   if (!analytics) {
-    return <p className="text-sm font-light text-neutral-400">Loading analytics…</p>;
+    return (
+      <div className="rounded-[16px] border border-warm-border bg-surface px-6 py-5 animate-pulse">
+        <div className="h-3 w-24 rounded bg-warm-border mb-4" />
+        <div className="h-32 rounded bg-warm-border/60" />
+      </div>
+    );
   }
 
   return (
-    <section className="flex flex-col gap-4 rounded border border-neutral-200 p-4">
-      <h2 className="text-sm uppercase tracking-wide text-neutral-500">{analytics.window_days}-day analytics</h2>
+    <section className="flex flex-col gap-6 rounded-[16px] border border-warm-border bg-surface px-6 py-5">
+      <h2 className="font-sans text-sm font-semibold text-charcoal">
+        {analytics.window_days}-day analytics
+      </h2>
 
       {analytics.quiet_index_trend.length === 0 ? (
-        <p className="text-sm font-light text-neutral-400">No Quiet Index history yet for this zone.</p>
+        <p className="font-sans text-sm text-warm-muted">
+          No Quiet Index history yet for this zone.
+        </p>
       ) : (
-        <div style={{ width: "100%", height: 200 }}>
+        <div style={{ width: "100%", height: 180 }}>
           <ResponsiveContainer>
             <LineChart data={analytics.quiet_index_trend}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
-              <XAxis dataKey="day" tick={{ fontSize: 11 }} />
-              <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
-              <Tooltip />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-warm-border)" />
+              <XAxis dataKey="day" tick={{ fontSize: 11, fill: "var(--color-warm-muted)", fontFamily: "var(--font-hanken)" }} />
+              <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: "var(--color-warm-muted)", fontFamily: "var(--font-hanken)" }} />
+              <Tooltip
+                contentStyle={{
+                  background: "var(--color-surface)",
+                  border: "1px solid var(--color-warm-border)",
+                  borderRadius: 12,
+                  fontFamily: "var(--font-hanken)",
+                  fontSize: 12,
+                  color: "var(--color-ink)",
+                }}
+              />
               <Line
                 type="monotone"
                 dataKey="avg_value"
-                stroke="#1c1c1e"
+                stroke="var(--color-accent)"
+                strokeWidth={1.5}
                 dot={false}
                 isAnimationActive={!prefersReducedMotion()}
               />
@@ -86,7 +103,7 @@ export function AnalyticsPanel({ zoneId }: { zoneId: string }) {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <Metric label="Check-ins" value={analytics.check_in_count} />
         <Metric label="Quiet minutes" value={analytics.total_quiet_minutes} />
         <Metric label="Points accrued" value={analytics.total_points_accrued} />
@@ -94,9 +111,9 @@ export function AnalyticsPanel({ zoneId }: { zoneId: string }) {
       </div>
 
       {analytics.peak_window.hour_of_day !== null && (
-        <p className="text-sm font-light text-neutral-500">
-          Peak quiet window: {analytics.peak_window.hour_of_day}:00 with {analytics.peak_window.max_active_count}{" "}
-          active check-ins.
+        <p className="font-sans text-sm text-warm-muted border-t border-warm-border pt-4">
+          Peak quiet window: {analytics.peak_window.hour_of_day}:00
+          {" "}with {analytics.peak_window.max_active_count} active check-ins.
         </p>
       )}
     </section>
@@ -105,9 +122,11 @@ export function AnalyticsPanel({ zoneId }: { zoneId: string }) {
 
 function Metric({ label, value }: { label: string; value: number }) {
   return (
-    <div className="flex flex-col">
-      <span className="text-xl font-light">{value}</span>
-      <span className="text-xs uppercase tracking-wide text-neutral-400">{label}</span>
+    <div className="flex flex-col gap-0.5">
+      <span className="font-display font-light text-2xl text-ink">{value}</span>
+      <span className="font-sans text-[0.5rem] font-semibold uppercase tracking-[0.15em] text-warm-muted">
+        {label}
+      </span>
     </div>
   );
 }
