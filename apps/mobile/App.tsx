@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useFonts } from "expo-font";
 import {
   HankenGrotesk_400Regular,
@@ -58,21 +59,25 @@ export default function App() {
 
   if (!fontsLoaded || appState.name === "loading") {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator color={colors.glowHigh} />
-        <StatusBar style="dark" />
-      </View>
+      <SafeAreaProvider>
+        <View style={styles.center}>
+          <ActivityIndicator color={colors.glowHigh} />
+          <StatusBar style="dark" />
+        </View>
+      </SafeAreaProvider>
     );
   }
 
   if (appState.name === "onboarding") {
     return (
-      <View style={styles.container}>
-        <OnboardingScreen
-          onComplete={() => setAppState({ name: "main", tab: "map", overlay: null })}
-        />
-        <StatusBar style="dark" />
-      </View>
+      <SafeAreaProvider>
+        <View style={styles.container}>
+          <OnboardingScreen
+            onComplete={() => setAppState({ name: "main", tab: "map", overlay: null })}
+          />
+          <StatusBar style="dark" />
+        </View>
+      </SafeAreaProvider>
     );
   }
 
@@ -114,6 +119,7 @@ export default function App() {
   const isDark = overlay?.name === "activeSession";
 
   return (
+    <SafeAreaProvider>
     <View style={styles.container}>
       {/* Tab content */}
       {!overlay && tab === "map" && (
@@ -171,6 +177,7 @@ export default function App() {
 
       <StatusBar style={isDark ? "light" : "dark"} />
     </View>
+    </SafeAreaProvider>
   );
 }
 

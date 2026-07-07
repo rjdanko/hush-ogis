@@ -60,35 +60,71 @@ export function ZoneEditClient({ zone, rewards: initialRewards, initialReading }
   }
 
   return (
-    <div className="flex flex-col gap-8">
-      <h1 className="text-2xl font-light tracking-wide">{zone.name}</h1>
-      <LiveQuietIndex zoneId={zone.id} initialReading={initialReading} />
-      <AnalyticsPanel zoneId={zone.id} />
-      <DigestPanel zoneId={zone.id} />
-      <BadgeEmbed zoneId={zone.id} />
-      <ZoneForm
-        key={zone.id}
-        initialValues={{
-          name: zone.name,
-          geofence: zone.geofence,
-          silenceContract: zone.silenceContract,
-          rewardConfig: zone.rewardConfig,
-        }}
-        onSubmit={handleZoneSubmit}
-        submitLabel="Save changes"
-      />
+    <div className="flex flex-col gap-10">
+      {/* Zone heading */}
+      <div className="flex flex-col gap-1">
+        <h1 className="font-display font-light text-ink text-[2rem] leading-tight tracking-tight overflow-hidden text-ellipsis whitespace-nowrap">
+          {zone.name}
+        </h1>
+        <p className="font-sans text-sm text-warm-muted">Live data &amp; settings</p>
+      </div>
 
-      <section className="flex flex-col gap-3">
-        <h2 className="text-xl font-light tracking-wide">Rewards</h2>
-        <ul className="flex flex-col gap-1">
-          {rewards.map((reward) => (
-            <li key={reward.id}>
-              {reward.name} — {reward.pointsCost} points
-            </li>
-          ))}
-        </ul>
-        <RewardForm onSubmit={handleRewardSubmit} />
-      </section>
+      {/* ── PULSE ────────────────────────────────────────────────────────────
+          The primary reason to open this page: observe what's happening now
+          and over time. LiveQI floats borderless on paper. Analytics and
+          digest follow as natural continuations of the same question. */}
+      <div className="flex flex-col gap-8">
+        <LiveQuietIndex zoneId={zone.id} initialReading={initialReading} />
+        <AnalyticsPanel zoneId={zone.id} />
+        <DigestPanel zoneId={zone.id} />
+      </div>
+
+      {/* Visual separator between observe and configure modes */}
+      <hr className="border-t border-warm-border" />
+
+      {/* ── CONFIGURE ────────────────────────────────────────────────────────
+          Operational sections: badge embed, zone settings, rewards. */}
+      <div className="flex flex-col gap-10">
+
+        {/* Badge embed */}
+        <BadgeEmbed zoneId={zone.id} />
+
+        {/* Zone settings */}
+        <section className="flex flex-col gap-5 rounded-[16px] border border-warm-border bg-surface px-6 py-5">
+          <h2 className="font-sans text-sm font-semibold text-charcoal">Zone settings</h2>
+          <ZoneForm
+            key={zone.id}
+            initialValues={{
+              name: zone.name,
+              geofence: zone.geofence,
+              silenceContract: zone.silenceContract,
+              rewardConfig: zone.rewardConfig,
+            }}
+            onSubmit={handleZoneSubmit}
+            submitLabel="Save changes"
+          />
+        </section>
+
+        {/* Rewards */}
+        <section className="flex flex-col gap-5 rounded-[16px] border border-warm-border bg-surface px-6 py-5">
+          <h2 className="font-sans text-sm font-semibold text-charcoal">Rewards</h2>
+
+          {rewards.length > 0 && (
+            <ul className="flex flex-col divide-y divide-warm-border">
+              {rewards.map((reward) => (
+                <li key={reward.id} className="flex items-baseline justify-between py-3">
+                  <span className="font-sans text-sm text-ink">{reward.name}</span>
+                  <span className="font-sans text-xs text-warm-muted tabular-nums">
+                    {reward.pointsCost} pts
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <RewardForm onSubmit={handleRewardSubmit} />
+        </section>
+      </div>
     </div>
   );
 }

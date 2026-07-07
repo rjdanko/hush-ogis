@@ -26,9 +26,7 @@ export function DigestPanel({ zoneId }: { zoneId: string }) {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ zoneId }),
       });
-      if (!response.ok) {
-        throw new Error("Could not generate the digest just now.");
-      }
+      if (!response.ok) throw new Error("failed");
       const data = (await response.json()) as Digest;
       setDigest(data);
     } catch {
@@ -39,41 +37,55 @@ export function DigestPanel({ zoneId }: { zoneId: string }) {
   }
 
   return (
-    <section className="flex flex-col gap-3 rounded border border-neutral-200 p-4">
-      <h2 className="text-sm uppercase tracking-wide text-neutral-500">Weekly digest</h2>
-
-      <div>
+    <section className="flex flex-col gap-5 rounded-[16px] border border-warm-border bg-surface px-6 py-5">
+      <div className="flex items-center justify-between">
+        <h2 className="font-sans text-sm font-semibold text-charcoal">Weekly digest</h2>
         <button
           type="button"
           onClick={handleGenerate}
           disabled={pending}
-          className="rounded border border-neutral-300 px-4 py-2 text-sm font-light tracking-wide text-neutral-700 disabled:opacity-50"
+          aria-busy={pending}
+          className={generateButtonClass}
         >
-          Generate weekly digest
+          <span aria-live="polite" aria-atomic="true">
+            {pending ? "Generating…" : "Generate"}
+          </span>
         </button>
       </div>
 
-      {pending && (
-        <p className="text-sm font-light text-neutral-400">Generating…</p>
-      )}
-
       {error && !pending && (
-        <p className="text-sm font-light text-neutral-500">{error}</p>
+        <p className="font-sans text-sm text-alert" role="alert">{error}</p>
       )}
 
       {digest && !pending && (
-        <div className="flex flex-col gap-3">
-          <p className="font-light leading-relaxed text-neutral-700">{digest.summary}</p>
-          <div className="flex flex-col gap-2">
-            {digest.suggestions.map((suggestion, index) => (
-              <div key={index} className="flex flex-col gap-1 rounded border border-neutral-200 p-3">
-                <p className="font-light text-neutral-700">{suggestion.title}</p>
-                <p className="text-sm font-light text-neutral-500">{suggestion.body}</p>
-              </div>
-            ))}
-          </div>
+        <div className="flex flex-col gap-5">
+          <p className="font-sans text-sm text-charcoal leading-relaxed">
+            {digest.summary}
+          </p>
+
+          {digest.suggestions.length > 0 && (
+            <ul className="flex flex-col divide-y divide-warm-border border-t border-warm-border">
+              {digest.suggestions.map((suggestion, index) => (
+                <li key={index} className="flex flex-col gap-1 py-4">
+                  <p className="font-sans text-sm font-semibold text-ink">
+                    {suggestion.title}
+                  </p>
+                  <p className="font-sans text-sm text-warm-muted leading-relaxed">
+                    {suggestion.body}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
     </section>
   );
 }
+
+const generateButtonClass = [
+  "rounded-full border border-warm-border px-3 py-1.5",
+  "font-sans text-[0.625rem] font-semibold uppercase tracking-[0.15em] text-charcoal",
+  "hover:border-accent hover:text-accent transition-colors duration-150",
+  "disabled:opacity-40",
+].join(" ");

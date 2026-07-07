@@ -3,7 +3,7 @@
 // Zone blooms scale size by Quiet Index (24–40px core) per spec §2.2.
 import { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
-import MapView, { Marker } from "react-native-maps";
+import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import type { Zone } from "@hush/shared-types";
 import { fetchZones } from "../lib/zones";
 import { quietIndexGlowColor } from "../lib/glow";
@@ -86,6 +86,7 @@ export function MapScreen({
 
       <MapView
         style={styles.map}
+        provider={PROVIDER_GOOGLE}
         initialRegion={{
           latitude: initialCenter[1],
           longitude: initialCenter[0],

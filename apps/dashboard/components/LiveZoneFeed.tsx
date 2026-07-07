@@ -7,7 +7,6 @@ import { createClient } from "../lib/supabase/client";
 import {
   formatQuietIndex,
   quietIndexGlowHex,
-  quietIndexGlowTextClass,
   type QuietIndexReading,
 } from "../lib/quiet-index";
 
@@ -109,7 +108,6 @@ export function LiveZoneFeed({ zones: initialZones }: LiveZoneFeedProps) {
 
 function ZoneRow({ zone, isFlashing }: { zone: ZoneEntry; isFlashing: boolean }) {
   const glowColor = quietIndexGlowHex(zone.reading.value);
-  const glowTextClass = quietIndexGlowTextClass(zone.reading.value);
   const hasReading = zone.reading.value !== null;
 
   return (
@@ -144,21 +142,22 @@ function ZoneRow({ zone, isFlashing }: { zone: ZoneEntry; isFlashing: boolean })
         </span>
       </div>
 
-      {/* Live Quiet Index — dark tile chip solves glow-high contrast (10:1 on night-card) */}
+      {/* QI chip — paper-world: subtle glow tint bg, charcoal text for contrast */}
       <div
-        className="flex flex-col items-center shrink-0 rounded-[12px] bg-night-card px-3 py-2 gap-0.5"
+        className="flex flex-col items-end shrink-0 gap-0.5 rounded-[10px] px-3 py-2 transition-colors duration-700"
+        style={hasReading ? { background: `${glowColor}26` } : undefined}
         aria-label={`Quiet Index: ${formatQuietIndex(zone.reading.value)}`}
       >
         <span
           className={[
-            "font-display font-light text-3xl leading-none tabular-nums",
-            glowTextClass,
+            "font-display font-light text-2xl leading-none tabular-nums",
+            hasReading ? "text-charcoal" : "text-warm-muted",
             hasReading ? "animate-qi-breathe" : "",
           ].filter(Boolean).join(" ")}
         >
           {formatQuietIndex(zone.reading.value)}
         </span>
-        <span className="font-sans text-[0.5rem] uppercase tracking-[0.15em] text-night-muted">
+        <span className="font-sans text-[0.5rem] uppercase tracking-[0.15em] text-warm-muted">
           QI
         </span>
       </div>

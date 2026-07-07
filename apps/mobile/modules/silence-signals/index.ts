@@ -12,16 +12,27 @@ interface SilenceSignalsNativeModule {
   openUsageAccessSettings(): void;
 }
 
-const NativeModule = requireNativeModule<SilenceSignalsNativeModule>("SilenceSignals");
+const MOCK_SIGNALS: NativeSilenceSignals = {
+  screenOffMs: 0,
+  interruptionFilter: 1,
+  isForeground: true,
+};
+
+let NativeModule: SilenceSignalsNativeModule | null = null;
+try {
+  NativeModule = requireNativeModule<SilenceSignalsNativeModule>("SilenceSignals");
+} catch {
+  // Running in Expo Go — custom native module unavailable, use mock
+}
 
 export function getNativeSignals(): Promise<NativeSilenceSignals> {
-  return NativeModule.getSignals();
+  return NativeModule ? NativeModule.getSignals() : Promise.resolve(MOCK_SIGNALS);
 }
 
 export function hasUsageAccessPermission(): Promise<boolean> {
-  return NativeModule.hasUsageAccessPermission();
+  return NativeModule ? NativeModule.hasUsageAccessPermission() : Promise.resolve(false);
 }
 
 export function openUsageAccessSettings(): void {
-  NativeModule.openUsageAccessSettings();
+  NativeModule?.openUsageAccessSettings();
 }

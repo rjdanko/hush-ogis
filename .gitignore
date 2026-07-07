@@ -21,6 +21,11 @@ build/
 # os / editor
 .DS_Store
 Thumbs.db
+.idea/
+# android build tooling
+.gradle/
+# impeccable design skill scratch state
+.impeccable/
 # supabase CLI local state
 supabase/.branches/
 supabase/.temp/

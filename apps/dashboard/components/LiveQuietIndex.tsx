@@ -2,7 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "../lib/supabase/client";
-import { formatQuietIndex, type QuietIndexReading } from "../lib/quiet-index";
+import {
+  formatQuietIndex,
+  quietIndexGlowHex,
+  type QuietIndexReading,
+} from "../lib/quiet-index";
 
 export function LiveQuietIndex({
   zoneId,
@@ -36,18 +40,50 @@ export function LiveQuietIndex({
         .subscribe();
     });
 
-    return () => {
-      channel?.unsubscribe();
-    };
+    return () => { channel?.unsubscribe(); };
   }, [zoneId]);
 
+  const glowColor = quietIndexGlowHex(reading.value);
+  const hasReading = reading.value !== null;
+
   return (
-    <section className="flex flex-col gap-1 rounded border border-neutral-200 p-4">
-      <h2 className="text-sm uppercase tracking-wide text-neutral-500">Live Quiet Index</h2>
-      <p className="text-3xl font-light">{formatQuietIndex(reading.value)}</p>
-      <p className="text-sm font-light text-neutral-500">
-        {reading.activeCount === null ? "No active check-ins" : `${reading.activeCount} active check-ins`}
-      </p>
+    <section className="flex items-center gap-6 py-2">
+      {/* Bloom dot — larger for the floating, borderless context */}
+      <span
+        aria-hidden="true"
+        className="shrink-0 rounded-full transition-colors duration-700"
+        style={{ width: 48, height: 48, backgroundColor: glowColor, opacity: hasReading ? 0.85 : 0.3 }}
+      />
+
+      <div className="flex flex-col gap-2">
+        {/* QI chip — paper-world: subtle glow tint bg, charcoal text for contrast */}
+        <div
+          className="inline-flex flex-col gap-0.5 rounded-[12px] px-4 py-2.5 transition-colors duration-700"
+          style={hasReading ? { background: `${glowColor}26` } : undefined}
+        >
+          <span
+            className={[
+              "font-display font-light text-4xl leading-none tabular-nums",
+              hasReading ? "text-charcoal" : "text-warm-muted",
+              hasReading ? "animate-qi-breathe" : "",
+            ].filter(Boolean).join(" ")}
+            aria-label={`Live Quiet Index: ${formatQuietIndex(reading.value)}`}
+          >
+            {formatQuietIndex(reading.value)}
+          </span>
+          <span className="font-sans text-[0.5rem] font-semibold uppercase tracking-[0.15em] text-warm-muted">
+            Quiet Index
+          </span>
+        </div>
+
+        <span className="font-sans text-xs text-warm-muted">
+          {reading.activeCount === null
+            ? "No active check-ins"
+            : reading.activeCount === 1
+              ? "1 active check-in"
+              : `${reading.activeCount} active check-ins`}
+        </span>
+      </div>
     </section>
   );
 }

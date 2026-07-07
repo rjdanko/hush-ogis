@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700&family=Newsreader:opsz,wght@6..72,200;6..72,300;6..72,400;6..72,500&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  @keyframes hbreathe { 0%,100%{transform:scale(1);opacity:.5} 50%{transform:scale(1.14);opacity:.82} }
+  @keyframes hcore { 0%,100%{transform:scale(1)} 50%{transform:scale(1.025)} }
+  @media (prefers-reduced-motion: reduce){ *{animation:none !important} }
+</style>
+</helmet>
+<div style="--accent: {{accentColor}}; --anim: {{animState}}; min-height:100vh;background:#E3DDD0;padding:52px 56px 110px;font-family:'Hanken Grotesk',sans-serif;color:#22201D;-webkit-font-smoothing:antialiased">
+<div style="max-width:1560px;margin:0 auto">
+
+  <!-- ============ MASTHEAD ============ -->
+  <div style="max-width:760px">
+    <div style="font:600 12px 'Hanken Grotesk';letter-spacing:0.34em;color:var(--accent,#6B7F6E);text-transform:uppercase">Hush</div>
+    <div style="font-family:'Newsreader',serif;font-weight:300;font-size:52px;line-height:1.05;color:#22201D;margin:14px 0 0">Wireframes &amp; visual direction</div>
+    <div style="font:400 16px 'Hanken Grotesk';color:#4A463F;line-height:1.65;margin-top:18px">A calm, spacious app that turns real places into rewarded zones of intentional digital silence. The design earns trust by asking for almost none of your attention — negative space is the brand, and color does real work in exactly one place: the Quiet Index glow.</div>
+  </div>
+
+  <!-- ============ VISUAL DIRECTION ============ -->
+  <div style="margin:60px 0 22px">
+    <div style="font:600 13px 'Hanken Grotesk';letter-spacing:0.2em;color:var(--accent,#6B7F6E);text-transform:uppercase">System</div>
+    <div style="font-family:'Newsreader',serif;font-size:30px;font-weight:400;color:#22201D;margin-top:4px">Palette, type &amp; core components</div>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:24px;align-items:stretch">
+
+    <!-- palette card -->
+    <div style="flex:1;min-width:560px;background:#FBF8F2;border:1px solid #E4DDD1;border-radius:18px;padding:26px 28px">
+      <div style="font:600 11px 'Hanken Grotesk';letter-spacing:0.14em;color:#6B6258;text-transform:uppercase;margin-bottom:16px">Warm neutral base</div>
+      <div style="display:flex;flex-wrap:wrap;gap:18px">
+        <div><div style="width:88px;height:54px;border-radius:10px;background:#22201D"></div><div style="font:600 11px 'Hanken Grotesk';margin-top:7px">Ink</div><div style="font:400 10px 'Hanken Grotesk';color:#8A8478">#22201D</div></div>
+        <div><div style="width:88px;height:54px;border-radius:10px;background:#4A463F"></div><div style="font:600 11px 'Hanken Grotesk';margin-top:7px">Charcoal</div><div style="font:400 10px 'Hanken Grotesk';color:#8A8478">#4A463F</div></div>
+        <div><div style="width:88px;height:54px;border-radius:10px;background:#F5F1EA;border:1px solid #E4DDD1"></div><div style="font:600 11px 'Hanken Grotesk';margin-top:7px">Paper</div><div style="font:400 10px 'Hanken Grotesk';color:#8A8478">#F5F1EA</div></div>
+        <div><div style="width:88px;height:54px;border-radius:10px;background:#FBF8F2;border:1px solid #E4DDD1"></div><div style="font:600 11px 'Hanken Grotesk';margin-top:7px">Surface</div><div style="font:400 10px 'Hanken Grotesk';color:#8A8478">#FBF8F2</div></div>
+        <div><div style="width:88px;height:54px;border-radius:10px;background:#16140F"></div><div style="font:600 11px 'Hanken Grotesk';margin-top:7px">Night</div><div style="font:400 10px 'Hanken Grotesk';color:#8A8478">#16140F</div></div>
+      </div>
+      <div style="height:1px;background:#EEE8DC;margin:22px 0"></div>
+      <div style="display:flex;flex-wrap:wrap;gap:26px">
+        <div>
+          <div style="font:600 11px 'Hanken Grotesk';letter-spacing:0.14em;color:#6B6258;text-transform:uppercase;margin-bottom:12px">Accent · Sage</div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <div style="width:48px;height:48px;border-radius:50%;background:#6B7F6E"></div>
+            <div style="font:400 11px 'Hanken Grotesk';color:#8A8478">#6B7F6E<br>one calm, grounded accent</div>
+          </div>
+        </div>
+        <div>
+          <div style="font:600 11px 'Hanken Grotesk';letter-spacing:0.14em;color:#6B6258;text-transform:uppercase;margin-bottom:12px">Quiet Index glow ramp</div>
+          <div style="display:flex;gap:8px;align-items:flex-end">
+            <div style="text-align:center"><div style="width:42px;height:42px;border-radius:50%;background:radial-gradient(circle,#A9B4C0,#8A98A6)"></div><div style="font:400 9px 'Hanken Grotesk';color:#8A8478;margin-top:5px">0–30</div></div>
+            <div style="text-align:center"><div style="width:50px;height:50px;border-radius:50%;background:radial-gradient(circle,#E7C588,#D9A85E)"></div><div style="font:400 9px 'Hanken Grotesk';color:#8A8478;margin-top:5px">31–70</div></div>
+            <div style="text-align:center"><div style="width:60px;height:60px;border-radius:50%;background:radial-gradient(circle,#F4E3B8,#E8C170);box-shadow:0 0 22px rgba(232,193,112,0.55)"></div><div style="font:400 9px 'Hanken Grotesk';color:#8A8478;margin-top:5px">71–100</div></div>
+          </div>
+        </div>
+        <div>
+          <div style="font:600 11px 'Hanken Grotesk';letter-spacing:0.14em;color:#6B6258;text-transform:uppercase;margin-bottom:12px">Semantic · sparing</div>
+          <div style="display:flex;gap:10px">
+            <div style="text-align:center"><div style="width:42px;height:42px;border-radius:10px;background:#C9A24B"></div><div style="font:400 9px 'Hanken Grotesk';color:#8A8478;margin-top:5px">Reward</div></div>
+            <div style="text-align:center"><div style="width:42px;height:42px;border-radius:10px;background:#B07A5E"></div><div style="font:400 9px 'Hanken Grotesk';color:#8A8478;margin-top:5px">Alert</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- type card -->
+    <div style="flex:1;min-width:360px;background:#FBF8F2;border:1px solid #E4DDD1;border-radius:18px;padding:26px 28px">
+      <div style="font:600 11px 'Hanken Grotesk';letter-spacing:0.14em;color:#6B6258;text-transform:uppercase;margin-bottom:18px">Typography</div>
+      <div style="display:flex;align-items:baseline;gap:18px">
+        <div style="font-family:'Newsreader',serif;font-weight:300;font-size:72px;line-height:0.9;color:#22201D">82</div>
+        <div style="font:400 12px 'Hanken Grotesk';color:#6B6258;line-height:1.5">Newsreader<br>hero numerals &amp; headings<br><span style="color:#8A8478">300 / 400 weights</span></div>
+      </div>
+      <div style="height:1px;background:#EEE8DC;margin:22px 0"></div>
+      <div style="font:600 22px 'Hanken Grotesk';color:#22201D">Hanken Grotesk</div>
+      <div style="font:400 14px 'Hanken Grotesk';color:#4A463F;line-height:1.6;margin-top:6px">Warm humanist sans for all UI. Generous line-height, few weights.</div>
+      <div style="font:600 10px 'Hanken Grotesk';letter-spacing:0.16em;color:#8A8478;text-transform:uppercase;margin-top:10px">Small labels · tracked &amp; calm</div>
+    </div>
+  </div>
+
+  <!-- component samples -->
+  <div style="display:flex;flex-wrap:wrap;gap:24px;margin-top:24px">
+    <!-- orbs -->
+    <div style="background:#FBF8F2;border:1px solid #E4DDD1;border-radius:18px;padding:26px 30px">
+      <div style="font:600 11px 'Hanken Grotesk';letter-spacing:0.14em;color:#6B6258;text-transform:uppercase;margin-bottom:20px">Quiet Index orb — three sizes</div>
+      <div style="display:flex;gap:40px;align-items:center">
+        <!-- small -->
+        <div style="position:relative;width:56px;height:56px;display:flex;align-items:center;justify-content:center">
+          <div style="position:absolute;width:56px;height:56px;border-radius:50%;background:radial-gradient(circle,rgba(232,193,112,0.7),rgba(232,193,112,0) 70%);filter:blur(3px);animation:hbreathe 4s ease-in-out infinite;animation-play-state:var(--anim,running)"></div>
+          <div style="position:relative;width:38px;height:38px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#FBF4E2,#EBD09A);display:flex;align-items:center;justify-content:center;font-family:'Newsreader',serif;font-size:16px;color:#5A4A28">82</div>
+        </div>
+        <!-- medium -->
+        <div style="position:relative;width:120px;height:120px;display:flex;align-items:center;justify-content:center">
+          <div style="position:absolute;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(232,193,112,0.7),rgba(217,168,94,0.18) 48%,rgba(232,193,112,0) 72%);filter:blur(5px);animation:hbreathe 4s ease-in-out infinite;animation-play-state:var(--anim,running)"></div>
+          <div style="position:relative;width:84px;height:84px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#FBF4E2,#EBD09A);box-shadow:inset 0 0 0 1px rgba(201,162,75,0.3);display:flex;flex-direction:column;align-items:center;justify-content:center;animation:hcore 4s ease-in-out infinite;animation-play-state:var(--anim,running)">
+            <div style="font-family:'Newsreader',serif;font-size:32px;color:#5A4A28;line-height:1">82</div>
+            <div style="font:600 7px 'Hanken Grotesk';letter-spacing:0.14em;color:#8A7A54;margin-top:2px">QUIET</div>
+          </div>
+        </div>
+        <!-- large -->
+        <div style="position:relative;width:172px;height:172px;display:flex;align-items:center;justify-content:center">
+          <div style="position:absolute;width:172px;height:172px;border-radius:50%;background:radial-gradient(circle,rgba(232,193,112,0.7),rgba(217,168,94,0.16) 50%,rgba(232,193,112,0) 73%);filter:blur(7px);animation:hbreathe 4s ease-in-out infinite;animation-play-state:var(--anim,running)"></div>
+          <div style="position:relative;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#FBF4E2,#EBD09A);box-shadow:inset 0 0 0 1px rgba(201,162,75,0.3);display:flex;flex-direction:column;align-items:center;justify-content:center;animation:hcore 4s ease-in-out infinite;animation-play-state:var(--anim,running)">
+            <div style="font-family:'Newsreader',serif;font-size:48px;color:#5A4A28;line-height:1">82</div>
+            <div style="font:600 8px 'Hanken Grotesk';letter-spacing:0.16em;color:#8A7A54;margin-top:3px">QUIET</div>
+          </div>
+        </div>
+      </div>
+      <div style="font:400 12px 'Hanken Grotesk';color:#8A8478;margin-top:16px">Soft radial bloom · breathes on a slow ~4s loop · static under reduced-motion</div>
+    </div>
+
+    <!-- patterns column -->
+    <div style="flex:1;min-width:300px;display:flex;flex-direction:column;gap:18px">
+      <!-- buttons -->
+      <div style="background:#FBF8F2;border:1px solid #E4DDD1;border-radius:18px;padding:22px 26px">
+        <div style="font:600 11px 'Hanken Grotesk';letter-spacing:0.14em;color:#6B6258;text-transform:uppercase;margin-bottom:16px">Buttons &amp; inputs</div>
+        <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+          <div style="background:var(--accent,#6B7F6E);color:#F5F1EA;padding:13px 26px;border-radius:14px;font:600 14px 'Hanken Grotesk'">Check in</div>
+          <div style="background:transparent;color:#4A463F;padding:13px 24px;border-radius:14px;font:600 14px 'Hanken Grotesk';border:1px solid #D8D0C2">Not now</div>
+          <div style="background:#fff;color:#A39A8C;padding:13px 18px;border-radius:14px;font:400 13px 'Hanken Grotesk';border:1px solid #E4DDD1;min-width:130px">Your name…</div>
+        </div>
+      </div>
+      <!-- coach card -->
+      <div style="background:#FBF8F2;border:1px solid #E4DDD1;border-radius:18px;padding:22px 26px">
+        <div style="font:600 11px 'Hanken Grotesk';letter-spacing:0.14em;color:#6B6258;text-transform:uppercase;margin-bottom:14px">Coach card — the anti-notification</div>
+        <div style="background:#fff;border:1px solid #EAE3D6;border-radius:16px;padding:16px 18px;box-shadow:0 8px 22px rgba(34,32,29,0.06);display:flex;gap:14px;align-items:flex-start;max-width:330px">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--accent,#6B7F6E);margin-top:6px;flex:none"></div>
+          <div style="font:400 13px 'Hanken Grotesk';color:#4A463F;line-height:1.55">You usually manage 30 min here — nicely past it. <span style="color:#9A9182">No need to check anything.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ FLOW A — ONBOARDING ============ -->
+  <div style="margin:78px 0 26px">
+    <div style="font:600 13px 'Hanken Grotesk';letter-spacing:0.2em;color:var(--accent,#6B7F6E);text-transform:uppercase">Flow A · Mobile</div>
+    <div style="font-family:'Newsreader',serif;font-size:30px;font-weight:400;color:#22201D;margin-top:4px">Onboarding</div>
+    <div style="font:400 14px 'Hanken Grotesk';color:#4A463F;margin-top:6px;max-width:600px">One message per screen. The promise builds: disconnect, earn, and trust — only a score ever leaves the phone.</div>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:42px;align-items:flex-start">
+
+    <!-- 01a Welcome (dark) -->
+    <div style="flex:none">
+      <div style="display:flex;align-items:center;gap:8px;margin:0 0 12px 6px"><span style="font:600 11px 'Hanken Grotesk';letter-spacing:0.06em;color:#6B6258;text-transform:uppercase">01 · Welcome</span><span style="font:600 9px 'Hanken Grotesk';letter-spacing:0.08em;color:#8A8478;border:1px solid #CFC7B8;border-radius:20px;padding:2px 8px;text-transform:uppercase">Mobile</span></div>
+      <div style="width:300px;height:648px;background:#16140F;border-radius:32px;border:1px solid #2A261D;box-shadow:0 16px 40px rgba(34,32,29,0.18);overflow:hidden;position:relative;display:flex;flex-direction:column">
+        <div style="display:flex;justify-content:space-between;padding:15px 24px 0;font:600 11px 'Hanken Grotesk';color:#A9A296"><span>9:41</span><span style="opacity:0.7">▢ ▢ ▮</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 36px;position:relative">
+          <div style="position:absolute;top:30%;width:210px;height:210px;border-radius:50%;background:radial-gradient(circle,rgba(232,193,112,0.26),rgba(232,193,112,0) 70%);filter:blur(8px);animation:hbreathe 4s ease-in-out infinite;animation-play-state:var(--anim,running)"></div>
+          <div style="position:relative;text-align:center">
+            <div style="font:600 11px 'Hanken Grotesk';letter-spacing:0.34em;color:#8A7A54;text-transform:uppercase;margin-bottom:20px">Hush</div>
+            <div style="font-family:'Newsreader',serif;font-size:36px;line-height:1.12;color:#F2ECE0;font-weight:300">Disconnect,<br>together.</div>
+            <div style="font:400 14px 'Hanken Grotesk';color:#A9A296;margin-top:18px;line-height:1.65">Put your phone down in a real place — and be rewarded for the quiet.</div>
+          </div>
+        </div>
+        <div style="padding:0 28px 32px">
+          <div style="background:var(--accent,#6B7F6E);color:#F5F1EA;text-align:center;padding:15px;border-radius:16px;font:600 15px 'Hanken Grotesk'">Begin</div>
+          <div style="display:flex;gap:6px;justify-content:center;margin-top:20px">
+            <div style="width:20px;height:6px;border-radius:6px;background:#8A7A54"></div>
+            <div style="width:6px;height:6px;border-radius:6px;background:#3A352B"></div>
+            <div style="width:6px;height:6px;border-radius:6px;background:#3A352B"></div>
+            <div style="width:6px;height:6px;border-radius:6px;background:#3A352B"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 01b Earn -->
+    <div style="flex:none">
+      <div style="display:flex;align-items:center;gap:8px;margin:0 0 12px 6px"><span style="font:600 11px 'Hanken Grotesk';letter-spacing:0.06em;color:#6B6258;text-transform:uppercase">01 · Earn for silence</span><span style="font:600 9px 'Hanken Grotesk';letter-spacing:0.08em;color:#8A8478;border:1px solid #CFC7B8;border-radius:20px;padding:2px 8px;text-transform:uppercase">Mobile</span></div>
+      <div style="width:300px;height:648px;background:#F5F1EA;border-radius:32px;border:1px solid #E4DDD1;box-shadow:0 14px 34px rgba(34,32,29,0.10);overflow:hidden;position:relative;display:flex;flex-direction:column">
+        <div style="display:flex;justify-content:space-between;padding:15px 24px 0;font:600 11px 'Hanken Grotesk';color:#22201D"><span>9:41</span><span style="opacity:0.6">▢ ▢ ▮</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 36px;text-align:center">
+          <div style="display:inline-flex;align-items:center;gap:12px;background:#FBF8F2;border:1px solid #E4DDD1;border-radius:18px;padding:14px 18px;box-shadow:0 10px 26px rgba(34,32,29,0.06);margin-bottom:34px">
+            <div style="width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#F3E6C2,#C9A24B)"></div>
+            <div style="text-align:left"><div style="font:600 13px 'Hanken Grotesk';color:#22201D">Free pour-over</div><div style="font:400 11px 'Hanken Grotesk';color:#8A8478">90 quiet points</div></div>
+          </div>
+          <div style="font-family:'Newsreader',serif;font-size:32px;line-height:1.15;color:#22201D;font-weight:300">Earn for<br>your silence.</div>
+          <div style="font:400 14px 'Hanken Grotesk';color:#4A463F;margin-top:16px;line-height:1.65">The longer you stay off your phone, the more you earn — redeemable right where you sit.</div>
+        </div>
+        <div style="padding:0 28px 32px;display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;gap:6px">
+            <div style="width:6px;height:6px;border-radius:6px;background:#D8D0C2"></div>
+            <div style="width:20px;height:6px;border-radius:6px;background:var(--accent,#6B7F6E)"></div>
+            <div style="width:6px;height:6px;border-radius:6px;background:#D8D0C2"></div>
+            <div style="width:6px;height:6px;border-radius:6px;background:#D8D0C2"></div>
+          </div>
+          <div style="background:var(--accent,#6B7F6E);color:#F5F1EA;padding:12px 26px;border-radius:14px;font:600 14px 'Hanken Grotesk'">Next</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 01c Privacy -->
+    <div style="flex:none">
+      <div style="display:flex;align-items:center;gap:8px;margin:0 0 12px 6px"><span style="font:600 11px 'Hanken Grotesk';letter-spacing:0.06em;color:#6B6258;text-transform:uppercase">01 · Privacy promise</span><span style="font:600 9px 'Hanken Grotesk';letter-spacing:0.08em;color:#8A8478;border:1px solid #CFC7B8;border-radius:20px;padding:2px 8px;text-transform:uppercase">Mobile</span></div>
+      <div style="width:300px;height:648px;background:#F5F1EA;border-radius:32px;border:1px solid #E4DDD1;box-shadow:0 14px 34px rgba(34,32,29,0.10);overflow:hidden;position:relative;display:flex;flex-direction:column">
+        <div style="display:flex;justify-content:space-between;padding:15px 24px 0;font:600 11px 'Hanken Grotesk';color:#22201D"><span>9:41</span><span style="opacity:0.6">▢ ▢ ▮</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 32px;text-align:center">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:30px">
+            <div style="width:34px;height:50px;border-radius:7px;border:2px solid #B9B0A0;display:flex;align-items:center;justify-content:center"><div style="width:10px;height:10px;border-radius:50%;background:#B9B0A0"></div></div>
+            <div style="width:26px;height:1px;background:#C9C0B0;position:relative"><div style="position:absolute;right:-2px;top:-2px;width:5px;height:5px;border-top:1px solid #C9C0B0;border-right:1px solid #C9C0B0;transform:rotate(45deg)"></div></div>
+            <div style="width:38px;height:38px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#F4E3B8,#E8C170);display:flex;align-items:center;justify-content:center;font-family:'Newsreader',serif;font-size:15px;color:#5A4A28;box-shadow:0 0 14px rgba(232,193,112,0.5)">82</div>
+            <div style="width:26px;height:1px;background:#C9C0B0;position:relative"><div style="position:absolute;right:-2px;top:-2px;width:5px;height:5px;border-top:1px solid #C9C0B0;border-right:1px solid #C9C0B0;transform:rotate(45deg)"></div></div>
+            <div style="width:46px;height:30px;border-radius:16px;background:#EFE9DD;border:1px solid #E0D8C9"></div>
+          </div>
+          <div style="font-family:'Newsreader',serif;font-size:29px;line-height:1.18;color:#22201D;font-weight:300">Only a score<br>leaves your phone.</div>
+          <div style="font:400 14px 'Hanken Grotesk';color:#4A463F;margin-top:16px;line-height:1.65">A single 0–100 number — and nothing else.</div>
+          <div style="margin-top:22px;text-align:left;width:100%;max-width:230px">
+            <div style="font:600 10px 'Hanken Grotesk';letter-spacing:0.12em;color:#8A8478;text-transform:uppercase;margin-bottom:10px">Never leaves your device</div>
+            <div style="font:400 13px 'Hanken Grotesk';color:#A39A8C;text-decoration:line-through;line-height:1.9">Messages · Location history<br>Contacts · App usage</div>
+          </div>
+        </div>
+        <div style="padding:0 28px 32px;display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;gap:6px">
+            <div style="width:6px;height:6px;border-radius:6px;background:#D8D0C2"></div>
+            <div style="width:6px;height:6px;border-radius:6px;background:#D8D0C2"></div>
+            <div style="width:20px;height:6px;border-radius:6px;background:var(--accent,#6B7F6E)"></div>
+            <div style="width:6px;height:6px;border-radius:6px;background:#D8D0C2"></div>
+          </div>
+          <div style="background:var(--accent,#6B7F6E);color:#F5F1EA;padding:12px 26px;border-radius:14px;font:600 14px 'Hanken Grotesk'">Next</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 01d Permissions -->
+    <div style="flex:none">
+      <div style="display:flex;align-items:center;gap:8px;margin:0 0 12px 6px"><span style="font:600 11px 'Hanken Grotesk';letter-spacing:0.06em;color:#6B6258;text-transform:uppercase">01 · Permissions</span><span style="font:600 9px 'Hanken Grotesk';letter-spacing:0.08em;color:#8A8478;border:1px solid #CFC7B8;border-radius:20px;padding:2px 8px;text-transform:uppercase">Mobile</span></div>
+      <div style="width:300px;height:648px;background:#F5F1EA;border-radius:32px;border:1px solid #E4DDD1;box-shadow:0 14px 34px rgba(34,32,29,0.10);overflow:hidden;position:relative;display:flex;flex-direction:column">
+        <div style="display:flex;justify-content:space-between;padding:15px 24px 0;font:600 11px 'Hanken Grotesk';color:#22201D"><span>9:41</span><span style="opacity:0.6">▢ ▢ ▮</span></div>
+        <div style="flex:1;padding:30px 28px 0">
+          <div style="font-family:'Newsreader',serif;font-size:27px;line-height:1.2;color:#22201D;font-weight:300">A couple of<br>plain-language asks.</div>
+          <div style="margin-top:28px;display:flex;flex-direction:column;gap:16px">
+            <div style="background:#FBF8F2;border:1px solid #E4DDD1;border-radius:16px;padding:16px 16px;display:flex;gap:13px;align-items:flex-start">
+              <div style="width:30px;height:30px;border-radius:9px;background:#EFE9DD;display:flex;align-items:center;justify-content:center;flex:none"><div style="width:9px;height:9px;border-radius:50%;background:var(--accent,#6B7F6E)"></div></div>
+              <div style="flex:1"><div style="font:600 13px 'Hanken Grotesk';color:#22201D">Location</div><div style="font:400 12px 'Hanken Grotesk';color:#8A8478;line-height:1.5;margin-top:2px">To find quiet zones near you. We don't store where you've been.</div></div>
+              <div style="width:42px;height:24px;border-radius:20px;background:var(--accent,#6B7F6E);position:relative;flex:none;margin-top:2px"><div style="position:absolute;top:2px;left:20px;width:20px;height:20px;border-radius:50%;background:#fff"></div></div>
+            </div>
+            <div style="background:#FBF8F2;border:1px solid #E4DDD1;border-radius:16px;padding:16px 16px;display:flex;gap:13px;align-items:flex-start">
+              <div style="width:30px;height:30px;border-radius:9px;background:#EFE9DD;display:flex;align-items:center;justify-content:center;flex:none"><div style="width:11px;height:11px;border-radius:3px;background:var(--accent,#6B7F6E)"></div></div>
+              <div style="flex:1"><div style="font:600 13px 'Hanken Grotesk';color:#22201D">Gentle nudges</div><div style="font:400 12px 'Hanken Grotesk';color:#8A8478;line-height:1.5;margin-top:2px">Only soft session reminders. Never a red badge.</div></div>
+              <div style="width:42px;height:24px;border-radius:20px;background:var(--accent,#6B7F6E);position:relative;flex:none;margin-top:2px"><div style="position:absolute;top:2px;left:20px;width:20px;height:20px;border-radius:50%;background:#fff"></div></div>
+            </div>
+          </div>
+        </div>
+        <div style="padding:0 28px 32px">
+          <div style="background:var(--accent,#6B7F6E);color:#F5F1EA;text-align:center;padding:15px;border-radius:16px;font:600 15px 'Hanken Grotesk'">Allow &amp; continue</div>
+          <div style="text-align:center;font:400 12px 'Hanken Grotesk';color:#9A9182;margin-top:14px">You can change these anytime in Settings.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============ FLOW B — DISCOVER & CHECK IN ============ -->
+  <div style="margin:78px 0 26px">
+    <div style="font:600 13px 'Hanken Grotesk';letter-spacing:0.2em;color:var(--accent,#6B7F6E);text-transform:uppercase">Flow B · Mobile</div>
+    <div style="font-family:'Newsreader',serif;font-size:30px;font-weight:400;color:#22201D;margin-top:4px">Discover &amp; check in</div>
+    <div style="font:400 14px 'Hanken Grotesk';color:#4A463F;margin-top:6px;max-width:600px">Find a glowing quiet zone, read its live index, and commit to a personal stretch of silence. The map is the hero.</div>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:42px;align-items:flex-start">
+
+    <!-- 02 Live Zone Map (HERO) -->
+    <div style="flex:none">
+      <div style="display:flex;align-items:center;gap:8px;margin:0 0 12px 6px"><span style="font:600 11px 'Hanken Grotesk';letter-spacing:0.06em;color:#6B6258;text-transform:uppercase">02 · Live Zone Map</span><span style="font:600 9px 'Hanken Grotesk';letter-spacing:0.08em;color:#fff;background:var(--accent,#6B7F6E);border-radius:20px;padding:2px 9px;text-transform:uppercase">Hero · Mid-fi</span></div>
+      <div style="width:300px;height:648px;border-radius:32px;border:1px solid #E4DDD1;box-shadow:0 14px 34px rgba(34,32,29,0.10);overflow:hidden;position:relative;display:flex;flex-direction:column">
+        <!-- map base -->
+        <div style="position:absolute;inset:0;background:radial-gradient(130% 90% at 68% 24%,#EFEAE0 0%,#E9E3D7 55%,#E2DBCC 100%)"></div>
+        <div style="position:absolute;left:-20px;top:120px;width:200px;height:46px;background:#EAE4D8;border-radius:8px;transform:rotate(-24deg);opacity:0.7"></div>
+        <div style="position:absolute;right:-30px;top:300px;width:240px;height:40px;background:#EAE4D8;border-radius:8px;transform:rotate(12deg);opacity:0.6"></div>
+        <div style="position:absolute;left:30px;top:60px;width:70px;height:70px;background:#ECE6DA;border-radius:10px;opacity:0.7"></div>
+        <div style="position:absolute;right:34px;top:200px;width:88px;height:60px;background:#ECE6DA;border-radius:10px;opacity:0.7"></div>
+        <div style="position:absolute;left:40px;top:360px;width:80px;height:74px;background:#ECE6DA;border-radius:10px;opacity:0.6"></div>
+        <!-- status -->
+        <div style="position:relative;display:flex;justify-content:space-between;padding:15px 24px 0;font:600 11px 'Hanken Grotesk';color:#22201D"><span>9:41</span><span style="opacity:0.6">▢ ▢ ▮</span></div>
+        <!-- title -->
+        <div style="position:relative;padding:14px 24px 0">
+          <div style="font:600 11px 'Hanken Grotesk';letter-spacing:0.16em;color:#8A8478;text-transform:uppercase">Quiet near you</div>
+          <div style="font-family:'Newsreader',serif;font-size:24px;color:#22201D;font-weight:300;margin-top:2px">Hayes Valley</div>
+        </div>
+        <!-- blooms -->
+        <div style="position:absolute;left:150px;top:230px;width:128px;height:128px;border-radius:50%;background:radial-gradient(circle,rgba(232,193,112,0.7),rgba(217,168,94,0.18) 48%,rgba(232,193,112,0) 72%);filter:blur(4px);animation:hbreathe 4s ease-in-out infinite;animation-play-state:var(--anim,running)"></div>
+        <div style="position:absolute;left:188px;top:268px;width:52px;height:52px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#FBF4E2,#EBD09A);display:flex;align-items:center;justify-content:center;font-family:'Newsreader',serif;font-size:19px;color:#5A4A28;box-shadow:inset 0 0 0 1px rgba(201,162,75,0.3)">82</div>
+        <div style="position:absolute;left:46px;top:150px;width:84px;height:84px;border-radius:50%;background:radial-gradient(circle,rgba(217,168,94,0.55),rgba(217,168,94,0) 70%);filter:blur(3px);animation:hbreathe 4s ease-in-out infinite;animation-play-state:var(--anim,running)"></div>
+        <div style="position:absolute;left:70px;top:174px;width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#F0DFB8,#D9A85E);display:flex;align-items:center;justify-content:center;font-family:'Newsreader',serif;font-size:13px;color:#5A4A28">61</div>
+        <div style="position:absolute;left:206px;top:420px;width:60px;height:60px;border-radius:50%;background:radial-gradient(circle,rgba(138,152,166,0.4),rgba(138,152,166,0) 70%);filter:blur(2px)"></div>
+        <div style="position:absolute;left:222px;top:436px;width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#B6BFC9,#8A98A6);display:flex;align-items:center;justify-content:center;font-family:'Newsreader',serif;font-size:11px;color:#fff">24</div>
+        <!-- find control -->
+        <div style="position:absolute;left:50%;bottom:208px;transform:translateX(-50%);background:#22201D;color:#F5F1EA;padding:11px 20px;border-radius:24px;font:600 13px 'Hanken Grotesk';box-shadow:0 8px 22px rgba(34,32,29,0.25);display:flex;gap:8px;align-items:center;white-space:nowrap"><span style="width:7px;height:7px;border-radius:50%;background:#E8C170"></span>Find quiet near me</div>
+        <!-- bottom sheet -->
+        <div style="position:absolute;left:0;right:0;bottom:0;background:#FBF8F2;border-top:1px solid #E4DDD1;border-radius:24px 24px 32px 32px;padding:14px 22px 26px;box-shadow:0 -10px 30px rgba(34,32,29,0.08)">
+          <div style="width:40px;height:4px;border-radius:4px;background:#DDD5C7;margin:0 auto 16px"></div>
+          <div style="display:flex;align-items:center;gap:14px">
+            <div style="position:relative;width:60px;height:60px;flex:none;display:flex;align-items:center;justify-content:center">
+              <div style="position:absolute;width:60px;height:60px;border-radius:50%;background:radial-gradient(circle,rgba(232,193,112,0.6),rgba(232,193,112,0) 70%);filter:blur(2px);animation:hbreathe 4s ease-in-out infinite;animation-play-state:var(--anim,running)"></div>
+              <div style="position:relative;width:46px;height:46px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#FBF4E2,#EBD09A);display:flex;align-items:center;justify-content:center;font-family:'Newsreader',serif;font-size:18px;color:#5A4A28">82</div>
+            </div>
+            <div style="flex:1">
+              <div style="font:600 15px 'Hanken Grotesk';color:#22201D">Rook &amp; Roast</div>
+              <div style="font:400 12px 'Hanken Grotesk';color:#8A8478;margin-top:2px">2 min walk · 14 here now</div>
+            </div>
+            <div style="background:var(--accent,#6B7F6E);color:#F5F1EA;padding:11px 18px;border-radius:13px;font:600 13px 'Hanken Grotesk'">Check in</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 03 Zone detail -->
+    <div style="flex:none">
+      <div style="display:flex;align-items:center;gap:8px;margin:0 0 12px 6px"><span style="font:600 11px 'Hanken Grotesk';letter-spacing:0.06em;color:#6B6258;text-transform:uppercase">03 · Zone detail</span><span style="font:600 9px 'Hanken Grotesk';letter-spacing:0.08em;color:#8A8478;border:1px solid #CFC7B8;border-radius:20px;padding:2px 8px;text-transform:uppercase">Mobile</span></div>
+      <div style="width:300px;height:648px;background:#F5F1EA;border-radius:32px;border:1px solid #E4DDD1;box-shadow:0 14px 34px rgba(34,32,29,0.10);overflow:hidden;position:relative;display:flex;flex-direction:column">
+        <div style="display:flex;justify-content:space-between;padding:15px 24px 0;font:600 11px 'Hanken Grotesk';color:#22201D"><span>9:41</span><span style="opacity:0.6">▢ ▢ ▮</span></div>
+        <div style="padding:14px 26px 0;display:flex;align-items:center;gap:10px"><div style="width:28px;height:28px;border-radius:50%;border:1px solid #D8D0C2;display:flex;align-items:center;justify-content:center;color:#6B6258;font-size:14px">‹</div><div style="font:600 11px 'Hanken Grotesk';letter-spacing:0.14em;color:#8A8478;text-transform:uppercase">Zone</div></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:18px 30px 0;text-align:center">
+          <div style="font-family:'Newsreader',serif;font-size:25px;color:#22201D;font-weight:300;white-space:nowrap">Rook &amp; Roast</div>
+          <div style="font:400 12px 'Hanken Grotesk';color:#8A8478;margin-top:5px">Hayes Valley · open till 8pm</div>
+          <div style="position:relative;width:172px;height:172px;display:flex;align-items:center;justify-content:center;margin:26px 0 6px">
+            <div style="position:absolute;width:172px;height:172px;border-radius:50%;background:radial-gradient(circle,rgba(232,193,112,0.7),rgba(217,168,94,0.16) 50%,rgba(232,193,112,0) 73%);filter:blur(7px);animation:hbreathe 4s ease-in-out infinite;animation-play-state:var(--anim,running)"></div>
+            <div style="position:relative;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#FBF4E2,#EBD09A);box-shadow:inset 0 0 0 1px rgba(201,162,75,0.3);display:flex;flex-direction:column;align-items:center;justify-content:center;animation:hcore 4s ease-in-out infinite;animation-play-state:var(--anim,running)">
+              <div style="font-family:'Newsreader',serif;font-size:48px;color:#5A4A28;line-height:1">82</div>
+              <div style="font:600 8px 'Hanken Grotesk';letter-spacing:0.16em;color:#8A7A54;margin-top:3px">QUIET NOW</div>
+            </div>
+          </div>
+          <div style="font:400 13px 'Hanken Grotesk';color:#4A463F;margin-top:8px">14 people quiet here right now</div>
+          <div style="width:100%;margin-top:22px;display:flex;flex-direction:column;gap:1px;border-radius:14px;overflow:hidden;border:1px solid #E4DDD1">
+            <div style="background:#FBF8F2;padding:14px 16px;display:flex;justify-content:space-between;align-items:center"><span style="font:400 13px 'Hanken Grotesk';color:#8A8478">Silence contract</span><span style="font:600 13px 'Hanken Grotesk';color:#22201D">Target 45 min</span></div>
+            <div style="background:#FBF8F2;padding:14px 16px;display:flex;justify-content:space-between;align-items:center"><span style="font:400 13px 'Hanken Grotesk';color:#8A8478">Reward on offer</span><span style="font:600 13px 'Hanken Grotesk';color:#C9A24B">Free pour-over</span></div>
+          </div>
+        </div>
+        <div style="padding:18px 28px 32px"><div style="background:var(--accent,#6B7F6E);color:#F5F1EA;text-align:center;padding:15px;border-radius:16px;font:600 15px 'Hanken Grotesk'">Check in here</div></div>
+      </div>
+    </div>
+
+    <!-- 04 Commitment setter -->
+    <div style="flex:none">
+      <div style="display:flex;align-items:center;gap:8px;margin:0 0 12px 6px"><span style="font:600 11px 'Hanken Grotesk';letter-spacing:0.06em;color:#6B6258;text-transform:uppercase">04 · Commitment</span><span style="font:600 9px 'Hanken Grotesk';letter-spacing:0.08em;color:#8A8478;border:1px solid #CFC7B8;border-radius:20px;padding:2px 8px;text-transform:uppercase">Mobile</span></div>
+      <div style="width:300px;height:648px;background:#F5F1EA;border-radius:32px;border:1px solid #E4DDD1;box-shadow:0 14px 34px rgba(34,32,29,0.10);overflow:hidden;position:relative;display:flex;flex-direction:column">
+        <div style="display:flex;justify-content:space-between;padding:15px 24px 0;font:600 11px 'Hanken Grotesk';color:#22201D"><span>9:41</span><span style="opacity:0.6">▢ ▢ ▮</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 34px;text-align:center">
+          <div style="font:600 11px 'Hanken Grotesk';letter-spacing:0.16em;color:#8A8478;text-transform:uppercase">How long off your phone?</div>
+          <!-- dial -->
+          <div style="position:relative;width:218px;height:218px;margin:28px 0 10px;display:flex;align-items:center;justify-content:center">
+            <div style="position:absolute;inset:0;border-radius:50%;border:10px solid #EAE4D8"></div>
+            <div style="position:absolute;inset:0;border-radius:50%;background:conic-gradient(var(--accent,#6B7F6E) 0% 62%,transparent 62% 100%);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 10px),#000 calc(100% - 10px));mask:radial-gradient(farthest-side,transparent calc(100% - 10px),#000 calc(100% - 10px))"></div>
+            <div style="position:absolute;top:8px;left:50%;transform:translateX(-50%);width:18px;height:18px;border-radius:50%;background:#FBF8F2;border:3px solid var(--accent,#6B7F6E);box-shadow:0 2px 6px rgba(34,32,29,0.18);rotate:223deg;transform-origin:50% 101px"></div>
+            <div style="text-align:center">
+              <div style="font-family:'Newsreader',serif;font-size:64px;color:#22201D;line-height:0.9;font-weight:300">45</div>
+              <div style="font:500 14px 'Hanken Grotesk';color:#8A8478;margin-top:4px">minutes</div>
+            </div>
+          </div>
+          <div style="font:400 13px 'Hanken Grotesk';color:#4A463F;line-height:1.6;margin-top:14px">A gentle stretch. You usually do 30 here —<br>this is a kind reach, not a test.</div>
+        </div>
+        <div style="padding:0 28px 32px">
+          <div style="background:var(--accent,#6B7F6E);color:#F5F1EA;text-align:center;padding:15px;border-radius:16px;font:600 15px 'Hanken Grotesk'">Lock it in</div>
+          <div style="text-align:center;font:400 12px 'Hanken Grotesk';color:#9A9182;margin-top:14px">One soft haptic, then your phone rests.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============ FLOW C — SESSION ============ -->
+  <div style="margin:78px 0 26px">
+    <div style="font:600 13px 'Hanken Grotesk';letter-spacing:0.2em;color:var(--accent,#6B7F6E);text-transform:uppercase">Flow C · Mobile</div>
+    <div style="font-family:'Newsreader',serif;font-size:30px;font-weight:400;color:#22201D;margin-top:4px">The quiet session</div>
+    <div style="font:400 14px 'Hanken Grotesk';color:#4A463F;margin-top:6px;max-width:600px">The in-zone screen is built to be the last thing you look at before you set the phone down — glanceable, then happily ignored.</div>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:42px;align-items:flex-start">
+
+    <!-- 05 In-zone (HERO, dark) -->
+    <div style="flex:none">
+      <div style="display:flex;align-items:center;gap:8px;margin:0 0 12px 6px"><span style="font:600 11px 'Hanken Grotesk';letter-spacing:0.06em;color:#6B6258;text-transform:uppercase">05 · In-zone session</span><span style="font:600 9px 'Hanken Grotesk';letter-spacing:0.08em;color:#fff;background:var(--accent,#6B7F6E);border-radius:20px;padding:2px 9px;text-transform:uppercase">Hero · Mid-fi</span></div>
+      <div style="width:300px;height:648px;background:#16140F;border-radius:32px;border:1px solid #2A261D;box-shadow:0 16px 40px rgba(34,32,29,0.20);overflow:hidden;position:relative;display:flex;flex-direction:column">
+        <div style="display:flex;justify-content:space-between;padding:15px 24px 0;font:600 11px 'Hanken Grotesk';color:#A9A296"><span>9:41</span><span style="opacity:0.6">▢ ▢ ▮</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 34px;text-align:center;position:relative">
+          <div style="font:600 10px 'Hanken Grotesk';letter-spacing:0.2em;color:#8A7A54;text-transform:uppercase">Rook &amp; Roast · quiet now</div>
+          <!-- big breathing orb -->
+          <div style="position:relative;width:208px;height:208px;display:flex;align-items:center;justify-content:center;margin:24px 0 8px">
+            <div style="position:absolute;width:208px;height:208px;border-radius:50%;background:radial-gradient(circle,rgba(232,193,112,0.55),rgba(217,168,94,0.12) 52%,rgba(232,193,112,0) 74%);filter:blur(10px);animation:hbreathe 4s ease-in-out infinite;animation-play-state:var(--anim,running)"></div>
+            <div style="position:relative;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#F6E7C4,#E0B86A);box-shadow:0 0 40px rgba(232,193,112,0.35);display:flex;flex-direction:column;align-items:center;justify-content:center;animation:hcore 4s ease-in-out infinite;animation-play-state:var(--anim,running)">
+              <div style="font-family:'Newsreader',serif;font-size:54px;color:#3E3320;line-height:1;font-weight:300">84</div>
+              <div style="font:600 8px 'Hanken Grotesk';letter-spacing:0.18em;color:#6E5A30;margin-top:2px">ROOM QUIET INDEX</div>
+            </div>
+          </div>
+          <div style="font:400 14px 'Hanken Grotesk';color:#C9C0AE;line-height:1.6;margin-top:8px">The room is breathing easy.<br>So can you.</div>
+        </div>
+        <div style="padding:0 28px 30px">
+          <div style="display:flex;gap:12px;margin-bottom:18px">
+            <div style="flex:1;background:#23201A;border-radius:16px;padding:14px 14px;text-align:center"><div style="font-family:'Newsreader',serif;font-size:26px;color:#F2ECE0;line-height:1">32:14</div><div style="font:600 9px 'Hanken Grotesk';letter-spacing:0.12em;color:#8A7E6C;margin-top:4px">REMAINING</div></div>
+            <div style="flex:1;background:#23201A;border-radius:16px;padding:14px 14px;text-align:center"><div style="font-family:'Newsreader',serif;font-size:26px;color:#E8C170;line-height:1">96</div><div style="font:600 9px 'Hanken Grotesk';letter-spacing:0.12em;color:#8A7E6C;margin-top:4px">YOUR SILENCE</div></div>
+          </div>
+          <div style="text-align:center;font:500 12px 'Hanken Grotesk';color:#6E6555">Phone resting · tap only to check out</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 06 Coach nudge -->
+    <div style="flex:none">
+      <div style="display:flex;align-items:center;gap:8px;margin:0 0 12px 6px"><span style="font:600 11px 'Hanken Grotesk';letter-spacing:0.06em;color:#6B6258;text-transform:uppercase">06 · Coach nudge</span><span style="font:600 9px 'Hanken Grotesk';letter-spacing:0.08em;color:#8A8478;border:1px solid #CFC7B8;border-radius:20px;padding:2px 8px;text-transform:uppercase">Mobile</span></div>
+      <div style="width:300px;height:648px;background:#16140F;border-radius:32px;border:1px solid #2A261D;box-shadow:0 16px 40px rgba(34,32,29,0.20);overflow:hidden;position:relative;display:flex;flex-direction:column">
+        <div style="display:flex;justify-content:space-between;padding:15px 24px 0;font:600 11px 'Hanken Grotesk';color:#A9A296"><span>9:41</span><span style="opacity:0.6">▢ ▢ ▮</span></div>
+        <!-- dimmed session behind -->
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0.4">
+          <div style="position:relative;width:150px;height:150px;display:flex;align-items:center;justify-content:center">
+            <div style="position:absolute;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(232,193,112,0.4),rgba(232,193,112,0) 72%);filter:blur(8px)"></div>
+            <div style="position:relative;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#F6E7C4,#E0B86A);display:flex;align-items:center;justify-content:center;font-family:'Newsreader',serif;font-size:40px;color:#3E3320">84</div>
+          </div>
+        </div>
+        <!-- coach card -->
+        <div style="padding:0 22px 40px">
+          <div style="background:#23201A;border:1px solid #34301F;border-radius:20px;padding:20px 20px;box-shadow:0 14px 36px rgba(0,0,0,0.4)">
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <div style="width:8px;height:8px;border-radius:50%;background:#E8C170;margin-top:7px;flex:none"></div>
+              <div style="font:400 15px 'Hanken Grotesk';color:#E7E0D2;line-height:1.55">You usually manage 30 min here — you're nicely past it. <span style="color:#9A9182">Nothing to do. Carry on.</span></div>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:18px;justify-content:flex-end">
+              <div style="color:#9A9182;font:600 13px 'Hanken Grotesk';padding:9px 14px">Snooze</div>
+              <div style="background:#3A352B;color:#E7E0D2;font:600 13px 'Hanken Grotesk';padding:9px 20px;border-radius:12px">Okay</div>
+            </div>
+          </div>
+          <div style="text-align:center;font:400 11px 'Hanken Grotesk';color:#5E564A;margin-top:14px">No badge. No count. It fades on its own.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 07 Check-out summary -->
+    <div style="flex:none">
+      <div style="display:flex;align-items:center;gap:8px;margin:0 0 12px 6px"><span style="font:600 11px 'Hanken Grotesk';letter-spacing:0.06em;color:#6B6258;text-transform:uppercase">07 · Check-out</span><span style="font:600 9px 'Hanken Grotesk';letter-spacing:0.08em;color:#8A8478;border:1px solid #CFC7B8;border-radius:20px;padding:2px 8px;text-transform:uppercase">Mobile</span></div>
+      <div style="width:300px;height:648px;background:#F5F1EA;border-radius:32px;border:1px solid #E4DDD1;box-shadow:0 14px 34px rgba(34,32,29,0.10);overflow:hidden;position:relative;display:flex;flex-direction:column">
+        <div style="display:flex;justify-content:space-between;padding:15px 24px 0;font:600 11px 'Hanken Grotesk';color:#22201D"><span>9:41</span><span style="opacity:0.6">▢ ▢ ▮</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:24px 30px 0;text-align:center">
+          <div style="position:relative;width:150px;height:150px;display:flex;align-items:center;justify-content:center">
+            <div style="position:absolute;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(201,162,75,0.35),rgba(201,162,75,0) 70%);filter:blur(6px);animation:hbreathe 4s ease-in-out infinite;animation-play-state:var(--anim,running)"></div>
+            <div style="position:relative;font-family:'Newsreader',serif;font-size:58px;color:#22201D;font-weight:300;line-height:0.9">45<span style="font-size:22px;color:#8A8478"> min</span></div>
+          </div>
+          <div style="font-family:'Newsreader',serif;font-size:25px;color:#22201D;font-weight:300;margin-top:6px">A good, quiet stretch.</div>
+          <div style="font:400 13px 'Hanken Grotesk';color:#8A8478;margin-top:6px">Silence score 96 · your best here yet</div>
+          <!-- trend -->
+          <div style="width:100%;margin-top:26px;background:#FBF8F2;border:1px solid #E4DDD1;border-radius:16px;padding:16px 16px 12px">
+            <div style="font:600 10px 'Hanken Grotesk';letter-spacing:0.12em;color:#8A8478;text-transform:uppercase;text-align:left;margin-bottom:10px">Last 7 sessions</div>
+            <svg viewBox="0 0 240 64" style="width:100%;height:54px;display:block">
+              <polyline points="6,46 40,40 74,44 108,30 142,34 176,22 222,14" fill="none" stroke="#6B7F6E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline>
+              <circle cx="222" cy="14" r="4" fill="#C9A24B"></circle>
+            </svg>
+          </div>
+          <div style="width:100%;margin-top:14px;background:#FBF8F2;border:1px solid #E4DDD1;border-radius:16px;padding:16px;display:flex;justify-content:space-between;align-items:center">
+            <span style="font:400 13px 'Hanken Grotesk';color:#8A8478">Points earned</span>
+            <span style="font:600 18px 'Hanken Grotesk';color:#C9A24B">+90</span>
+          </div>
+        </div>
+        <div style="padding:18px 28px 32px"><div style="background:var(--accent,#6B7F6E);color:#F5F1EA;text-align:center;padding:15px;border-radius:16px;font:600 15px 'Hanken Grotesk'">Done</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============ FLOW D — WALLET & YOU ============ -->
+  <div style="margin:78px 0 26px">
+    <div style="font:600 13px 'Hanken Grotesk';letter-spacing:0.2em;color:var(--accent,#6B7F6E);text-transform:uppercase">Flow D · Mobile</div>
+    <div style="font-family:'Newsreader',serif;font-size:30px;font-weight:400;color:#22201D;margin-top:4px">Wallet &amp; your quiet</div>
+    <div style="font:400 14px 'Hanken Grotesk';color:#4A463F;margin-top:6px;max-width:600px">What you've earned, and a private, non-comparative record of your own quiet. No leaderboards, ever.</div>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:42px;align-items:flex-start">
+
+    <!-- 08 Reward wallet -->
+    <div style="flex:none">
+      <div style="display:flex;align-items:center;gap:8px;margin:0 0 12px 6px"><span style="font:600 11px 'Hanken Grotesk';letter-spacing:0.06em;color:#6B6258;text-transform:uppercase">08 · Reward wallet</span><span style="font:600 9px 'Hanken Grotesk';letter-spacing:0.08em;color:#8A8478;border:1px solid #CFC7B8;border-radius:20px;padding:2px 8px;text-transform:uppercase">Mobile</span></div>
+      <div style="width:300px;height:648px;background:#F5F1EA;border-radius:32px;border:1px solid #E4DDD1;box-shadow:0 14px 34px rgba(34,32,29,0.10);overflow:hidden;position:relative;display:flex;flex-direction:column">
+        <div style="display:flex;justify-content:space-between;padding:15px 24px 0;font:600 11px 'Hanken Grotesk';color:#22201D"><span>9:41</span><span style="opacity:0.6">▢ ▢ ▮</span></div>
+        <div style="flex:1;overflow:hidden;padding:18px 24px 0">
+          <div style="font:600 11px 'Hanken Grotesk';letter-spacing:0.14em;color:#8A8478;text-transform:uppercase">Your balance</div>
+          <div style="display:flex;align-items:baseline;gap:8px;margin-top:4px"><div style="font-family:'Newsreader',serif;font-size:52px;color:#22201D;font-weight:300;line-height:1">1,240</div><div style="font:500 14px 'Hanken Grotesk';color:#C9A24B">quiet points</div></div>
+          <div style="font:600 11px 'Hanken Grotesk';letter-spacing:0.14em;color:#8A8478;text-transform:uppercase;margin-top:26px;margin-bottom:12px">Ready to redeem</div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div style="background:#FBF8F2;border:1px solid #E4DDD1;border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:13px">
+              <div style="width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#F3E6C2,#C9A24B);flex:none"></div>
+              <div style="flex:1"><div style="font:600 14px 'Hanken Grotesk';color:#22201D">Free pour-over</div><div style="font:400 11px 'Hanken Grotesk';color:#8A8478">Rook &amp; Roast · 90 pts</div></div>
+              <div style="border:1px solid var(--accent,#6B7F6E);color:var(--accent,#6B7F6E);font:600 12px 'Hanken Grotesk';padding:8px 14px;border-radius:11px">Redeem</div>
+            </div>
+            <div style="background:#FBF8F2;border:1px solid #E4DDD1;border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:13px">
+              <div style="width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#F3E6C2,#C9A24B);flex:none"></div>
+              <div style="flex:1"><div style="font:600 14px 'Hanken Grotesk';color:#22201D">£3 off any pastry</div><div style="font:400 11px 'Hanken Grotesk';color:#8A8478">The Reading Room · 150 pts</div></div>
+              <div style="border:1px solid var(--accent,#6B7F6E);color:var(--accent,#6B7F6E);font:600 12px 'Hanken Grotesk';padding:8px 14px;border-radius:11px">Redeem</div>
+            </div>
+          </div>
+          <div style="font:600 11px 'Hanken Grotesk';letter-spacing:0.14em;color:#8A8478;text-transform:uppercase;margin-top:22px;margin-bottom:10px">History</div>
+          <div style="display:flex;justify-content:space-between;font:400 13px 'Hanken Grotesk';color:#8A8478;padding:6px 2px"><span>Oat latte · The Reading Room</span><span style="color:#A39A8C">−120</span></div>
+        </div>
+        <!-- nav -->
+        <div style="display:flex;justify-content:space-around;align-items:center;padding:13px 0 22px;border-top:1px solid #E4DDD1;background:#FBF8F2">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:5px"><div style="width:13px;height:13px;border-radius:50%;border:1.5px solid #B9B0A0"></div><span style="font:500 9px 'Hanken Grotesk';color:#A39A8C">Quiet</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:5px"><div style="width:13px;height:13px;border-radius:4px;background:var(--accent,#6B7F6E)"></div><span style="font:600 9px 'Hanken Grotesk';color:var(--accent,#6B7F6E)">Wallet</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:5px"><div style="width:13px;height:13px;border-radius:50%;border:1.5px solid #B9B0A0"></div><span style="font:500 9px 'Hanken Grotesk';color:#A39A8C">You</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 09 Personal trends -->
+    <div style="flex:none">
+      <div style="display:flex;align-items:center;gap:8px;margin:0 0 12px 6px"><span style="font:600 11px 'Hanken Grotesk';letter-spacing:0.06em;color:#6B6258;text-transform:uppercase">09 · Your quiet</span><span style="font:600 9px 'Hanken Grotesk';letter-spacing:0.08em;color:#8A8478;border:1px solid #CFC7B8;border-radius:20px;padding:2px 8px;text-transform:uppercase">Mobile</span></div>
+      <div style="width:300px;height:648px;background:#F5F1EA;border-radius:32px;border:1px solid #E4DDD1;box-shadow:0 14px 34px rgba(34,32,29,0.10);overflow:hidden;position:relative;display:flex;flex-direction:column">
+        <div style="display:flex;justify-content:space-between;padding:15px 24px 0;font:600 11px 'Hanken Grotesk';color:#22201D"><span>9:41</span><span style="opacity:0.6">▢ ▢ ▮</span></div>
+        <div style="flex:1;padding:18px 24px 0">
+          <div style="font-family:'Newsreader',serif;font-size:26px;color:#22201D;font-weight:300">Your quiet</div>
+          <div style="font:400 12px 'Hanken Grotesk';color:#8A8478;margin-top:3px">Just for you. Never compared to anyone.</div>
+          <div style="background:#FBF8F2;border:1px solid #E4DDD1;border-radius:18px;padding:20px;margin-top:20px;text-align:center">
+            <div style="display:flex;align-items:baseline;justify-content:center;gap:8px"><div style="font-family:'Newsreader',serif;font-size:46px;color:var(--accent,#6B7F6E);font-weight:300;line-height:1">6</div><div style="font:500 13px 'Hanken Grotesk';color:#8A8478">quiet days<br>in a row</div></div>
+            <div style="display:flex;justify-content:center;gap:7px;margin-top:16px">
+              <div style="width:22px;height:22px;border-radius:7px;background:var(--accent,#6B7F6E);opacity:0.4"></div>
+              <div style="width:22px;height:22px;border-radius:7px;background:var(--accent,#6B7F6E);opacity:0.55"></div>
+              <div style="width:22px;height:22px;border-radius:7px;background:var(--accent,#6B7F6E);opacity:0.7"></div>
+              <div style="width:22px;height:22px;border-radius:7px;background:var(--accent,#6B7F6E);opacity:0.8"></div>
+              <div style="width:22px;height:22px;border-radius:7px;background:var(--accent,#6B7F6E);opacity:0.9"></div>
+              <div style="width:22px;height:22px;border-radius:7px;background:var(--accent,#6B7F6E)"></div>
+            </div>
+          </div>
+          <div style="background:#FBF8F2;border:1px solid #E4DDD1;border-radius:18px;padding:18px 18px 14px;margin-top:14px">
+            <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font:600 10px 'Hanken Grotesk';letter-spacing:0.12em;color:#8A8478;text-transform:uppercase">Minutes quiet</span><span style="font:400 11px 'Hanken Grotesk';color:#A39A8C">this month</span></div>
+            <svg viewBox="0 0 252 90" style="width:100%;height:78px;display:block;margin-top:8px">
+              <defs><linearGradient id="hareag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6B7F6E" stop-opacity="0.28"></stop><stop offset="1" stop-color="#6B7F6E" stop-opacity="0"></stop></linearGradient></defs>
+              <path d="M4,70 L40,58 L76,62 L112,44 L148,50 L184,32 L220,38 L248,22 L248,90 L4,90 Z" fill="url(#hareag)"></path>
+              <polyline points="4,70 40,58 76,62 112,44 148,50 184,32 220,38 248,22" fill="none" stroke="#6B7F6E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline>
+            </svg>
+          </div>
+          <div style="display:flex;gap:12px;margin-top:14px">
+            <div style="flex:1;background:#FBF8F2;border:1px solid #E4DDD1;border-radius:16px;padding:14px;text-align:center"><div style="font-family:'Newsreader',serif;font-size:28px;color:#22201D">19h</div><div style="font:500 10px 'Hanken Grotesk';color:#8A8478;margin-top:2px">total quiet</div></div>
+            <div style="flex:1;background:#FBF8F2;border:1px solid #E4DDD1;border-radius:16px;padding:14px;text-align:center"><div style="font-family:'Newsreader',serif;font-size:28px;color:#22201D">41</div><div style="font:500 10px 'Hanken Grotesk';color:#8A8478;margin-top:2px">avg minutes</div></div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-around;align-items:center;padding:13px 0 22px;border-top:1px solid #E4DDD1;background:#FBF8F2">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:5px"><div style="width:13px;height:13px;border-radius:50%;border:1.5px solid #B9B0A0"></div><span style="font:500 9px 'Hanken Grotesk';color:#A39A8C">Quiet</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:5px"><div style="width:13px;height:13px;border-radius:4px;border:1.5px solid #B9B0A0"></div><span style="font:500 9px 'Hanken Grotesk';color:#A39A8C">Wallet</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:5px"><div style="width:13px;height:13px;border-radius:50%;background:var(--accent,#6B7F6E)"></div><span style="font:600 9px 'Hanken Grotesk';color:var(--accent,#6B7F6E)">You</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 10 Settings / privacy -->
+    <div style="flex:none">
+      <div style="display:flex;align-items:center;gap:8px;margin:0 0 12px 6px"><span style="font:600 11px 'Hanken Grotesk';letter-spacing:0.06em;color:#6B6258;text-transform:uppercase">10 · Settings &amp; privacy</span><span style="font:600 9px 'Hanken Grotesk';letter-spacing:0.08em;color:#8A8478;border:1px solid #CFC7B8;border-radius:20px;padding:2px 8px;text-transform:uppercase">Mobile</span></div>
+      <div style="width:300px;height:648px;background:#F5F1EA;border-radius:32px;border:1px solid #E4DDD1;box-shadow:0 14px 34px rgba(34,32,29,0.10);overflow:hidden;position:relative;display:flex;flex-direction:column">
+        <div style="display:flex;justify-content:space-between;padding:15px 24px 0;font:600 11px 'Hanken Grotesk';color:#22201D"><span>9:41</span><span style="opacity:0.6">▢ ▢ ▮</span></div>
+        <div style="flex:1;padding:18px 24px 0">
+          <div style="font-family:'Newsreader',serif;font-size:26px;color:#22201D;font-weight:300">Settings</div>
+          <div style="font:600 10px 'Hanken Grotesk';letter-spacing:0.14em;color:#8A8478;text-transform:uppercase;margin-top:22px;margin-bottom:10px">Permissions</div>
+          <div style="border:1px solid #E4DDD1;border-radius:14px;overflow:hidden">
+            <div style="background:#FBF8F2;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #EEE8DC"><span style="font:500 13px 'Hanken Grotesk';color:#22201D">Location</span><div style="width:42px;height:24px;border-radius:20px;background:var(--accent,#6B7F6E);position:relative"><div style="position:absolute;top:2px;left:20px;width:20px;height:20px;border-radius:50%;background:#fff"></div></div></div>
+            <div style="background:#FBF8F2;padding:14px 16px;display:flex;justify-content:space-between;align-items:center"><span style="font:500 13px 'Hanken Grotesk';color:#22201D">Gentle nudges</span><div style="width:42px;height:24px;border-radius:20px;background:var(--accent,#6B7F6E);position:relative"><div style="position:absolute;top:2px;left:20px;width:20px;height:20px;border-radius:50%;background:#fff"></div></div></div>
+          </div>
+          <div style="font:600 10px 'Hanken Grotesk';letter-spacing:0.14em;color:#8A8478;text-transform:uppercase;margin-top:22px;margin-bottom:10px">Your data, plainly</div>
+          <div style="background:#FBF8F2;border:1px solid #E4DDD1;border-radius:14px;padding:16px;font:400 13px 'Hanken Grotesk';color:#4A463F;line-height:1.6">Hush keeps a single 0–100 score per session. Your messages, contacts, and location history never leave this phone.</div>
+          <div style="margin-top:18px;padding:14px 16px;border:1px solid #E4DDD1;border-radius:14px;display:flex;align-items:center;justify-content:space-between">
+            <span style="font:600 13px 'Hanken Grotesk';color:#B07A5E">Delete my data</span>
+            <span style="color:#B07A5E;font-size:16px">›</span>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-around;align-items:center;padding:13px 0 22px;border-top:1px solid #E4DDD1;background:#FBF8F2">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:5px"><div style="width:13px;height:13px;border-radius:50%;border:1.5px solid #B9B0A0"></div><span style="font:500 9px 'Hanken Grotesk';color:#A39A8C">Quiet</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:5px"><div style="width:13px;height:13px;border-radius:4px;border:1.5px solid #B9B0A0"></div><span style="font:500 9px 'Hanken Grotesk';color:#A39A8C">Wallet</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:5px"><div style="width:13px;height:13px;border-radius:50%;background:var(--accent,#6B7F6E)"></div><span style="font:600 9px 'Hanken Grotesk';color:var(--accent,#6B7F6E)">You</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div style="flex:none">
+      <div style="display:flex;align-items:center;gap:8px;margin:0 0 12px 6px"><span style="font:600 11px 'Hanken Grotesk';letter-spacing:0.06em;color:#6B6258;text-transform:uppercase">— · Empty state</span><span style="font:600 9px 'Hanken Grotesk';letter-spacing:0.08em;color:#8A8478;border:1px solid #CFC7B8;border-radius:20px;padding:2px 8px;text-transform:uppercase">Mobile</span></div>
+      <div style="width:300px;height:648px;background:#F5F1EA;border-radius:32px;border:1px solid #E4DDD1;box-shadow:0 14px 34px rgba(34,32,29,0.10);overflow:hidden;position:relative;display:flex;flex-direction:column">
+        <div style="display:flex;justify-content:space-between;padding:15px 24px 0;font:600 11px 'Hanken Grotesk';color:#22201D"><span>9:41</span><span style="opacity:0.6">▢ ▢ ▮</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 38px;text-align:center">
+          <div style="position:relative;width:120px;height:120px;display:flex;align-items:center;justify-content:center;margin-bottom:26px">
+            <div style="position:absolute;width:120px;height:120px;border-radius:50%;border:1px dashed #CFC7B8"></div>
+            <div style="width:60px;height:60px;border-radius:50%;background:radial-gradient(circle,rgba(138,152,166,0.22),rgba(138,152,166,0) 70%)"></div>
+          </div>
+          <div style="font-family:'Newsreader',serif;font-size:25px;color:#22201D;font-weight:300;line-height:1.2">No quiet zones<br>near you yet.</div>
+          <div style="font:400 14px 'Hanken Grotesk';color:#4A463F;margin-top:14px;line-height:1.65">You could be the first. Start a quiet moment anywhere, and we'll remember this spot.</div>
+        </div>
+        <div style="padding:0 28px 32px">
+          <div style="background:var(--accent,#6B7F6E);color:#F5F1EA;text-align:center;padding:15px;border-radius:16px;font:600 15px 'Hanken Grotesk'">Start a solo quiet</div>
+          <div style="text-align:center;font:400 12px 'Hanken Grotesk';color:#9A9182;margin-top:14px">Suggest a venue near you →</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============ FLOW E — OPERATOR DASHBOARD ============ -->
+  <div style="margin:82px 0 26px">
+    <div style="font:600 13px 'Hanken Grotesk';letter-spacing:0.2em;color:var(--accent,#6B7F6E);text-transform:uppercase">Flow E · Web</div>
+    <div style="font-family:'Newsreader',serif;font-size:30px;font-weight:400;color:#22201D;margin-top:4px">Operator dashboard</div>
+    <div style="font:400 14px 'Hanken Grotesk';color:#4A463F;margin-top:6px;max-width:600px">For café and library owners. Calm, never a war room — a live read on the room and an AI digest written in plain prose.</div>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start">
+
+    <!-- 11 Zone setup -->
+    <div style="flex:none">
+      <div style="display:flex;align-items:center;gap:8px;margin:0 0 12px 6px"><span style="font:600 11px 'Hanken Grotesk';letter-spacing:0.06em;color:#6B6258;text-transform:uppercase">11 · Zone setup</span><span style="font:600 9px 'Hanken Grotesk';letter-spacing:0.08em;color:#8A8478;border:1px solid #CFC7B8;border-radius:20px;padding:2px 8px;text-transform:uppercase">Web</span></div>
+      <div style="width:840px;height:560px;background:#F5F1EA;border-radius:16px;border:1px solid #E4DDD1;box-shadow:0 16px 40px rgba(34,32,29,0.12);overflow:hidden;display:flex;flex-direction:column">
+        <div style="display:flex;align-items:center;gap:8px;padding:12px 16px;background:#EDE7DB;border-bottom:1px solid #E4DDD1"><div style="display:flex;gap:6px"><div style="width:11px;height:11px;border-radius:50%;background:#D6CDBD"></div><div style="width:11px;height:11px;border-radius:50%;background:#D6CDBD"></div><div style="width:11px;height:11px;border-radius:50%;background:#D6CDBD"></div></div><div style="margin-left:14px;background:#F5F1EA;border:1px solid #E4DDD1;border-radius:8px;padding:5px 14px;font:400 11px 'Hanken Grotesk';color:#8A8478">hush.space/operator</div></div>
+        <div style="flex:1;display:flex">
+          <!-- sidebar -->
+          <div style="width:188px;background:#FBF8F2;border-right:1px solid #E4DDD1;padding:20px 16px;display:flex;flex-direction:column;gap:4px">
+            <div style="font:600 12px 'Hanken Grotesk';letter-spacing:0.2em;color:var(--accent,#6B7F6E);text-transform:uppercase;padding:0 10px 16px">Hush</div>
+            <div style="background:#EFE9DD;border-radius:10px;padding:10px 12px;font:600 13px 'Hanken Grotesk';color:#22201D">Zones</div>
+            <div style="padding:10px 12px;font:500 13px 'Hanken Grotesk';color:#8A8478">Live feed</div>
+            <div style="padding:10px 12px;font:500 13px 'Hanken Grotesk';color:#8A8478">Analytics</div>
+            <div style="padding:10px 12px;font:500 13px 'Hanken Grotesk';color:#8A8478">Rewards</div>
+            <div style="padding:10px 12px;font:500 13px 'Hanken Grotesk';color:#8A8478">Certification</div>
+          </div>
+          <!-- main -->
+          <div style="flex:1;display:flex">
+            <div style="flex:1.2;padding:26px 28px;position:relative;background:radial-gradient(120% 90% at 60% 30%,#EFEAE0,#E4DDCE)">
+              <div style="font:600 11px 'Hanken Grotesk';letter-spacing:0.14em;color:#8A8478;text-transform:uppercase">Draw your zone</div>
+              <div style="position:absolute;left:60px;top:90px;width:230px;height:180px;border:2px dashed var(--accent,#6B7F6E);border-radius:18px;background:rgba(107,127,110,0.08)"></div>
+              <div style="position:absolute;left:62px;top:84px;width:12px;height:12px;border-radius:50%;background:var(--accent,#6B7F6E);border:2px solid #fff"></div>
+              <div style="position:absolute;left:280px;top:84px;width:12px;height:12px;border-radius:50%;background:var(--accent,#6B7F6E);border:2px solid #fff"></div>
+              <div style="position:absolute;left:62px;top:262px;width:12px;height:12px;border-radius:50%;background:var(--accent,#6B7F6E);border:2px solid #fff"></div>
+              <div style="position:absolute;left:280px;top:262px;width:12px;height:12px;border-radius:50%;background:var(--accent,#6B7F6E);border:2px solid #fff"></div>
+              <div style="position:absolute;left:130px;top:160px;font:600 12px 'Hanken Grotesk';color:var(--accent,#6B7F6E)">Main room</div>
+            </div>
+            <div style="width:300px;border-left:1px solid #E4DDD1;background:#FBF8F2;padding:24px 24px;display:flex;flex-direction:column">
+              <div style="font-family:'Newsreader',serif;font-size:22px;color:#22201D;font-weight:300">New quiet zone</div>
+              <div style="margin-top:20px;display:flex;flex-direction:column;gap:16px">
+                <div><div style="font:600 10px 'Hanken Grotesk';letter-spacing:0.1em;color:#8A8478;text-transform:uppercase;margin-bottom:6px">Zone name</div><div style="background:#fff;border:1px solid #E4DDD1;border-radius:11px;padding:11px 13px;font:500 13px 'Hanken Grotesk';color:#22201D">Rook &amp; Roast — main</div></div>
+                <div><div style="font:600 10px 'Hanken Grotesk';letter-spacing:0.1em;color:#8A8478;text-transform:uppercase;margin-bottom:6px">Silence contract</div><div style="background:#fff;border:1px solid #E4DDD1;border-radius:11px;padding:11px 13px;font:500 13px 'Hanken Grotesk';color:#22201D;display:flex;justify-content:space-between">45 minutes <span style="color:#A39A8C">▾</span></div></div>
+                <div style="display:flex;gap:12px">
+                  <div style="flex:1"><div style="font:600 10px 'Hanken Grotesk';letter-spacing:0.1em;color:#8A8478;text-transform:uppercase;margin-bottom:6px">Reward</div><div style="background:#fff;border:1px solid #E4DDD1;border-radius:11px;padding:11px 13px;font:500 13px 'Hanken Grotesk';color:#22201D">Pour-over</div></div>
+                  <div style="width:90px"><div style="font:600 10px 'Hanken Grotesk';letter-spacing:0.1em;color:#8A8478;text-transform:uppercase;margin-bottom:6px">Points</div><div style="background:#fff;border:1px solid #E4DDD1;border-radius:11px;padding:11px 13px;font:500 13px 'Hanken Grotesk';color:#22201D">90</div></div>
+                </div>
+              </div>
+              <div style="margin-top:auto;background:var(--accent,#6B7F6E);color:#F5F1EA;text-align:center;padding:13px;border-radius:13px;font:600 14px 'Hanken Grotesk'">Create zone</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 12 Live feed -->
+    <div style="flex:none">
+      <div style="display:flex;align-items:center;gap:8px;margin:0 0 12px 6px"><span style="font:600 11px 'Hanken Grotesk';letter-spacing:0.06em;color:#6B6258;text-transform:uppercase">12 · Live feed</span><span style="font:600 9px 'Hanken Grotesk';letter-spacing:0.08em;color:#8A8478;border:1px solid #CFC7B8;border-radius:20px;padding:2px 8px;text-transform:uppercase">Web</span></div>
+      <div style="width:840px;height:560px;background:#F5F1EA;border-radius:16px;border:1px solid #E4DDD1;box-shadow:0 16px 40px rgba(34,32,29,0.12);overflow:hidden;display:flex;flex-direction:column">
+        <div style="display:flex;align-items:center;gap:8px;padding:12px 16px;background:#EDE7DB;border-bottom:1px solid #E4DDD1"><div style="display:flex;gap:6px"><div style="width:11px;height:11px;border-radius:50%;background:#D6CDBD"></div><div style="width:11px;height:11px;border-radius:50%;background:#D6CDBD"></div><div style="width:11px;height:11px;border-radius:50%;background:#D6CDBD"></div></div><div style="margin-left:14px;background:#F5F1EA;border:1px solid #E4DDD1;border-radius:8px;padding:5px 14px;font:400 11px 'Hanken Grotesk';color:#8A8478">hush.space/operator/live</div></div>
+        <div style="flex:1;display:flex">
+          <div style="width:188px;background:#FBF8F2;border-right:1px solid #E4DDD1;padding:20px 16px;display:flex;flex-direction:column;gap:4px">
+            <div style="font:600 12px 'Hanken Grotesk';letter-spacing:0.2em;color:var(--accent,#6B7F6E);text-transform:uppercase;padding:0 10px 16px">Hush</div>
+            <div style="padding:10px 12px;font:500 13px 'Hanken Grotesk';color:#8A8478">Zones</div>
+            <div style="background:#EFE9DD;border-radius:10px;padding:10px 12px;font:600 13px 'Hanken Grotesk';color:#22201D">Live feed</div>
+            <div style="padding:10px 12px;font:500 13px 'Hanken Grotesk';color:#8A8478">Analytics</div>
+            <div style="padding:10px 12px;font:500 13px 'Hanken Grotesk';color:#8A8478">Rewards</div>
+            <div style="padding:10px 12px;font:500 13px 'Hanken Grotesk';color:#8A8478">Certification</div>
+          </div>
+          <div style="flex:1;padding:30px 36px;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <div style="font:600 11px 'Hanken Grotesk';letter-spacing:0.16em;color:#8A8478;text-transform:uppercase;align-self:flex-start">Rook &amp; Roast · live now</div>
+            <div style="position:relative;width:240px;height:240px;display:flex;align-items:center;justify-content:center;margin:14px 0">
+              <div style="position:absolute;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(232,193,112,0.6),rgba(217,168,94,0.14) 52%,rgba(232,193,112,0) 74%);filter:blur(9px);animation:hbreathe 4s ease-in-out infinite;animation-play-state:var(--anim,running)"></div>
+              <div style="position:relative;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#FBF4E2,#EBD09A);box-shadow:inset 0 0 0 1px rgba(201,162,75,0.3);display:flex;flex-direction:column;align-items:center;justify-content:center;animation:hcore 4s ease-in-out infinite;animation-play-state:var(--anim,running)">
+                <div style="font-family:'Newsreader',serif;font-size:64px;color:#5A4A28;line-height:1;font-weight:300">82</div>
+                <div style="font:600 9px 'Hanken Grotesk';letter-spacing:0.16em;color:#8A7A54;margin-top:3px">QUIET INDEX</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:18px;margin-top:8px">
+              <div style="background:#FBF8F2;border:1px solid #E4DDD1;border-radius:16px;padding:18px 32px;text-align:center"><div style="font-family:'Newsreader',serif;font-size:34px;color:#22201D;line-height:1">14</div><div style="font:500 11px 'Hanken Grotesk';color:#8A8478;margin-top:4px">checked in now</div></div>
+              <div style="background:#FBF8F2;border:1px solid #E4DDD1;border-radius:16px;padding:18px 32px;text-align:center"><div style="font-family:'Newsreader',serif;font-size:34px;color:#22201D;line-height:1">91</div><div style="font:500 11px 'Hanken Grotesk';color:#8A8478;margin-top:4px">avg silence score</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 13 Analytics -->
+    <div style="flex:none">
+      <div style="display:flex;align-items:center;gap:8px;margin:0 0 12px 6px"><span style="font:600 11px 'Hanken Grotesk';letter-spacing:0.06em;color:#6B6258;text-transform:uppercase">13 · Analytics &amp; AI digest</span><span style="font:600 9px 'Hanken Grotesk';letter-spacing:0.08em;color:#8A8478;border:1px solid #CFC7B8;border-radius:20px;padding:2px 8px;text-transform:uppercase">Web</span></div>
+      <div style="width:840px;height:560px;background:#F5F1EA;border-radius:16px;border:1px solid #E4DDD1;box-shadow:0 16px 40px rgba(34,32,29,0.12);overflow:hidden;display:flex;flex-direction:column">
+        <div style="display:flex;align-items:center;gap:8px;padding:12px 16px;background:#EDE7DB;border-bottom:1px solid #E4DDD1"><div style="display:flex;gap:6px"><div style="width:11px;height:11px;border-radius:50%;background:#D6CDBD"></div><div style="width:11px;height:11px;border-radius:50%;background:#D6CDBD"></div><div style="width:11px;height:11px;border-radius:50%;background:#D6CDBD"></div></div><div style="margin-left:14px;background:#F5F1EA;border:1px solid #E4DDD1;border-radius:8px;padding:5px 14px;font:400 11px 'Hanken Grotesk';color:#8A8478">hush.space/operator/analytics</div></div>
+        <div style="flex:1;display:flex">
+          <div style="width:188px;background:#FBF8F2;border-right:1px solid #E4DDD1;padding:20px 16px;display:flex;flex-direction:column;gap:4px">
+            <div style="font:600 12px 'Hanken Grotesk';letter-spacing:0.2em;color:var(--accent,#6B7F6E);text-transform:uppercase;padding:0 10px 16px">Hush</div>
+            <div style="padding:10px 12px;font:500 13px 'Hanken Grotesk';color:#8A8478">Zones</div>
+            <div style="padding:10px 12px;font:500 13px 'Hanken Grotesk';color:#8A8478">Live feed</div>
+            <div style="background:#EFE9DD;border-radius:10px;padding:10px 12px;font:600 13px 'Hanken Grotesk';color:#22201D">Analytics</div>
+            <div style="padding:10px 12px;font:500 13px 'Hanken Grotesk';color:#8A8478">Rewards</div>
+            <div style="padding:10px 12px;font:500 13px 'Hanken Grotesk';color:#8A8478">Certification</div>
+          </div>
+          <div style="flex:1;padding:24px 28px;overflow:hidden">
+            <div style="display:flex;gap:20px;height:100%">
+              <div style="flex:1.1;display:flex;flex-direction:column;gap:16px">
+                <div style="background:#FBF8F2;border:1px solid #E4DDD1;border-radius:16px;padding:18px">
+                  <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font:600 10px 'Hanken Grotesk';letter-spacing:0.12em;color:#8A8478;text-transform:uppercase">Quiet Index · 30 days</span><span style="font:400 11px 'Hanken Grotesk';color:#A39A8C">avg 79</span></div>
+                  <svg viewBox="0 0 380 120" style="width:100%;height:120px;display:block;margin-top:10px">
+                    <defs><linearGradient id="haa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8C170" stop-opacity="0.3"></stop><stop offset="1" stop-color="#E8C170" stop-opacity="0"></stop></linearGradient></defs>
+                    <path d="M6,80 L46,72 L86,84 L126,60 L166,66 L206,48 L246,54 L286,38 L326,46 L374,30 L374,120 L6,120 Z" fill="url(#haa)"></path>
+                    <polyline points="6,80 46,72 86,84 126,60 166,66 206,48 246,54 286,38 326,46 374,30" fill="none" stroke="#D9A85E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline>
+                  </svg>
+                </div>
+                <div style="background:#FBF8F2;border:1px solid #E4DDD1;border-radius:16px;padding:18px">
+                  <div style="font:600 10px 'Hanken Grotesk';letter-spacing:0.12em;color:#8A8478;text-transform:uppercase;margin-bottom:12px">Peak quiet windows</div>
+                  <div style="display:flex;gap:8px;align-items:flex-end;height:60px">
+                    <div style="flex:1;background:#EAE0CC;border-radius:5px;height:30%"></div>
+                    <div style="flex:1;background:#EAE0CC;border-radius:5px;height:50%"></div>
+                    <div style="flex:1;background:#E8C170;border-radius:5px;height:90%"></div>
+                    <div style="flex:1;background:#E8C170;border-radius:5px;height:78%"></div>
+                    <div style="flex:1;background:#EAE0CC;border-radius:5px;height:44%"></div>
+                    <div style="flex:1;background:#EAE0CC;border-radius:5px;height:62%"></div>
+                    <div style="flex:1;background:#E8C170;border-radius:5px;height:84%"></div>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;font:400 9px 'Hanken Grotesk';color:#A39A8C;margin-top:8px"><span>8a</span><span>10a</span><span>12p</span><span>2p</span><span>4p</span><span>6p</span><span>8p</span></div>
+                </div>
+              </div>
+              <!-- AI digest -->
+              <div style="width:300px;background:#FBF8F2;border:1px solid #E4DDD1;border-radius:16px;padding:20px;display:flex;flex-direction:column">
+                <div style="display:flex;align-items:center;gap:8px"><div style="width:7px;height:7px;border-radius:50%;background:var(--accent,#6B7F6E)"></div><div style="font:600 10px 'Hanken Grotesk';letter-spacing:0.12em;color:var(--accent,#6B7F6E);text-transform:uppercase">Weekly digest</div></div>
+                <div style="font:400 13px 'Hanken Grotesk';color:#4A463F;line-height:1.7;margin-top:14px">Your room held a calm <span style="color:#22201D;font-weight:600">79 average</span> this week — up four points. Tuesday and Thursday late mornings were your quietest hours, and the new 45-minute contract is landing: most guests stayed the full stretch.</div>
+                <div style="font:600 10px 'Hanken Grotesk';letter-spacing:0.12em;color:#8A8478;text-transform:uppercase;margin-top:18px;margin-bottom:10px">Suggestions</div>
+                <div style="background:#fff;border:1px solid #EAE3D6;border-radius:11px;padding:11px 13px;font:400 12px 'Hanken Grotesk';color:#4A463F;line-height:1.5">Try a smaller reward at 3pm to lift the afternoon dip.</div>
+                <div style="background:#fff;border:1px solid #EAE3D6;border-radius:11px;padding:11px 13px;font:400 12px 'Hanken Grotesk';color:#4A463F;line-height:1.5;margin-top:8px">Thursdays could carry a 60-min contract.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 14 Certification badge -->
+    <div style="flex:none">
+      <div style="display:flex;align-items:center;gap:8px;margin:0 0 12px 6px"><span style="font:600 11px 'Hanken Grotesk';letter-spacing:0.06em;color:#6B6258;text-transform:uppercase">14 · Certification badge</span><span style="font:600 9px 'Hanken Grotesk';letter-spacing:0.08em;color:#8A8478;border:1px solid #CFC7B8;border-radius:20px;padding:2px 8px;text-transform:uppercase">Web</span></div>
+      <div style="width:840px;height:560px;background:#F5F1EA;border-radius:16px;border:1px solid #E4DDD1;box-shadow:0 16px 40px rgba(34,32,29,0.12);overflow:hidden;display:flex;flex-direction:column">
+        <div style="display:flex;align-items:center;gap:8px;padding:12px 16px;background:#EDE7DB;border-bottom:1px solid #E4DDD1"><div style="display:flex;gap:6px"><div style="width:11px;height:11px;border-radius:50%;background:#D6CDBD"></div><div style="width:11px;height:11px;border-radius:50%;background:#D6CDBD"></div><div style="width:11px;height:11px;border-radius:50%;background:#D6CDBD"></div></div><div style="margin-left:14px;background:#F5F1EA;border:1px solid #E4DDD1;border-radius:8px;padding:5px 14px;font:400 11px 'Hanken Grotesk';color:#8A8478">hush.space/operator/certification</div></div>
+        <div style="flex:1;display:flex">
+          <div style="width:188px;background:#FBF8F2;border-right:1px solid #E4DDD1;padding:20px 16px;display:flex;flex-direction:column;gap:4px">
+            <div style="font:600 12px 'Hanken Grotesk';letter-spacing:0.2em;color:var(--accent,#6B7F6E);text-transform:uppercase;padding:0 10px 16px">Hush</div>
+            <div style="padding:10px 12px;font:500 13px 'Hanken Grotesk';color:#8A8478">Zones</div>
+            <div style="padding:10px 12px;font:500 13px 'Hanken Grotesk';color:#8A8478">Live feed</div>
+            <div style="padding:10px 12px;font:500 13px 'Hanken Grotesk';color:#8A8478">Analytics</div>
+            <div style="padding:10px 12px;font:500 13px 'Hanken Grotesk';color:#8A8478">Rewards</div>
+            <div style="background:#EFE9DD;border-radius:10px;padding:10px 12px;font:600 13px 'Hanken Grotesk';color:#22201D">Certification</div>
+          </div>
+          <div style="flex:1;padding:30px 36px;display:flex;gap:36px;align-items:center">
+            <!-- badge preview -->
+            <div style="flex:none;display:flex;flex-direction:column;align-items:center">
+              <div style="width:230px;background:#16140F;border-radius:22px;padding:30px 26px;text-align:center;box-shadow:0 16px 36px rgba(34,32,29,0.18)">
+                <div style="font:600 10px 'Hanken Grotesk';letter-spacing:0.24em;color:#8A7A54;text-transform:uppercase">Certified Quiet by Hush</div>
+                <div style="position:relative;width:120px;height:120px;margin:18px auto;display:flex;align-items:center;justify-content:center">
+                  <div style="position:absolute;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(232,193,112,0.5),rgba(232,193,112,0) 70%);filter:blur(6px);animation:hbreathe 4s ease-in-out infinite;animation-play-state:var(--anim,running)"></div>
+                  <div style="position:relative;width:88px;height:88px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#F6E7C4,#E0B86A);display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-family:'Newsreader',serif;font-size:36px;color:#3E3320;line-height:1">79</div><div style="font:600 7px 'Hanken Grotesk';letter-spacing:0.14em;color:#6E5A30;margin-top:2px">AVG QUIET</div></div>
+                </div>
+                <div style="font:500 12px 'Hanken Grotesk';color:#C9C0AE">Rook &amp; Roast</div>
+              </div>
+              <div style="font:400 11px 'Hanken Grotesk';color:#9A9182;margin-top:12px">Print for the window or embed online</div>
+            </div>
+            <div style="flex:1">
+              <div style="font-family:'Newsreader',serif;font-size:24px;color:#22201D;font-weight:300">Show your room is a quiet one</div>
+              <div style="font:400 13px 'Hanken Grotesk';color:#4A463F;line-height:1.65;margin-top:10px;max-width:300px">Your verified rolling-average Quiet Index, updated weekly. Customers can trust the calm before they arrive.</div>
+              <div style="font:600 10px 'Hanken Grotesk';letter-spacing:0.12em;color:#8A8478;text-transform:uppercase;margin-top:22px;margin-bottom:8px">Embed code</div>
+              <div style="background:#23201A;border-radius:12px;padding:14px 16px;font:400 11px ui-monospace,Menlo,monospace;color:#C9C0AE;line-height:1.6">&lt;script src="hush.space<br>/badge/rook-roast.js"&gt;&lt;/script&gt;</div>
+              <div style="display:flex;gap:12px;margin-top:16px">
+                <div style="background:var(--accent,#6B7F6E);color:#F5F1EA;padding:11px 20px;border-radius:12px;font:600 13px 'Hanken Grotesk'">Copy embed</div>
+                <div style="border:1px solid #D8D0C2;color:#4A463F;padding:11px 20px;border-radius:12px;font:600 13px 'Hanken Grotesk'">Download PNG</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 15 Reward management -->
+    <div style="flex:none">
+      <div style="display:flex;align-items:center;gap:8px;margin:0 0 12px 6px"><span style="font:600 11px 'Hanken Grotesk';letter-spacing:0.06em;color:#6B6258;text-transform:uppercase">15 · Reward management</span><span style="font:600 9px 'Hanken Grotesk';letter-spacing:0.08em;color:#8A8478;border:1px solid #CFC7B8;border-radius:20px;padding:2px 8px;text-transform:uppercase">Web</span></div>
+      <div style="width:840px;height:560px;background:#F5F1EA;border-radius:16px;border:1px solid #E4DDD1;box-shadow:0 16px 40px rgba(34,32,29,0.12);overflow:hidden;display:flex;flex-direction:column">
+        <div style="display:flex;align-items:center;gap:8px;padding:12px 16px;background:#EDE7DB;border-bottom:1px solid #E4DDD1"><div style="display:flex;gap:6px"><div style="width:11px;height:11px;border-radius:50%;background:#D6CDBD"></div><div style="width:11px;height:11px;border-radius:50%;background:#D6CDBD"></div><div style="width:11px;height:11px;border-radius:50%;background:#D6CDBD"></div></div><div style="margin-left:14px;background:#F5F1EA;border:1px solid #E4DDD1;border-radius:8px;padding:5px 14px;font:400 11px 'Hanken Grotesk';color:#8A8478">hush.space/operator/rewards</div></div>
+        <div style="flex:1;display:flex">
+          <div style="width:188px;background:#FBF8F2;border-right:1px solid #E4DDD1;padding:20px 16px;display:flex;flex-direction:column;gap:4px">
+            <div style="font:600 12px 'Hanken Grotesk';letter-spacing:0.2em;color:var(--accent,#6B7F6E);text-transform:uppercase;padding:0 10px 16px">Hush</div>
+            <div style="padding:10px 12px;font:500 13px 'Hanken Grotesk';color:#8A8478">Zones</div>
+            <div style="padding:10px 12px;font:500 13px 'Hanken Grotesk';color:#8A8478">Live feed</div>
+            <div style="padding:10px 12px;font:500 13px 'Hanken Grotesk';color:#8A8478">Analytics</div>
+            <div style="background:#EFE9DD;border-radius:10px;padding:10px 12px;font:600 13px 'Hanken Grotesk';color:#22201D">Rewards</div>
+            <div style="padding:10px 12px;font:500 13px 'Hanken Grotesk';color:#8A8478">Certification</div>
+          </div>
+          <div style="flex:1;padding:24px 28px">
+            <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-family:'Newsreader',serif;font-size:22px;color:#22201D;font-weight:300">Rewards</div><div style="background:var(--accent,#6B7F6E);color:#F5F1EA;padding:9px 18px;border-radius:11px;font:600 12px 'Hanken Grotesk'">+ New reward</div></div>
+            <div style="margin-top:18px;border:1px solid #E4DDD1;border-radius:14px;overflow:hidden">
+              <div style="display:flex;background:#EFE9DD;padding:11px 18px;font:600 10px 'Hanken Grotesk';letter-spacing:0.1em;color:#8A8478;text-transform:uppercase"><div style="flex:2">Reward</div><div style="flex:1">Points</div><div style="flex:1">Redeemed</div><div style="flex:1">Status</div></div>
+              <div style="display:flex;align-items:center;padding:14px 18px;background:#FBF8F2;border-top:1px solid #EEE8DC;font:500 13px 'Hanken Grotesk';color:#22201D"><div style="flex:2;display:flex;align-items:center;gap:10px"><div style="width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#F3E6C2,#C9A24B)"></div>Free pour-over</div><div style="flex:1">90</div><div style="flex:1">128</div><div style="flex:1"><span style="background:#E4ECE4;color:var(--accent,#6B7F6E);font:600 11px 'Hanken Grotesk';padding:3px 11px;border-radius:20px">Active</span></div></div>
+              <div style="display:flex;align-items:center;padding:14px 18px;background:#FBF8F2;border-top:1px solid #EEE8DC;font:500 13px 'Hanken Grotesk';color:#22201D"><div style="flex:2;display:flex;align-items:center;gap:10px"><div style="width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#F3E6C2,#C9A24B)"></div>£3 off a pastry</div><div style="flex:1">150</div><div style="flex:1">64</div><div style="flex:1"><span style="background:#E4ECE4;color:var(--accent,#6B7F6E);font:600 11px 'Hanken Grotesk';padding:3px 11px;border-radius:20px">Active</span></div></div>
+              <div style="display:flex;align-items:center;padding:14px 18px;background:#FBF8F2;border-top:1px solid #EEE8DC;font:500 13px 'Hanken Grotesk';color:#8A8478"><div style="flex:2;display:flex;align-items:center;gap:10px"><div style="width:26px;height:26px;border-radius:50%;background:#E4DDD1"></div>Free tote bag</div><div style="flex:1">400</div><div style="flex:1">9</div><div style="flex:1"><span style="background:#EFE9DD;color:#A39A8C;font:600 11px 'Hanken Grotesk';padding:3px 11px;border-radius:20px">Paused</span></div></div>
+            </div>
+            <div style="display:flex;gap:16px;margin-top:18px">
+              <div style="flex:1;background:#FBF8F2;border:1px solid #E4DDD1;border-radius:14px;padding:16px"><div style="font:600 10px 'Hanken Grotesk';letter-spacing:0.1em;color:#8A8478;text-transform:uppercase">Redemption threshold</div><div style="font:400 12px 'Hanken Grotesk';color:#4A463F;margin-top:6px;line-height:1.5">Min. 70 silence score to earn points.</div></div>
+              <div style="flex:1;background:#FBF8F2;border:1px solid #E4DDD1;border-radius:14px;padding:16px"><div style="font:600 10px 'Hanken Grotesk';letter-spacing:0.1em;color:#8A8478;text-transform:uppercase">Redeemed this week</div><div style="font-family:'Newsreader',serif;font-size:26px;color:#22201D;margin-top:4px">37</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- closing note -->
+  <div style="margin:80px auto 0;max-width:680px;text-align:center">
+    <div style="width:46px;height:46px;border-radius:50%;background:radial-gradient(circle,rgba(232,193,112,0.5),rgba(232,193,112,0) 70%);margin:0 auto 18px;animation:hbreathe 4s ease-in-out infinite;animation-play-state:var(--anim,running)"></div>
+    <div style="font-family:'Newsreader',serif;font-size:21px;font-weight:300;color:#4A463F;line-height:1.55;font-style:italic">This is the app that respects your attention by asking for almost none of it. Space carries the calm; type carries the meaning; color does real work in exactly one place — the glow of a quiet room.</div>
+  </div>
+
+  <!--FLOWS-->
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;sage&quot;,&quot;teal&quot;,&quot;indigo&quot;],&quot;default&quot;:&quot;sage&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;motion&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const accents = { sage: '#6B7F6E', teal: '#3E6B66', indigo: '#5A5F7D' };
+    const a = accents[this.props.accent] || '#6B7F6E';
+    const motion = this.props.motion ?? true;
+    return { accentColor: a, animState: motion ? 'running' : 'paused' };
+  }
+}
+</script>
+</body>
+</html>
