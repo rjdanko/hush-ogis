@@ -21,17 +21,29 @@ export async function getSessionHistory(numDays = 84): Promise<SessionDaySummary
 
   const { data, error } = await supabase
     .from("sessions")
-    .select("checked_in_at, final_score, achieved_minutes")
-    .gte("checked_in_at", since.toISOString())
-    .not("checked_out_at", "is", null) // completed sessions only
-    .order("checked_in_at", { ascending: true });
+    .select("start_ts, final_score, achieved_minutes")
+    .gte("start_ts", since.toISOString())
+    .not("end_ts", "is", null) // completed sessions only
+    .order("start_ts", { ascending: true });
 
   if (error) throw new Error(error.message);
 
+  const rows = data ?? [];
+  // Dev/emulator builds have no real session history behind a fresh
+  // anonymous sign-in -- show sample data instead of a blank Trends tab.
+  // Metro statically replaces __DEV__ with the literal `false` in
+  // production/release bundles, so this only stays off there; outside the
+  // Metro/RN runtime (e.g. under vitest) the global is undefined, and we
+  // treat that as dev too so the fallback stays covered by tests.
+  const isDev = typeof __DEV__ === "undefined" || __DEV__;
+  if (rows.length === 0 && isDev) {
+    return buildDemoHistory(numDays);
+  }
+
   // Build a map of date → { scores, minutes, bestMinutes }
   const byDate = new Map<string, { scores: number[]; minutes: number; bestMinutes: number }>();
-  for (const row of data ?? []) {
-    const date = row.checked_in_at.slice(0, 10); // "YYYY-MM-DD"
+  for (const row of rows) {
+    const date = row.start_ts.slice(0, 10); // "YYYY-MM-DD"
     const existing = byDate.get(date) ?? { scores: [], minutes: 0, bestMinutes: 0 };
     if (row.final_score != null) existing.scores.push(row.final_score);
     existing.minutes += row.achieved_minutes ?? 0;
@@ -55,6 +67,35 @@ export async function getSessionHistory(numDays = 84): Promise<SessionDaySummary
       totalMinutes: entry?.minutes ?? 0,
       bestMinutes: entry?.bestMinutes ?? 0,
     });
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  return result;
+}
+
+const DEMO_STREAK_DAYS = 6;
+
+/** Deterministic sample history for dev/emulator demos when no real sessions exist yet. */
+function buildDemoHistory(numDays: number): SessionDaySummary[] {
+  const result: SessionDaySummary[] = [];
+  const cursor = new Date();
+  cursor.setDate(cursor.getDate() - (numDays - 1));
+
+  for (let i = 0; i < numDays; i++) {
+    const date = cursor.toISOString().slice(0, 10);
+    const daysFromEnd = numDays - 1 - i;
+    const hasSession = daysFromEnd < DEMO_STREAK_DAYS || (i * 7) % 5 !== 0;
+
+    if (hasSession) {
+      const wave = Math.sin(i / 6) * 12;
+      const avgScore = Math.max(40, Math.min(98, Math.round(72 + wave + (i % 3) * 4)));
+      const bestMinutes = 20 + ((i * 13) % 45);
+      const totalMinutes = bestMinutes + ((i * 7) % 20);
+      result.push({ date, avgScore, totalMinutes, bestMinutes });
+    } else {
+      result.push({ date, avgScore: null, totalMinutes: 0, bestMinutes: 0 });
+    }
+
     cursor.setDate(cursor.getDate() + 1);
   }
 

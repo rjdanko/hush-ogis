@@ -113,7 +113,7 @@ function buildAreaPath(
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
-  content: { padding: 24, gap: 20, paddingBottom: 40 },
+  content: { padding: 24, paddingTop: 56, gap: 20, paddingBottom: 40 },
   center: { flex: 1, backgroundColor: colors.background, alignItems: "center", justifyContent: "center" },
   heading: {
     fontFamily: fonts.bodySemiBold,

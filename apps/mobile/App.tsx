@@ -113,6 +113,14 @@ export default function App() {
     setAppState({ name: "main", tab, overlay: null });
   }
 
+  async function handleAccountDeleted() {
+    // Re-establish a fresh anonymous session (mirrors initial app boot) so
+    // the onboarding flow that follows isn't left without a session for the
+    // RLS-gated screens after it completes.
+    await ensureSession();
+    setAppState({ name: "onboarding" });
+  }
+
   // Determine whether to show the tab bar (hidden during active session)
   const hideTabBar = overlay?.name === "activeSession";
   // Active session uses dark mode; everything else is light
@@ -127,7 +135,9 @@ export default function App() {
       )}
       {!overlay && tab === "trends" && <TrendsScreen />}
       {!overlay && tab === "wallet" && <WalletScreen />}
-      {!overlay && tab === "settings" && <SettingsScreen />}
+      {!overlay && tab === "settings" && (
+        <SettingsScreen onAccountDeleted={handleAccountDeleted} />
+      )}
 
       {/* Overlays */}
       {overlay?.name === "permissionOnboarding" && (

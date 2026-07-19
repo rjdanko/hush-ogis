@@ -1,7 +1,7 @@
 // apps/mobile/components/TrendCalendar.tsx
 // Spec §2.6. 12-week × 7-day rhythm grid + three stat chips.
 // Each cell is colored by the day's avg silence score via sessionCellColor().
-import { StyleSheet, Text, View } from "react-native";
+import { Dimensions, StyleSheet, Text, View } from "react-native";
 import { sessionCellColor } from "../lib/trend-colors";
 import { colors, fonts } from "../lib/theme";
 
@@ -19,11 +19,20 @@ interface TrendCalendarProps {
   highlightDate?: string;
 }
 
-const CELL_SIZE = 10;
-const CELL_GAP = 2;
 const DAYS_PER_WEEK = 7;
 const NUM_WEEKS = 12;
 const DAY_LABELS = ["M", "", "W", "", "F", "", ""]; // Mon/Wed/Fri only
+
+const CELL_GAP = 3;
+const DAY_AXIS_WIDTH = 14;
+const GRID_ROW_GAP = 6;
+// Matches TrendsScreen's `content` container padding (24 each side) so the
+// grid spans the same width as the rest of the screen instead of a fixed
+// small size that leaves the phone-width layout looking empty.
+const CONTAINER_HORIZONTAL_PADDING = 24;
+const SCREEN_WIDTH = Dimensions.get("window").width;
+const GRID_WIDTH = SCREEN_WIDTH - CONTAINER_HORIZONTAL_PADDING * 2 - DAY_AXIS_WIDTH - GRID_ROW_GAP;
+const CELL_SIZE = Math.floor((GRID_WIDTH - (NUM_WEEKS - 1) * CELL_GAP) / NUM_WEEKS);
 
 export function TrendCalendar({
   days,
@@ -89,8 +98,8 @@ function StatChip({ value, label }: { value: string; label: string }) {
 
 const styles = StyleSheet.create({
   container: { gap: 16 },
-  gridRow: { flexDirection: "row", gap: 6 },
-  dayAxis: { paddingTop: 2, gap: CELL_GAP },
+  gridRow: { flexDirection: "row", gap: GRID_ROW_GAP },
+  dayAxis: { width: DAY_AXIS_WIDTH, paddingTop: 2, gap: CELL_GAP },
   dayLabel: {
     fontFamily: fonts.bodySemiBold,
     fontSize: 9,

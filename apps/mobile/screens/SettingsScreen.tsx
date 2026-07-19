@@ -2,11 +2,13 @@
 // Spec §3.10. Permissions, data, about sections. No notification toggles.
 import { useState } from "react";
 import { Alert, Linking, ScrollView, StyleSheet, Switch, Text, View, Pressable } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { colors, fonts } from "../lib/theme";
 import { supabase } from "../lib/supabase";
+import { ONBOARDING_KEY } from "./OnboardingScreen";
 import Constants from "expo-constants";
 
-export function SettingsScreen() {
+export function SettingsScreen({ onAccountDeleted }: { onAccountDeleted: () => void }) {
   const [usageAccess, setUsageAccess] = useState(false);
   const [notifPause, setNotifPause] = useState(false);
 
@@ -21,9 +23,11 @@ export function SettingsScreen() {
           style: "destructive",
           onPress: async () => {
             await supabase.auth.signOut();
+            await AsyncStorage.removeItem(ONBOARDING_KEY);
             // Full deletion requires a server-side function; sign-out is the
             // client-side boundary. A backend RPC for full deletion is out of
             // scope for this UI pass — leave a TODO comment for Phase 10 hardening.
+            onAccountDeleted();
           },
         },
       ]
