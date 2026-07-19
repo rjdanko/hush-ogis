@@ -1,21 +1,29 @@
 """Response DTOs for the operator weekly digest (B5).
 
-These are the structured-output contract Claude is bound to: a short ``summary``
-paragraph plus 2-4 gentle ``suggestions``. No length/count constraints are
-declared -- the structured-output JSON-Schema subset does not support
-``min_length`` / ``max_items``, so the calm "2-4 suggestions" shape is steered
-by the prompt, not the schema.
+These are the structured-output contract the LLM is bound to: a short
+``summary`` paragraph plus 2-4 gentle ``suggestions``. No length/count
+constraints are declared -- the structured-output JSON-Schema subset does not
+support ``min_length`` / ``max_items``, so the calm "2-4 suggestions" shape is
+steered by the prompt, not the schema.
+
+``ConfigDict(extra="forbid")`` makes Pydantic emit ``additionalProperties:
+false`` in ``model_json_schema()``, which Groq's ``strict: true`` JSON-schema
+mode requires on every object in the schema.
 """
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class Suggestion(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     title: str
     body: str
 
 
 class DigestResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     summary: str
     suggestions: list[Suggestion]
 

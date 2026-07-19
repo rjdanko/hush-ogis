@@ -1,11 +1,12 @@
-"""Tests for the Claude weekly-digest generation (B5).
+"""Tests for the Groq-backed weekly-digest generation (B5).
 
-The Anthropic client is fully mocked -- NO network happens. We verify:
+The Groq client is fully mocked -- NO network happens. We verify:
 - the rendered prompt carries the aggregated numbers,
 - no user-identifier-like content leaks into the prompt (privacy / PRD 7.3),
 - a mocked structured response maps cleanly onto ``DigestResponse``.
 """
 
+import json
 from types import SimpleNamespace
 
 import pytest
@@ -83,30 +84,39 @@ def test_system_prompt_is_calm_anti_engagement():
     assert "suggestion" in system
 
 
-def test_generate_digest_maps_structured_response(monkeypatch):
-    expected = DigestResponse(
-        summary="A calm, steady week in the zone.",
-        suggestions=[
-            Suggestion(title="Keep the afternoon rhythm", body="The 2pm window is your busiest."),
-            Suggestion(title="Gently invite a few more", body="A small nudge could help."),
-        ],
+def _fake_completion(content: str):
+    return SimpleNamespace(
+        choices=[SimpleNamespace(message=SimpleNamespace(content=content))]
     )
+
+
+def test_generate_digest_maps_structured_response(monkeypatch):
+    expected_payload = {
+        "summary": "A calm, steady week in the zone.",
+        "suggestions": [
+            {"title": "Keep the afternoon rhythm", "body": "The 2pm window is your busiest."},
+            {"title": "Gently invite a few more", "body": "A small nudge could help."},
+        ],
+    }
 
     captured = {}
 
-    class FakeMessages:
-        def parse(self, **kwargs):
+    class FakeCompletions:
+        def create(self, **kwargs):
             captured.update(kwargs)
-            return SimpleNamespace(parsed_output=expected)
+            return _fake_completion(json.dumps(expected_payload))
+
+    class FakeChat:
+        completions = FakeCompletions()
 
     class FakeClient:
-        messages = FakeMessages()
+        chat = FakeChat()
 
     monkeypatch.setattr(digest, "_client", lambda: FakeClient())
     monkeypatch.setattr(
         digest,
         "get_settings",
-        lambda: SimpleNamespace(ANTHROPIC_API_KEY="test-key", DIGEST_MODEL="claude-haiku-4-5"),
+        lambda: SimpleNamespace(GROQ_API_KEY="test-key", DIGEST_MODEL="openai/gpt-oss-120b"),
     )
 
     result = digest.generate_digest(sample_metrics())
@@ -116,34 +126,40 @@ def test_generate_digest_maps_structured_response(monkeypatch):
     assert len(result.suggestions) == 2
     assert result.suggestions[0].title == "Keep the afternoon rhythm"
 
-    # Bound to the structured-output surface with the right model + DTO.
-    assert captured["output_format"] is DigestResponse
-    assert captured["model"]  # model id from settings
+    # Bound to the strict JSON-schema structured-output surface with the right model.
+    assert captured["model"] == "openai/gpt-oss-120b"
     assert captured["max_tokens"] == 2048
-    # No effort/thinking params -- identical call across both model ids.
-    assert "effort" not in captured
-    assert "thinking" not in captured
+    response_format = captured["response_format"]
+    assert response_format["type"] == "json_schema"
+    assert response_format["json_schema"]["strict"] is True
+    assert response_format["json_schema"]["schema"] == DigestResponse.model_json_schema()
+    # System prompt goes in the messages list (Groq has no top-level system param).
+    assert captured["messages"][0] == {"role": "system", "content": digest.SYSTEM_PROMPT}
+    assert captured["messages"][1]["role"] == "user"
 
 
-def test_generate_digest_coerces_dict_parsed_output(monkeypatch):
-    """If parsed_output arrives as a dict, generate_digest validates it."""
+def test_generate_digest_validates_json_content(monkeypatch):
+    """The response's message.content is a JSON string that gets validated."""
     payload = {
         "summary": "Quiet and low-key.",
         "suggestions": [{"title": "Rest", "body": "Low activity is fine."}],
     }
 
-    class FakeMessages:
-        def parse(self, **kwargs):
-            return SimpleNamespace(parsed_output=payload)
+    class FakeCompletions:
+        def create(self, **kwargs):
+            return _fake_completion(json.dumps(payload))
+
+    class FakeChat:
+        completions = FakeCompletions()
 
     class FakeClient:
-        messages = FakeMessages()
+        chat = FakeChat()
 
     monkeypatch.setattr(digest, "_client", lambda: FakeClient())
     monkeypatch.setattr(
         digest,
         "get_settings",
-        lambda: SimpleNamespace(ANTHROPIC_API_KEY="test-key", DIGEST_MODEL="claude-haiku-4-5"),
+        lambda: SimpleNamespace(GROQ_API_KEY="test-key", DIGEST_MODEL="openai/gpt-oss-120b"),
     )
 
     result = digest.generate_digest(sample_metrics())
@@ -153,23 +169,23 @@ def test_generate_digest_coerces_dict_parsed_output(monkeypatch):
 
 
 def test_client_built_lazily(monkeypatch):
-    """The Anthropic client is constructed on demand, not at import time."""
+    """The Groq client is constructed on demand, not at import time."""
     digest._client.cache_clear()
 
     constructed = {}
 
-    class FakeAnthropic:
+    class FakeGroq:
         def __init__(self, *, api_key):
             constructed["api_key"] = api_key
 
-    monkeypatch.setattr(digest, "Anthropic", FakeAnthropic)
+    monkeypatch.setattr(digest, "Groq", FakeGroq)
     monkeypatch.setattr(
         digest,
         "get_settings",
-        lambda: SimpleNamespace(ANTHROPIC_API_KEY="test-key", DIGEST_MODEL="claude-haiku-4-5"),
+        lambda: SimpleNamespace(GROQ_API_KEY="test-key", DIGEST_MODEL="openai/gpt-oss-120b"),
     )
 
     client = digest._client()
-    assert isinstance(client, FakeAnthropic)
+    assert isinstance(client, FakeGroq)
     assert constructed["api_key"] == "test-key"
     digest._client.cache_clear()

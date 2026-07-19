@@ -1,28 +1,31 @@
-"""Claude-backed weekly digest generation (B5).
+"""Groq-backed weekly digest generation (B5).
 
 Turns the anonymized aggregated metrics dict (from the ``zone_weekly_metrics``
 RPC, fetched via ``app.supabase_client.fetch_zone_weekly_metrics``) into a calm,
-plain-English weekly digest for a venue operator, using the Anthropic SDK's
-**structured output** surface so the dashboard can render it reliably.
+plain-English weekly digest for a venue operator, using Groq's free-tier
+**strict JSON-schema** structured output so the dashboard can render it
+reliably.
 
 Privacy by construction (PRD 7.3): the prompt is built from an explicit
 allow-list of aggregated keys. There are no per-user identifiers in the metrics
 dict, and the renderer can never forward an unexpected field (e.g. a raw row
 someone stuffs in later) into the prompt.
 
-Structured-output binding (verified against anthropic 0.111.0):
-``client.messages.parse(model=..., max_tokens=2048, system=..., messages=...,
-output_format=DigestResponse)`` returns a ``ParsedMessage`` whose
-``.parsed_output`` is the validated ``DigestResponse`` (the SDK builds the
-strict JSON schema from the Pydantic model). The call is identical across the
-haiku digest model and the opus demo model except the model id itself -- no
-``effort`` or ``thinking`` params.
+Structured-output binding (verified against Groq docs, 2026-07-16): the
+``groq`` SDK has no Pydantic ``.parse()`` helper, so the raw JSON schema is
+passed via ``response_format={"type": "json_schema", "json_schema": {...,
+"strict": True, "schema": DigestResponse.model_json_schema()}}``, and the
+response text is manually decoded with ``json.loads`` + ``model_validate``.
+Strict mode requires ``additionalProperties: false`` on every object, which
+``DigestResponse``/``Suggestion`` provide via ``ConfigDict(extra="forbid")``
+(see app.models). ``openai/gpt-oss-120b`` and ``openai/gpt-oss-20b`` are
+currently the only Groq models supporting strict mode.
 """
 
 import json
 from functools import lru_cache
 
-from anthropic import Anthropic
+from groq import Groq
 
 from app.models import DigestResponse
 from app.settings import get_settings
@@ -56,9 +59,9 @@ _AGGREGATED_KEYS = (
 
 
 @lru_cache
-def _client() -> Anthropic:
-    """Return a cached Anthropic client (constructed lazily, not at import time)."""
-    return Anthropic(api_key=get_settings().ANTHROPIC_API_KEY)
+def _client() -> Groq:
+    """Return a cached Groq client (constructed lazily, not at import time)."""
+    return Groq(api_key=get_settings().GROQ_API_KEY)
 
 
 def build_user_content(metrics: dict) -> str:
@@ -76,7 +79,7 @@ def build_user_content(metrics: dict) -> str:
 
 
 def build_messages(metrics: dict) -> list[dict]:
-    """Build the messages array for the Claude call (a single user turn)."""
+    """Build the user-turn messages array (Groq has no top-level system param)."""
     return [{"role": "user", "content": build_user_content(metrics)}]
 
 
@@ -86,14 +89,18 @@ def generate_digest(metrics: dict) -> DigestResponse:
     Only the aggregated metrics dict goes in -- never any user identifier.
     """
     settings = get_settings()
-    result = _client().messages.parse(
+    result = _client().chat.completions.create(
         model=settings.DIGEST_MODEL,
         max_tokens=2048,
-        system=SYSTEM_PROMPT,
-        messages=build_messages(metrics),
-        output_format=DigestResponse,
+        messages=[{"role": "system", "content": SYSTEM_PROMPT}, *build_messages(metrics)],
+        response_format={
+            "type": "json_schema",
+            "json_schema": {
+                "name": "digest_response",
+                "strict": True,
+                "schema": DigestResponse.model_json_schema(),
+            },
+        },
     )
-    parsed = result.parsed_output
-    if isinstance(parsed, DigestResponse):
-        return parsed
-    return DigestResponse.model_validate(parsed)
+    content = result.choices[0].message.content
+    return DigestResponse.model_validate(json.loads(content))

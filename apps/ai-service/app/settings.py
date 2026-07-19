@@ -21,11 +21,11 @@ _ENV_FILE = Path(__file__).resolve().parent.parent / ".env"
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=_ENV_FILE, extra="ignore")
 
-    ANTHROPIC_API_KEY: str
+    GROQ_API_KEY: str
     SUPABASE_URL: str
     SUPABASE_SERVICE_ROLE_KEY: str
     SUPABASE_JWT_SECRET: str
-    DIGEST_MODEL: str = "claude-haiku-4-5"
+    DIGEST_MODEL: str = "openai/gpt-oss-120b"
     BADGE_SIGNING_SECRET: str
     BADGE_TOKEN_TTL_SECONDS: int = 300
 

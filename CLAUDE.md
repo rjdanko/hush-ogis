@@ -25,7 +25,7 @@ hush/
 ├─ apps/
 │  ├─ mobile/      # React Native + Expo, TypeScript, custom dev client (Android-first user app)
 │  ├─ dashboard/   # Next.js + Tailwind + Recharts (operator console, web)
-│  └─ ai-service/  # FastAPI + Pydantic + SQLAlchemy (Claude orchestration, Quiet Index helpers)
+│  └─ ai-service/  # FastAPI + Pydantic + SQLAlchemy (LLM orchestration, Quiet Index helpers)
 ├─ packages/
 │  ├─ shared-types/ # TS contracts shared by mobile + dashboard (Zone, Session, ScorePing…)
 │  └─ config/       # shared lint/tsconfig/env schema
@@ -36,7 +36,7 @@ hush/
 ```
 
 - **Backend:** Supabase = Postgres + **PostGIS** (geofencing) + Auth + Realtime. One dependency, not five.
-- **AI:** FastAPI service calls the **Claude API** (`claude-haiku-4-5` for routine digests, `claude-opus-4-8` for the demo showcase). The Claude key lives **only** in the service env.
+- **AI:** FastAPI service calls **Groq's free-tier API** (`openai/gpt-oss-120b`, an open-weight model, via strict JSON-schema structured output) for the operator digest. The Groq key lives **only** in the service env.
 - **Realtime:** Supabase Realtime channels push the Quiet Index to app + dashboard within ≤60s.
 - **Shared contracts** (`Session`, `ScorePing`, `Zone`) are centralized in `packages/shared-types` so the three apps can never drift.
 
@@ -59,7 +59,7 @@ These are architectural guarantees, not nice-to-haves. They appear in the PRD as
 - The Quiet Index is computed/broadcast only when a **quorum** (≥3 active check-ins) is met — enforced server-side, never bypassable by a client.
 
 **Security enforced server-side from Phase 1 (PRD §11), never bolted on at the end:**
-- **SR-2** No secrets in any client bundle. Supabase clients use the anon/public key + RLS — **never** the service-role key. Claude key only in the FastAPI env.
+- **SR-2** No secrets in any client bundle. Supabase clients use the anon/public key + RLS — **never** the service-role key. Groq key only in the FastAPI env.
 - **SR-6** All DB access parameterized (Supabase client / SQLAlchemy). Never string-interpolate user input into SQL — including PostGIS point-in-polygon queries.
 - **SR-7 / SR-8** Authorization is primarily Postgres **Row-Level Security** (users access only `user_id = auth.uid()` rows; operators only their own zones), deny-by-default, with UUID primary keys. Every RLS policy needs a **negative test** (the IDOR guard). The frontend is untrusted; hiding a button is UX, not security.
 - **SR-1 / SR-4** Every endpoint rate-limited and validated (Pydantic / zod) before any DB or LLM call.

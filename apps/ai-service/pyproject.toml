@@ -1,14 +1,14 @@
 [project]
 name = "hush-ai-service"
 version = "0.0.0"
-description = "Hush FastAPI service: Claude orchestration + Quiet Index helpers"
+description = "Hush FastAPI service: LLM orchestration + Quiet Index helpers"
 requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.115",
     "uvicorn[standard]>=0.30",
     "pydantic>=2.9",
     "pydantic-settings>=2",
-    "anthropic",
+    "groq",
     "supabase",
     "pyjwt[crypto]",
 ]

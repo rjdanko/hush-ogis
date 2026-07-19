@@ -18,7 +18,7 @@ TEST_BADGE_SECRET = "test-badge-secret"
 
 @pytest.fixture(autouse=True)
 def _env(monkeypatch):
-    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test")
+    monkeypatch.setenv("GROQ_API_KEY", "gsk-test")
     monkeypatch.setenv("SUPABASE_URL", "https://example.supabase.co")
     monkeypatch.setenv("SUPABASE_SERVICE_ROLE_KEY", "service-role-key")
     monkeypatch.setenv("SUPABASE_JWT_SECRET", "jwt-secret")

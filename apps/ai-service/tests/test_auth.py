@@ -12,7 +12,7 @@ TEST_SECRET = "test-jwt-secret"
 OPERATOR_ID = "11111111-1111-1111-1111-111111111111"
 
 REQUIRED_ENV = {
-    "ANTHROPIC_API_KEY": "sk-ant-test",
+    "GROQ_API_KEY": "gsk-test",
     "SUPABASE_URL": "https://example.supabase.co",
     "SUPABASE_SERVICE_ROLE_KEY": "service-role-key",
     "SUPABASE_JWT_SECRET": TEST_SECRET,

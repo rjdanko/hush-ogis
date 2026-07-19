@@ -29,6 +29,11 @@ Thumbs.db
 # supabase CLI local state
 supabase/.branches/
 supabase/.temp/
+# self-hosted Supabase stack (Windows SAC workaround for the CLI): Postgres
+# data volume and generated Studio snippets are local-only, never committed
+supabase/self-host/volumes/db/data/
+supabase/self-host/volumes/snippets/*
+!supabase/self-host/volumes/snippets/.gitkeep
 # local agent state
 .claude/
 # scripts/e2e-check.mjs output (requires `npm install --no-save playwright`)

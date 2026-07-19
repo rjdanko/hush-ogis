@@ -9,5 +9,5 @@ export const CLIENT_SAFE_ENV = [
 
 export const SERVER_ONLY_ENV = [
   "SUPABASE_SERVICE_ROLE_KEY",
-  "ANTHROPIC_API_KEY",
+  "GROQ_API_KEY",
 ] as const;
