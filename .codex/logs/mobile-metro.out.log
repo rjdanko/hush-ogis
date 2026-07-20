@@ -1,0 +1,17 @@
+
+> hush@0.0.0 dev:mobile
+> npm run start --workspace apps/mobile
+
+
+> @hush/mobile@0.0.0 start
+> expo start
+
+env: load .env.local
+env: export EXPO_PUBLIC_SUPABASE_URL EXPO_PUBLIC_SUPABASE_ANON_KEY EXPO_PUBLIC_GOOGLE_MAPS_API_KEY
+Starting project at C:\Users\Username\Downloads\PERSONAL PROJECTS\hush-ogis\apps\mobile
+Starting Metro Bundler
+Waiting on http://localhost:8081
+Logs for your project will appear below.
+Android Bundled 1139ms apps\mobile\index.ts (911 modules)
+ INFO  
+[7m [1m💡 JavaScript logs will be removed from Metro in React Native 0.77![22m Please use React Native DevTools as your default tool. Tip: Type [1mj[22m in the terminal to open (requires Google Chrome or Microsoft Edge).[27m

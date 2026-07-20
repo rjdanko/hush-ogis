@@ -54,7 +54,7 @@ export function ActiveSessionScreen({
           previousScore: priorScore,
           isForeground: signals.isForeground,
           elapsedMs: elapsed,
-          intendedMinutes: session.intendedMinutes,
+          intendedMinutes: null,
           recentScores: updatedRecentScores,
         };
         const { nudge, memory } = evaluateCoach(coachState, coachMemory.current, now);
@@ -129,8 +129,6 @@ export function ActiveSessionScreen({
     }
   }
 
-  const remainingLabel = formatRemaining(session.intendedMinutes, elapsedMs);
-
   return (
     <View style={styles.container}>
       <Text style={styles.zoneLabel}>Quiet now</Text>
@@ -141,12 +139,12 @@ export function ActiveSessionScreen({
           <Text style={styles.orbLabel}>YOUR SILENCE</Text>
         </View>
       </View>
-      <Text style={styles.hint}>Phone resting. Tap only to check out.</Text>
+      <Text style={styles.hint}>Tracking silence. Tap when you're done.</Text>
       {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
       <View style={styles.tiles}>
         <View style={styles.tile}>
-          <Text style={styles.tileValue}>{remainingLabel}</Text>
-          <Text style={styles.tileLabel}>REMAINING</Text>
+          <Text style={styles.tileValue}>{formatElapsed(elapsedMs)}</Text>
+          <Text style={styles.tileLabel}>ELAPSED</Text>
         </View>
         <View style={styles.tile}>
           <Text style={[styles.tileValue, styles.tileValueAccent]}>{liveScore ?? "--"}</Text>
@@ -165,10 +163,8 @@ export function ActiveSessionScreen({
   );
 }
 
-function formatRemaining(intendedMinutes: number | null, elapsedMs: number): string {
-  if (!intendedMinutes) return "--:--";
-  const remainingMs = Math.max(0, intendedMinutes * 60_000 - elapsedMs);
-  const totalSeconds = Math.floor(remainingMs / 1000);
+function formatElapsed(elapsedMs: number): string {
+  const totalSeconds = Math.floor(elapsedMs / 1000);
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
   return `${minutes}:${seconds.toString().padStart(2, "0")}`;

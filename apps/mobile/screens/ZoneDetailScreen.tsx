@@ -15,7 +15,6 @@ import { checkInsideZone } from "../lib/geofence";
 import { createCheckIn } from "../lib/checkin";
 import { fetchLatestQuietIndex } from "../lib/quietIndex";
 import { QuietIndexOrb } from "../components/QuietIndexOrb";
-import { CommitmentArcDial } from "../components/CommitmentArcDial";
 import { colors, fonts } from "../lib/theme";
 
 type GeofenceStatus = "checking" | "inside" | "outside" | "unknown";
@@ -31,7 +30,6 @@ export function ZoneDetailScreen({
 }) {
   const [geofenceStatus, setGeofenceStatus] = useState<GeofenceStatus>("checking");
   const [quietIndex, setQuietIndex] = useState<number | null>(null);
-  const [intendedMinutes, setIntendedMinutes] = useState(30);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -59,7 +57,7 @@ export function ZoneDetailScreen({
     setSubmitError(null);
     setSubmitting(true);
     try {
-      const session = await createCheckIn(zone.id, intendedMinutes);
+      const session = await createCheckIn(zone.id, null);
       onCheckedIn(session);
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "Check-in failed.");
@@ -100,10 +98,6 @@ export function ZoneDetailScreen({
 
         {/* Divider */}
         <View style={styles.divider} />
-
-        {/* Arc dial */}
-        <Text style={styles.goalLabel}>YOUR GOAL</Text>
-        <CommitmentArcDial value={intendedMinutes} onChange={setIntendedMinutes} />
 
         {/* Reward on offer (read-only chip) */}
         {zone.rewardConfig && (
@@ -185,14 +179,7 @@ const styles = StyleSheet.create({
     width: "100%",
     marginVertical: 8,
   },
-  goalLabel: {
-    fontFamily: fonts.bodySemiBold,
-    fontSize: 10,
-    letterSpacing: 2,
-    color: colors.muted,
-    textTransform: "uppercase",
-    alignSelf: "flex-start",
-  },
+
   rewardChip: {
     flexDirection: "row",
     alignItems: "center",

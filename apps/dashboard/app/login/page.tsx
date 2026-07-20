@@ -20,22 +20,29 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen">
       {/* Left — brand panel */}
-      <div className="hidden lg:flex flex-col justify-between w-2/5 bg-night-bg px-12 py-14">
-        <span className="font-display font-light text-mist text-xl tracking-tight">
-          Hush
-        </span>
+      <div className="relative hidden w-2/5 overflow-hidden bg-[#16140F] px-12 py-14 lg:flex lg:flex-col lg:justify-between">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_66%_38%,rgba(232,193,112,0.22),transparent_28%),radial-gradient(circle_at_26%_78%,rgba(107,127,110,0.22),transparent_34%)]" />
+        <div className="pointer-events-none absolute right-12 top-28 h-40 w-40 rounded-full bg-glow-high/15 blur-3xl animate-qi-breathe" />
+        <div className="pointer-events-none absolute bottom-0 left-0 h-28 w-full bg-[linear-gradient(180deg,transparent,rgba(176,122,94,0.13))]" />
 
-        <div className="flex flex-col gap-4">
-          <p className="font-display font-light text-mist/70 text-4xl leading-[1.15]">
+        <div className="relative">
+          <img src="/hush-logo.png" alt="Hush Logo" className="h-8 w-auto" />
+        </div>
+
+        <div className="relative flex flex-col gap-6">
+          <div className="flex h-28 w-28 items-center justify-center rounded-full border border-glow-high/20 bg-[#23201A]/70 shadow-[0_0_80px_rgba(232,193,112,0.18)]">
+            <div className="h-16 w-16 rounded-full bg-[radial-gradient(circle,rgba(232,193,112,0.88),rgba(217,168,94,0.30)_58%,transparent_72%)] animate-qi-breathe" />
+          </div>
+          <p className="font-display font-light text-night-text/80 text-4xl leading-[1.15]">
             A quieter place,<br />measured.
           </p>
-          <p className="font-sans text-sm text-mist/55 leading-relaxed max-w-xs">
+          <p className="font-sans text-sm text-night-hint/70 leading-relaxed max-w-xs">
             The Quiet Index updates live. Your guests don&apos;t need to know
             you&apos;re watching — only that the room is calmer than yesterday.
           </p>
         </div>
 
-        <p className="font-sans text-[0.5rem] font-semibold uppercase tracking-[0.2em] text-mist/25">
+        <p className="relative font-sans text-[0.5rem] font-semibold uppercase tracking-[0.2em] text-night-muted">
           Operator Console
         </p>
       </div>
@@ -45,9 +52,9 @@ export default function LoginPage() {
         <div className="w-full max-w-sm flex flex-col gap-10">
 
           {/* Mobile-only wordmark */}
-          <span className="lg:hidden font-display font-light text-ink text-xl tracking-tight">
-            Hush
-          </span>
+          <div className="lg:hidden">
+            <img src="/hush-logo.png" alt="Hush Logo" className="h-6 w-auto" />
+          </div>
 
           <div className="flex flex-col gap-1">
             <h1 className="font-display font-light text-ink text-[2rem] leading-tight">

@@ -22,9 +22,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
         <div className="flex items-center gap-3">
           <Link
             href="/zones"
-            className="font-display font-light text-ink text-xl tracking-tight hover:text-accent transition-colors duration-150"
+            className="flex items-center hover:opacity-80 transition-opacity duration-150"
           >
-            Hush
+            <img src="/hush-logo.png" alt="Hush Logo" className="h-6 w-auto" />
           </Link>
           <span className="font-sans text-[0.5rem] font-semibold uppercase tracking-[0.2em] text-warm-muted select-none">
             Operator Console

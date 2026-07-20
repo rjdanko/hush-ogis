@@ -7,6 +7,7 @@ import { colors, fonts } from "../lib/theme";
 import { supabase } from "../lib/supabase";
 import { ONBOARDING_KEY } from "./OnboardingScreen";
 import Constants from "expo-constants";
+import { HushLogo } from "../components/HushLogo";
 
 export function SettingsScreen({ onAccountDeleted }: { onAccountDeleted: () => void }) {
   const [usageAccess, setUsageAccess] = useState(false);
@@ -40,6 +41,13 @@ export function SettingsScreen({ onAccountDeleted }: { onAccountDeleted: () => v
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
     >
+      {/* Logo header */}
+      <View style={styles.logoHeader}>
+        <HushLogo size="medium" />
+        <Text style={styles.logoSubtitle}>Settings & Privacy</Text>
+      </View>
+      <View style={styles.logoDivider} />
+
       {/* Section 1: Permissions */}
       <Text style={styles.sectionTitle}>Permissions</Text>
       <View style={styles.card}>
@@ -127,6 +135,27 @@ function ToggleRow({
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   content: { padding: 24, gap: 8, paddingBottom: 40 },
+
+  // Logo header
+  logoHeader: {
+    alignItems: "center",
+    paddingTop: 8,
+    paddingBottom: 20,
+    gap: 6,
+  },
+  logoSubtitle: {
+    fontFamily: fonts.body,
+    fontSize: 11,
+    letterSpacing: 2,
+    color: colors.muted,
+    textTransform: "uppercase",
+  },
+  logoDivider: {
+    height: 1,
+    backgroundColor: colors.border,
+    marginHorizontal: -24, // bleed to edge of padded container
+    marginBottom: 8,
+  },
   sectionTitle: {
     fontFamily: fonts.bodySemiBold,
     fontSize: 10,

@@ -1,0 +1,31 @@
+The following packages should be updated for best compatibility with the installed expo version:
+  react-native@0.76.5 - expected version: 0.76.9
+Your project may not work correctly until you install the expected versions of the packages.
+C:\Users\Username\Downloads\PERSONAL PROJECTS\hush-ogis\node_modules\@expo\cli\build\src\utils\errors.js:123
+    throw error;
+    ^
+
+Error: ENOENT: no such file or directory, watch 'C:\Users\Username\Downloads\PERSONAL PROJECTS\hush-ogis\apps\mobile\android\.gradle\8.10.2\dependencies-accessors\569c8b261a8a714d7731d5f568e0e5c05babae10-6e0c9bb3-ef6f-4c8b-a39c-b734dcc820da'
+    at FSWatcher.<computed> (node:internal/fs/watchers:254:19)
+    at Object.watch (node:fs:2551:36)
+    at FallbackWatcher._watchdir (C:\Users\Username\Downloads\PERSONAL PROJECTS\hush-ogis\node_modules\metro-file-map\src\watchers\FallbackWatcher.js:88:24)
+    at C:\Users\Username\Downloads\PERSONAL PROJECTS\hush-ogis\node_modules\metro-file-map\src\watchers\FallbackWatcher.js:185:22
+    at Walker.<anonymous> (C:\Users\Username\Downloads\PERSONAL PROJECTS\hush-ogis\node_modules\metro-file-map\src\watchers\FallbackWatcher.js:322:31)
+    at Walker.emit (node:events:508:28)
+    at C:\Users\Username\Downloads\PERSONAL PROJECTS\hush-ogis\node_modules\walker\lib\walker.js:69:16
+    at FSReqCallback.oncomplete (node:fs:184:23) {
+  errno: -4058,
+  syscall: 'watch',
+  code: 'ENOENT',
+  path: 'C:\\Users\\Username\\Downloads\\PERSONAL PROJECTS\\hush-ogis\\apps\\mobile\\android\\.gradle\\8.10.2\\dependencies-accessors\\569c8b261a8a714d7731d5f568e0e5c05babae10-6e0c9bb3-ef6f-4c8b-a39c-b734dcc820da',
+  filename: 'C:\\Users\\Username\\Downloads\\PERSONAL PROJECTS\\hush-ogis\\apps\\mobile\\android\\.gradle\\8.10.2\\dependencies-accessors\\569c8b261a8a714d7731d5f568e0e5c05babae10-6e0c9bb3-ef6f-4c8b-a39c-b734dcc820da'
+}
+
+Node.js v24.13.0
+npm error Lifecycle script `start` failed with error:
+npm error code 7
+npm error path C:\Users\Username\Downloads\PERSONAL PROJECTS\hush-ogis\apps\mobile
+npm error workspace @hush/mobile@0.0.0
+npm error location C:\Users\Username\Downloads\PERSONAL PROJECTS\hush-ogis\apps\mobile
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c expo start

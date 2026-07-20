@@ -8,7 +8,8 @@ export const colors = {
   inkSecondary: "#4A463F",
   border: "#E4DDD1",
   muted: "#8A8478",
-  accent: "#6B7F6E",        // sage — check-in CTA, tab active state
+  accent: "#E8940A",        // warm amber — matches logo gradient midpoint
+  accentDeep: "#D4780A",   // darker amber for pressed/active states
   alert: "#B07A5E",         // dusty clay — errors, delete action
   rewardGold: "#C9A24B",    // wallet balance display
 
@@ -18,7 +19,7 @@ export const colors = {
   nightWarmText: "#F2ECE0",
   nightMuted: "#A9A296",
   nightBorder: "#34301F",
-  nightLabel: "#8A7A54",
+  nightLabel: "#D4870A",    // warm amber tint for dark mode labels
   nightHint: "#C9C0AE",
 
   // Quiet Index glow scale (shared — the only place color carries meaning)
@@ -34,8 +35,6 @@ export const colors = {
   paper: "#F5F1EA",
   charcoal: "#4A463F",
   mutedText: "#8A8478",
-  // nightMutedText: design-brief-correct value (#A9A296, same as nightMuted).
-  // Old screens used #8A7E6C; updated to match Design Brief §4 dark-mode muted spec.
   nightMutedText: "#A9A296",
   iconChip: "#EFE9DD",
   footerHint: "#9A9182",
